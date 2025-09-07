@@ -1,6 +1,7 @@
 package net.pool.station.core.bootstrap.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -8,12 +9,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+@Configuration
 public class MyDateTimeUtils {
-    @Value("${environment.dateTime.distance:1}")
     private static Integer distance;
 
-    @Value("${environment.dateTime.unit:DAY}")
     private static String unit;
+
+    @Value("${environment.dateTime.unit:DAY}")
+    public void setUnit(String unit) {
+        MyDateTimeUtils.unit = unit;
+    }
+
+    @Value("${environment.dateTime.distance:1}")
+    public void setDistance(Integer distance) {
+        MyDateTimeUtils.distance = distance;
+    }
 
     public static List<LocalDateTime> defaultTimeRange(List<LocalDateTime> timeRange) {
         if (timeRange.size() == 1) {
@@ -23,8 +33,8 @@ public class MyDateTimeUtils {
         }
 
         if (timeRange.isEmpty()) {
-            LocalDateTime start = LocalDateTime.now();
-            LocalDateTime end = adjust(start, false);
+            LocalDateTime end = LocalDateTime.now();
+            LocalDateTime start = adjust(end, false);
             return List.of(start, end);
         }
 

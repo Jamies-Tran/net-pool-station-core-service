@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.features.login.info.repository.database.LoginInfoEntityMapper;
 import net.pool.station.core.features.login.info.repository.database.LoginInfoRepository;
+import net.pool.station.core.features.login.info.repository.database.dao.LoginInfoDaoMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,8 +19,10 @@ public class LoginInfoQueryService {
 
     LoginInfoEntityMapper mapper;
 
+    LoginInfoDaoMapper daoMapper;
+
     protected Optional<LoginInfo> findByEmail(String email) {
-        return repository.findByEmail(email)
-                .map(mapper::toDto);
+        return repository.findLoginInfoByEmail(email)
+                .map(daoMapper::toDto);
     }
 }

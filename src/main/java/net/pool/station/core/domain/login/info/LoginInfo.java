@@ -9,6 +9,8 @@ public record LoginInfo(
         Long loginInfoId,
         Long accountId,
         String email,
+        String username,
+        String roleCode,
         String accessToken,
         LocalDateTime accessExpiredAt,
         String refreshToken,
@@ -16,4 +18,12 @@ public record LoginInfo(
         Double latitude,
         Double longitude
 ) {
+    public static LoginInfo currentLoginInfoEmpty() {
+        return LoginInfo.builder()
+                .accountId(null)
+                .email("")
+                .username("")
+                .roleCode("")
+                .build();
+    }
 }

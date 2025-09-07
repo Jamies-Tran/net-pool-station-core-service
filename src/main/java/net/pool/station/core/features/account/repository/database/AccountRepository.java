@@ -48,6 +48,14 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
         SELECT a
         FROM AccountEntity a
         WHERE a.deleted = FALSE
+                AND a.username = :username
+        """)
+    Optional<AccountEntity> findByUsername(String username);
+
+    @Query("""
+        SELECT a
+        FROM AccountEntity a
+        WHERE a.deleted = FALSE
                 AND (a.createdAt BETWEEN :#{#criteria.timeRange().get(0)} 
                         AND :#{#criteria.timeRange().get(1)})
                 AND (:#{#criteria.search().empty} = TRUE

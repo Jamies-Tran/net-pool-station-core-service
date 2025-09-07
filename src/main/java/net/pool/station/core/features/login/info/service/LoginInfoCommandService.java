@@ -38,6 +38,7 @@ public class LoginInfoCommandService {
             Double longitude
     ) {
         PasswordEncoder passwordEncoder = MyPasswordEncoderUtils.passwordEncoder();
+        passwordEncoder.encode(password);
         return accountUseCase().findByEmail(DomainCode.of(email))
                 .map(account -> {
                     if (!passwordEncoder.matches(password, account.password())) {

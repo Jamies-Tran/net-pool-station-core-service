@@ -4,6 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
+import net.pool.station.core.bootstrap.enums.EAccountStatus;
+import net.pool.station.core.bootstrap.utils.MyAuthorizationUtils;
 import net.pool.station.core.domain.DomainCode;
 import net.pool.station.core.bootstrap.enums.ERole;
 import net.pool.station.core.domain.account.Account;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -72,7 +76,34 @@ public class AccountUseCaseService implements AccountUseCase {
 
     @Override
     @Transactional
+    public void enable(DomainCode<Long> accountId) {
+        validateUpdateStatus(accountId);
+
+        commandService.update(accountId.value(), EAccountStatus.ENABLE);
+    }
+
+    @Override
+    @Transactional
+    public void disable(DomainCode<Long> accountId) {
+        validateUpdateStatus(accountId);
+
+        commandService.update(accountId.value(), EAccountStatus.DISABLE);
+    }
+
+    @Override
+    @Transactional
     public void delete(DomainCode<Long> accountId) {
         commandService.delete(accountId.value());
+    }
+
+    private void validateUpdateStatus(DomainCode<Long> accountId) {
+        List<String> allowList = MyAuthorizationUtils.authorizeList();
+        Account account = queryService.findById(accountId.value())
+                .orElseThrow(MyResourceNotFoundException::new);
+        Role role = roleUseCase.findById(DomainCode.of(account.roleId()))
+                .orElseThrow(MyResourceNotFoundException::new);
+        if (!allowList.contains(role.roleCode())) {
+            throw new MyResourceNotValid("Không thể thực hiện thao tác lúc này!");
+        }
     }
 }

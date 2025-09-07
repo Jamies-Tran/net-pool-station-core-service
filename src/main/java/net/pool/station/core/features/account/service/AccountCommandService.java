@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceDuplicateException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.enums.EAccountStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.features.account.repository.database.AccountEntity;
@@ -60,15 +61,36 @@ public class AccountCommandService {
                 .ifPresent(_ -> {
                     throw new MyResourceDuplicateException("Email đã tồn tại");
                 });
+
         repository.findByPhone(account.phone())
                 .ifPresent(_ -> {
                     throw new MyResourceDuplicateException("Số điện thoại đã tồn tại");
                 });
+
         repository.findByIdentification(account.identification())
                 .ifPresent(_ -> {
                     throw new MyResourceDuplicateException("CCCCD đã tồn tại");
                 });
 
+        repository.findByUsername(account.username())
+                .ifPresent(_ -> {
+                    throw new MyResourceDuplicateException("Username đã tồn tại");
+                });
+
+    }
+
+    public void update(Long accountId, EAccountStatus status) {
+        repository.findByAccountId(accountId)
+                .ifPresentOrElse(
+                        foundAccount -> {
+                            foundAccount.setStatusCode(status.getCode());
+                            foundAccount.setStatusName(status.getName());
+                            repository.save(foundAccount);
+                        },
+                        () -> {
+                            throw new MyResourceNotFoundException();
+                        }
+                );
     }
 
     private void validate(Account account, AccountEntity foundAccount) {
@@ -90,6 +112,13 @@ public class AccountCommandService {
             repository.findByIdentification(account.identification())
                     .ifPresent(_ -> {
                         throw new MyResourceDuplicateException("CCCCD đã tồn tại");
+                    });
+        }
+
+        if (MyObjectUtils.isNotEquals(account.username(), foundAccount.getUsername())) {
+            repository.findByUsername(account.username())
+                    .ifPresent(_ -> {
+                        throw new MyResourceDuplicateException("Username đã tồn tại");
                     });
         }
     }

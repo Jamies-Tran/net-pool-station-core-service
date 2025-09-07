@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Getter
 @RequiredArgsConstructor
@@ -18,4 +22,10 @@ public enum ERole implements EnumProperty {
 
     String code;
     String name;
+
+    public static Optional<ERole> findByCode(String code) {
+        return Stream.of(values())
+                .filter(role -> MyObjectUtils.isEquals(code, role.getCode()))
+                .findAny();
+    }
 }
