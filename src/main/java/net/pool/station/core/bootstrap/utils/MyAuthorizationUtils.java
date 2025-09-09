@@ -8,7 +8,8 @@ import java.util.List;
 
 public class MyAuthorizationUtils {
     public static List<String> authorizeList() {
-        LoginInfo currentLoginInfo = MyRequestContext.currentLoginInfo();
+        LoginInfo currentLoginInfo = MyRequestContext.currentLoginInfo()
+                .orElse(LoginInfo.currentLoginInfoEmpty());
         List<String> allowList = new ArrayList<>();
         ERole.findByCode(currentLoginInfo.roleCode())
                 .ifPresent(role -> {

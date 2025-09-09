@@ -32,4 +32,16 @@ public class MyObjectUtils {
 
         return t != null;
     }
+
+    public static <T> Boolean isEmpty(T t) {
+        if (t instanceof String) {
+            return !StringUtils.hasText((String) t);
+        }
+
+        if (t instanceof Collection) {
+            return ((Collection<?>) t).isEmpty();
+        }
+
+        return t == null;
+    }
 }

@@ -79,7 +79,7 @@ public class AccountCommandService {
 
     }
 
-    public void update(Long accountId, EAccountStatus status) {
+    protected void update(Long accountId, EAccountStatus status) {
         repository.findByAccountId(accountId)
                 .ifPresentOrElse(
                         foundAccount -> {

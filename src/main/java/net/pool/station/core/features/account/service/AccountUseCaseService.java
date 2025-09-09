@@ -92,6 +92,12 @@ public class AccountUseCaseService implements AccountUseCase {
 
     @Override
     @Transactional
+    public void activate(DomainCode<Long> accountId) {
+        commandService.update(accountId.value(), EAccountStatus.ENABLE);
+    }
+
+    @Override
+    @Transactional
     public void delete(DomainCode<Long> accountId) {
         commandService.delete(accountId.value());
     }

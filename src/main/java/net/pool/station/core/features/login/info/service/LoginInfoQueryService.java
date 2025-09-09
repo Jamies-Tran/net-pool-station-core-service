@@ -21,8 +21,8 @@ public class LoginInfoQueryService {
 
     LoginInfoDaoMapper daoMapper;
 
-    protected Optional<LoginInfo> findByEmail(String email) {
-        return repository.findLoginInfoByEmail(email)
+    protected Optional<LoginInfo> findByAccountId(Long accountId) {
+        return repository.findLoginInfoByAccountId(accountId)
                 .map(daoMapper::toDto);
     }
 }

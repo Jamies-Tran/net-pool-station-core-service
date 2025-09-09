@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface LoginInfoRepository extends JpaRepository<LoginInfoEntity, Long> {
     Optional<LoginInfoEntity> findByEmail(String email);
 
+    Optional<LoginInfoEntity> findByAccountId(Long accountId);
+
     @Query("""
         SELECT 
                 a.accountId AS accountId,
@@ -20,9 +22,9 @@ public interface LoginInfoRepository extends JpaRepository<LoginInfoEntity, Long
         FROM LoginInfoEntity l
         INNER JOIN AccountEntity a ON a.accountId = l.accountId
         INNER JOIN RoleEntity r ON a.roleId = r.roleId
-        WHERE l.email = :email
+        WHERE l.accountId = :accountId
         """)
-    Optional<LoginInfoDao> findLoginInfoByEmail(String email);
+    Optional<LoginInfoDao> findLoginInfoByAccountId(Long accountId);
 
     @Query("""
         SELECT li

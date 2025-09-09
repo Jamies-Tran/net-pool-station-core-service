@@ -1,7 +1,6 @@
-package net.pool.station.core.features.login.info.repository.database;
+package net.pool.station.core.features.email.verification.repository.database;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,34 +14,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
+import net.pool.station.core.bootstrap.configuration.common.EnvironmentVariable;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "login_info")
+@Table(name = "email_verification")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LoginInfoEntity extends Auditor {
+public class EmailVerificationEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long loginInfoId;
-
-    Long accountId;
+    Long emailVerificationId;
 
     String email;
 
-    String refreshToken;
-
-    LocalDateTime refreshExpiredAt;
-
-    Double latitude;
-
-    Double longitude;
+    String verificationCode;
 }

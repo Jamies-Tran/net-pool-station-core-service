@@ -22,5 +22,7 @@ public interface AccountUseCase {
 
     void disable(DomainCode<Long> accountId);
 
+    void activate(DomainCode<Long> accountId);
+
     void delete(DomainCode<Long> accountId);
 }

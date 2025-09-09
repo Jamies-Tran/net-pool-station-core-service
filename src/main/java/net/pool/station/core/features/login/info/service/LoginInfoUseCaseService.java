@@ -4,9 +4,10 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.login.info.LoginInfoUseCase;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,9 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
     @Override
     @Transactional
     public void update(@NonNull Double latitude, @NonNull Double longitude) {
-        commandService.update(getPrincipal(), latitude, longitude);
+        Long currentAccountId = MyRequestContext.getCurrentAccountId()
+                .orElseThrow(MyAuthenticationException::new);
+        commandService.update(currentAccountId, latitude, longitude);
     }
 
     @Override
@@ -47,18 +50,18 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
     @Override
     @Transactional(readOnly = true)
     public Optional<LoginInfo> findCurrentLoginInfo() {
-        return queryService.findByEmail(getPrincipal());
+        return queryService.findByAccountId(getCurrentAccountId());
     }
 
     @Override
     @Transactional
     public void delete() {
-        commandService.delete(getPrincipal());
+        commandService.delete(getCurrentAccountId());
         SecurityContextHolder.clearContext();
     }
 
-    private String getPrincipal() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        return (String) context.getAuthentication().getPrincipal();
+    private Long getCurrentAccountId() {
+        return MyRequestContext.getCurrentAccountId()
+                .orElseThrow(MyAuthenticationException::new);
     }
 }

@@ -15,7 +15,10 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 import net.pool.station.core.bootstrap.enums.EAccountStatus;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyPasswordEncoderUtils;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
+import net.pool.station.core.domain.login.info.LoginInfo;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -55,36 +58,13 @@ public class AccountEntity extends Auditor {
 
     Boolean deleted;
 
-    @Override
     @PrePersist
-    public void prePersist() {
-        statusCode = Optional.ofNullable(statusCode).orElse(EAccountStatus.ENABLE.getCode());
-        statusName = Optional.ofNullable(statusName).orElse(EAccountStatus.ENABLE.getName());
-        password = MyPasswordEncoderUtils.passwordEncoder()
-                .encode(Optional.ofNullable(password).orElse(""));
+    private void perPersist() {
+        if (MyObjectUtils.isEmpty(statusCode)) {
+            statusCode = EAccountStatus.DISABLE.getCode();
+            statusName = EAccountStatus.DISABLE.getName();
+        }
+        password = MyPasswordEncoderUtils.passwordEncoder().encode(password);
         deleted = false;
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if (Objects.nonNull(auth) && auth.isAuthenticated()) {
-            createdBy = (String) auth.getPrincipal();
-            updatedBy = (String) auth.getPrincipal();
-        } else {
-            createdBy = "Anonymous";
-            updatedBy = "Anonymous";
-        }
-    }
-
-    @Override
-    @PreUpdate
-    public void preUpdate() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        updatedAt = LocalDateTime.now();
-        if (Objects.nonNull(auth) && auth.isAuthenticated()) {
-            updatedBy = (String) auth.getPrincipal();
-        } else {
-            updatedBy = "Anonymous";
-        }
     }
 }

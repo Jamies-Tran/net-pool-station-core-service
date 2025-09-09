@@ -1,6 +1,7 @@
 package net.pool.station.core.domain.login.info;
 
 import lombok.Builder;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 
 import java.time.LocalDateTime;
 
@@ -25,5 +26,13 @@ public record LoginInfo(
                 .username("")
                 .roleCode("")
                 .build();
+    }
+
+    public String hash() {
+        return "%s-%s-%s".formatted(email, username, roleCode);
+    }
+
+    public Boolean isLoginEmpty() {
+        return MyObjectUtils.isEquals(this.hash(), currentLoginInfoEmpty().hash());
     }
 }

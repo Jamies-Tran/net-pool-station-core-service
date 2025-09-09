@@ -5,9 +5,11 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.EErrorCode;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyLoginInvalidException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceDuplicateException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
+import net.pool.station.core.bootstrap.configuration.security.MyAuthenticationEntryPoint;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -85,12 +87,22 @@ public class AppExceptionHandler {
         );
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Exception.class)
-    public MyValueResponse<?> internalExceptionHandler(Exception exc) {
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(Exception.class)
+//    public MyValueResponse<?> internalExceptionHandler(Exception exc) {
+//        return MyValueResponse.error(
+//                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+//                EErrorCode.SERVER_ERROR.getCode(),
+//                exc.getMessage()
+//        );
+//    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(MyLoginInvalidException.class)
+    public MyValueResponse<?> loginNotValid(MyLoginInvalidException exc) {
         return MyValueResponse.error(
-                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                EErrorCode.SERVER_ERROR.getCode(),
+                String.valueOf(HttpStatus.FORBIDDEN.value()),
+                EErrorCode.LOGIN_NOT_VALID.getCode(),
                 exc.getMessage()
         );
     }

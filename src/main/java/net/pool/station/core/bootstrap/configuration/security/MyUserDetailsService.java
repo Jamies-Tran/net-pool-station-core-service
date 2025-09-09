@@ -27,16 +27,13 @@ public class MyUserDetailsService implements UserDetailsService {
         Optional<Account> account = accountUseCase.findByEmail(DomainCode.of(username));
 
         return account
-                .map(foundAccount -> {
-
-                    return User.builder()
-                            .username(foundAccount.email())
-                            .password(MyPasswordEncoderUtils.passwordEncoder().encode(foundAccount.password()))
-                            .disabled(false)
-                            .authorities(new SimpleGrantedAuthority("ROLE_%s"
-                                    .formatted(foundAccount.role().roleCode())))
-                            .build();
-                })
+                .map(foundAccount -> User.builder()
+                        .username(foundAccount.accountId().toString())
+                        .password(MyPasswordEncoderUtils.passwordEncoder().encode(foundAccount.password()))
+                        .disabled(false)
+                        .authorities(new SimpleGrantedAuthority("ROLE_%s"
+                                .formatted(foundAccount.role().roleCode())))
+                        .build())
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

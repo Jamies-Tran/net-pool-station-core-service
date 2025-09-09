@@ -5,6 +5,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyLoginInvalidException;
+import net.pool.station.core.bootstrap.enums.EAccountStatus;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyPasswordEncoderUtils;
 import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.bootstrap.utils.MyTokenUtils;
@@ -43,6 +46,9 @@ public class LoginInfoCommandService {
                 .map(account -> {
                     if (!passwordEncoder.matches(password, account.password())) {
                         throw new MyAuthenticationException();
+                    }
+                    if (MyObjectUtils.isEquals(EAccountStatus.DISABLE.getCode(), account.statusCode())) {
+                        throw new MyLoginInvalidException();
                     }
                     Optional<LoginInfoEntity> exist = repository.findByEmail(email);
                     if (exist.isPresent()) {
@@ -90,8 +96,8 @@ public class LoginInfoCommandService {
                 .orElseThrow(MyAuthenticationException::new);
     }
 
-    protected void update(@NonNull String email, @NonNull Double latitude, @NonNull Double longitude) {
-        repository.findByEmail(email)
+    protected void update(@NonNull Long accountId, @NonNull Double latitude, @NonNull Double longitude) {
+        repository.findByAccountId(accountId)
                 .ifPresent(
                         foundLoginInfo -> {
                             foundLoginInfo.setLatitude(latitude);
@@ -120,8 +126,8 @@ public class LoginInfoCommandService {
                 .orElseThrow(() -> new MyAuthenticationException("Mời bạn đăng nhập lại"));
     }
 
-    protected void delete(@NonNull String email) {
-        repository.findByEmail(email)
+    protected void delete(@NonNull Long accountId) {
+        repository.findByAccountId(accountId)
                 .ifPresent(repository::delete);
     }
 
