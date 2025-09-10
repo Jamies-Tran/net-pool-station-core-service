@@ -1,4 +1,4 @@
-package net.pool.station.core.features.account.log.repository.database;
+package net.pool.station.core.features.login.log.repository.database;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,12 +18,12 @@ import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "account_log")
+@Table(name = "login_log")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountLogEntity extends Auditor {
+public class LoginLogEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long accountLogId;
+    Long loginLogId;
 
     Long accountId;
 

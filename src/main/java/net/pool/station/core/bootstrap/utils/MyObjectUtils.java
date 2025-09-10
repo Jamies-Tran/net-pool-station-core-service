@@ -3,8 +3,11 @@ package net.pool.station.core.bootstrap.utils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+@SuppressWarnings("unchecked")
 public class MyObjectUtils {
     public static <T> Boolean isEquals(T t1 , T t2) {
         return Objects.equals(t1, t2);
@@ -45,11 +48,35 @@ public class MyObjectUtils {
         return t == null;
     }
 
-    public static Long valueOf(String value) {
+    public static <T> Long convertToLong(T value) {
         try {
-            return Long.valueOf(value);
+            if (value instanceof String stringValue) {
+                return Long.valueOf(stringValue);
+            }
+
+            return (Long) value;
         } catch (Exception e) {
             return 0L;
         }
+    }
+
+    public static <T> String convertToString(T value) {
+        try {
+            return String.valueOf(value);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public static <T> T defaultValue(T value) {
+        if (value instanceof String stringValue) {
+            return (T) Optional.of(stringValue).orElse("");
+        }
+
+        if (value instanceof Collection<?> collectionValue) {
+            return (T) Optional.of(collectionValue).orElse(List.of());
+        }
+
+        return value;
     }
 }

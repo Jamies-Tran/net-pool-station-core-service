@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
+import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.login.info.LoginInfoUseCase;
+import net.pool.station.core.domain.login.log.LoginLog;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
 
     LoginInfoQueryService queryService;
 
+    LoggingFactory<LoginLog> loggingService;
+
     @Override
     @Transactional
     public LoginInfo saveOrUpdate(
@@ -30,7 +34,10 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
             Double latitude,
             Double longitude
     ) {
-        return commandService.saveOrUpdate(email, password, latitude, longitude);
+        LoginInfo savedLoginInfo = commandService.saveOrUpdate(email, password, latitude, longitude);
+        loggingService.log(LoginLog.createLogin(savedLoginInfo.accountId()));
+
+        return savedLoginInfo;
     }
 
     @Override
@@ -57,6 +64,7 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
     @Transactional
     public void delete() {
         commandService.delete(getCurrentAccountId());
+        loggingService.log(LoginLog.createLogout(getCurrentAccountId()));
         SecurityContextHolder.clearContext();
     }
 

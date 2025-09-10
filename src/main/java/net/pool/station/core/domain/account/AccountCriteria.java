@@ -21,9 +21,9 @@ public record AccountCriteria(
 ) {
     public AccountCriteria {
         timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
-        search = Optional.ofNullable(search).orElse("");
+        search = MyObjectUtils.defaultValue(search);
         statusCodes = authorizedStatusCodes(statusCodes);
-        roleIds = Optional.ofNullable(roleIds).orElse(List.of());
+        roleIds = MyObjectUtils.defaultValue(roleIds);
     }
 
     public static AccountCriteria of(
@@ -43,8 +43,7 @@ public record AccountCriteria(
     private List<String> authorizedStatusCodes(List<String> statusCodes) {
         LoginInfo currentLoginInfo = MyRequestContext.currentLoginInfo()
                 .orElse(LoginInfo.currentLoginInfoEmpty());
-        List<String> authorizedStatusCodes = Optional.ofNullable(statusCodes)
-                .orElse(new ArrayList<>());
+        List<String> authorizedStatusCodes = MyObjectUtils.defaultValue(statusCodes);
         if (currentLoginInfo.isLoginEmpty()) {
             authorizedStatusCodes.remove(EAccountStatus.DISABLE.getCode());
         }

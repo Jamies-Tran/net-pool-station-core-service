@@ -2,7 +2,7 @@ package net.pool.station.core.domain.account.log;
 
 import lombok.Builder;
 import lombok.With;
-import net.pool.station.core.bootstrap.enums.EActionLog;
+import net.pool.station.core.bootstrap.enums.ELogType;
 
 import java.time.LocalDateTime;
 
@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 public record AccountLog(
         Long accountLogId,
         Long accountId,
-        String actionCode,
-        String actionName,
+        String logTypeCode,
+        String logTypeName,
         @With String createdByUsername,
         String createdBy,
         LocalDateTime createdAt
@@ -19,8 +19,8 @@ public record AccountLog(
     public static AccountLog createSave(Long accountId) {
         return AccountLog.builder()
                 .accountId(accountId)
-                .actionCode(EActionLog.ACCOUNT_SAVE.getCode())
-                .actionName(EActionLog.ACCOUNT_SAVE.getName())
+                .logTypeCode(ELogType.ACCOUNT_SAVE.getCode())
+                .logTypeName(ELogType.ACCOUNT_SAVE.getName())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -28,8 +28,8 @@ public record AccountLog(
     public static AccountLog createUpdate(Long accountId) {
         return AccountLog.builder()
                 .accountId(accountId)
-                .actionCode(EActionLog.ACCOUNT_UPDATE.getCode())
-                .actionName(EActionLog.ACCOUNT_UPDATE.getName())
+                .logTypeCode(ELogType.ACCOUNT_UPDATE.getCode())
+                .logTypeName(ELogType.ACCOUNT_UPDATE.getName())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -37,8 +37,8 @@ public record AccountLog(
     public static AccountLog createEnable(Long accountId) {
         return AccountLog.builder()
                 .accountId(accountId)
-                .actionCode(EActionLog.ACCOUNT_ENABLE.getCode())
-                .actionName(EActionLog.ACCOUNT_ENABLE.getName())
+                .logTypeCode(ELogType.ACCOUNT_ENABLE.getCode())
+                .logTypeName(ELogType.ACCOUNT_ENABLE.getName())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -46,8 +46,8 @@ public record AccountLog(
     public static AccountLog createDisable(Long accountId) {
         return AccountLog.builder()
                 .accountId(accountId)
-                .actionCode(EActionLog.ACCOUNT_DISABLE.getCode())
-                .actionName(EActionLog.ACCOUNT_DISABLE.getName())
+                .logTypeCode(ELogType.ACCOUNT_DISABLE.getCode())
+                .logTypeName(ELogType.ACCOUNT_DISABLE.getName())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -55,8 +55,8 @@ public record AccountLog(
     public static AccountLog createVerify(Long accountId) {
         return AccountLog.builder()
                 .accountId(accountId)
-                .actionCode(EActionLog.ACCOUNT_VERIFY.getCode())
-                .actionName(EActionLog.ACCOUNT_VERIFY.getName())
+                .logTypeCode(ELogType.ACCOUNT_VERIFY.getCode())
+                .logTypeName(ELogType.ACCOUNT_VERIFY.getName())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

@@ -1,7 +1,7 @@
-package net.pool.station.core.features.account.log.controller;
+package net.pool.station.core.features.login.log.controller;
 
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
-import net.pool.station.core.features.account.log.controller.models.AccountLogResponse;
+import net.pool.station.core.features.login.log.controller.models.LoginLogResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RequestMapping("/v1/api/account-logs")
-public interface AccountLogsApi {
+@RequestMapping("/v1/api/login-logs")
+public interface LoginLogsApi {
     @GetMapping
-    MyPageResponse<AccountLogResponse> findAll(
+    MyPageResponse<LoginLogResponse> findAll(
             @RequestParam(value = "accountId")
             Long accountId,
 
@@ -27,7 +27,7 @@ public interface AccountLogsApi {
             @RequestParam(required = false, value = "logTypeCodes", defaultValue = "")
             List<String> logTypeCodes,
 
-            @RequestParam(required = false, value = "sorter", defaultValue = "createdAt")
+            @RequestParam(required = false, value = "sorter", defaultValue = "createdAt_desc")
             String sorter,
 
             @RequestParam(required = false, value = "current", defaultValue = "0")
@@ -35,6 +35,5 @@ public interface AccountLogsApi {
 
             @RequestParam(required = false, value = "pageSize", defaultValue = "25")
             Integer pageSize
-
     );
 }

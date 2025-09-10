@@ -16,9 +16,9 @@ public interface AccountLogRepository extends JpaRepository<AccountLogEntity, Lo
             AND (al.createdAt BETWEEN :#{#criteria.timeRange().get(0)}
                 AND :#{#criteria.timeRange().get(1)})
             AND (:#{#criteria.search().empty} = TRUE
-                    OR al.actionName ILIKE %:#{#criteria.search()}%)
-            AND (:#{#criteria.actionCodes().empty} = TRUE
-                    OR al.actionCode IN :#{#criteria.actionCodes()})
+                    OR al.logTypeName ILIKE %:#{#criteria.search()}%)
+            AND (:#{#criteria.logTypeCodes().empty} = TRUE
+                    OR al.logTypeName IN :#{#criteria.logTypeCodes()})
         """)
     Page<AccountLogEntity> findAll(AccountLogCriteria criteria, Pageable pageable);
 }

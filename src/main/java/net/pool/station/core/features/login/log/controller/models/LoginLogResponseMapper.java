@@ -1,10 +1,10 @@
-package net.pool.station.core.features.account.self.controller.models;
+package net.pool.station.core.features.login.log.controller.models;
 
 import net.pool.station.core.bootstrap.configuration.mapper.MapStructConfig;
 import net.pool.station.core.bootstrap.configuration.mapper.ModelMapper;
-import net.pool.station.core.domain.account.Account;
+import net.pool.station.core.domain.login.log.LoginLog;
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapStructConfig.class)
-public interface AccountRequestMapper extends ModelMapper<AccountRequest, Account> {
+public interface LoginLogResponseMapper extends ModelMapper<LoginLogResponse, LoginLog> {
 }

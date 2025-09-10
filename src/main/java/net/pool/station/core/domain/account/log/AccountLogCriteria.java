@@ -12,25 +12,25 @@ public record AccountLogCriteria(
         String search,
         Long accountId,
         List<LocalDateTime> timeRange,
-        List<String> actionCodes
+        List<String> logTypeCodes
 ) {
     public AccountLogCriteria {
         search = Optional.ofNullable(search).orElse("");
         timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
-        actionCodes = Optional.ofNullable(actionCodes).orElse(List.of());
+        logTypeCodes = Optional.ofNullable(logTypeCodes).orElse(List.of());
     }
 
     public static AccountLogCriteria of(
             String search,
             Long accountId,
             List<LocalDateTime> timeRange,
-            List<String> actionCodes
+            List<String> logTypeCodes
     ) {
        return AccountLogCriteria.builder()
                .search(search)
                .accountId(accountId)
                .timeRange(timeRange)
-               .actionCodes(actionCodes)
+               .logTypeCodes(logTypeCodes)
                .build();
     }
 }

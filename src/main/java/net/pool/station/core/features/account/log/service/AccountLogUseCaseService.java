@@ -38,13 +38,13 @@ public class AccountLogUseCaseService implements AccountLogUseCase {
     public Page<AccountLog> findAll(AccountLogCriteria criteria, Pageable pageable) {
         Page<AccountLog> accountLogs = queryService.findAll(criteria, pageable);
         List<Long> createdByList = accountLogs.stream()
-                .map(accountLog -> MyObjectUtils.valueOf(accountLog.createdBy()))
+                .map(accountLog -> MyObjectUtils.convertToLong(accountLog.createdBy()))
                 .toList();
         Map<Long, String> createdByUsernameMap = createdByUsernameMap(createdByList);
 
         return accountLogs.map(accountLog -> accountLog
                 .withCreatedByUsername(createdByUsernameMap
-                        .computeIfAbsent(MyObjectUtils.valueOf(accountLog.createdBy()), id -> "-")));
+                        .computeIfAbsent(MyObjectUtils.convertToLong(accountLog.createdBy()), id -> "-")));
     }
 
     private Map<Long, String> createdByUsernameMap(List<Long> createdByList) {
