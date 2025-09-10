@@ -79,4 +79,21 @@ public class MyObjectUtils {
 
         return value;
     }
+
+    public static <T> Boolean compareIgnoreCase(T value1, T value2) {
+        if (value1 instanceof String stringValue1 && value2 instanceof String stringValue2) {
+            return stringValue1.equalsIgnoreCase(stringValue2);
+        }
+
+        return Objects.equals(value1, value2);
+    }
+
+    public static <T> Boolean containIgnoreCase(T value1, T value2) {
+        if (value1 instanceof String stringValue1 && value2 instanceof String stringValue2) {
+            return stringValue1.toLowerCase()
+                    .contains(stringValue2.toLowerCase());
+        }
+
+        return false;
+    }
 }
