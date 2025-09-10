@@ -1,5 +1,6 @@
 package net.pool.station.core.bootstrap.configuration.jpa;
 
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import org.springframework.data.domain.AuditorAware;
@@ -16,7 +17,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
     public Optional<String> getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            return Optional.of("-");
+            return Optional.of("0");
         }
         return Optional.of((String) auth.getPrincipal());
     }

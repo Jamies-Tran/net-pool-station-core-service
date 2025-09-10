@@ -44,4 +44,12 @@ public class MyObjectUtils {
 
         return t == null;
     }
+
+    public static Long valueOf(String value) {
+        try {
+            return Long.valueOf(value);
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
 }
