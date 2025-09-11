@@ -35,7 +35,7 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
             Double longitude
     ) {
         LoginInfo savedLoginInfo = commandService.saveOrUpdate(email, password, latitude, longitude);
-        loggingService.log(LoginLog.createLogin(savedLoginInfo.accountId()));
+        loggingService.log(LoginLog.createLogin(savedLoginInfo.accountId(), latitude, longitude));
 
         return savedLoginInfo;
     }

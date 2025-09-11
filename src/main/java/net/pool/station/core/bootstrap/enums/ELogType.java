@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
+import net.pool.station.core.bootstrap.configuration.enums.EnumTypeProperty;
 
 @Getter
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum ELogType implements EnumProperty {
+public enum ELogType implements EnumTypeProperty {
     ACCOUNT_SAVE("SAVE", "Tạo mới", "ACCOUNT"),
     ACCOUNT_VERIFY("VERIFY", "Xác nhận email", "ACCOUNT"),
     ACCOUNT_ENABLE("ENABLE", "Kích hoạt", "ACCOUNT"),

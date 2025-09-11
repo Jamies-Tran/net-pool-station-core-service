@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.enums.EAccountStatus;
 import net.pool.station.core.bootstrap.enums.ELogType;
 import net.pool.station.core.bootstrap.rest.response.MyListResponse;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.category.CategoryUseCase;
 import net.pool.station.core.features.category.controller.models.CategoryResponse;
 import net.pool.station.core.features.category.controller.models.CategoryResponseMapper;
@@ -30,9 +31,17 @@ public class CategoryPubController implements CategoryPubApi {
     }
 
     @Override
-    public MyListResponse<CategoryResponse> findLogTypeCategory(String search) {
+    public MyListResponse<CategoryResponse> findAccountLogTypeCategory(String search) {
         List<CategoryResponse> responses = responseMapper
-                .toModel(useCase.findAll(search, ELogType.class));
+                .toModel(useCase.findAllType(search, "ACCOUNT", ELogType.class));
+
+        return MyListResponse.success(responses);
+    }
+
+    @Override
+    public MyListResponse<CategoryResponse> findLoginLogTypeCategory(String search) {
+        List<CategoryResponse> responses = responseMapper
+                .toModel(useCase.findAllType(search, "LOGIN", ELogType.class));
 
         return MyListResponse.success(responses);
     }

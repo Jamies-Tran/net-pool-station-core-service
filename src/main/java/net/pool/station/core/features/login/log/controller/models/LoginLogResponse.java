@@ -11,6 +11,7 @@ public record LoginLogResponse(
         Long accountId,
         String logTypeCode,
         String logTypeName,
+        String address,
         String createdByUsername,
         String createdBy,
         LocalDateTime createdAt

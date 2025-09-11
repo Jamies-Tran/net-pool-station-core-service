@@ -41,3 +41,9 @@ environment:
     expired: ${ACCESS_TOKEN_EXPIRED}
   refreshToken:
     expired: ${REFRESH_TOKEN_EXPIRED}
+  map:
+    apiKey: ${MAP_KEY}
+    goongDomain: ${MAP_DOMAIN}
+    reverseGeo: ${REVERSE_GEO}
+    detail: ${ADDRESS_DETAIL}
+    place: ${PLACE}

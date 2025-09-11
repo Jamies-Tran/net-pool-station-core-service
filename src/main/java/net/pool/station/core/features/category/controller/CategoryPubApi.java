@@ -14,8 +14,14 @@ public interface CategoryPubApi {
             String search
     );
 
-    @GetMapping("/log-type")
-    MyListResponse<CategoryResponse> findLogTypeCategory(
+    @GetMapping("/account-log-type")
+    MyListResponse<CategoryResponse> findAccountLogTypeCategory(
+            @RequestParam(required = false, value = "search", defaultValue = "")
+            String search
+    );
+
+    @GetMapping("/login-log-type")
+    MyListResponse<CategoryResponse> findLoginLogTypeCategory(
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search
     );
