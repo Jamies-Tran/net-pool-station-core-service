@@ -10,6 +10,9 @@ import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.login.log.LoginLog;
 import net.pool.station.core.domain.login.log.LoginLogCriteria;
 import net.pool.station.core.domain.login.log.LoginLogUseCase;
+import net.pool.station.core.domain.station.log.StationLog;
+import net.pool.station.core.domain.station.log.StationLogCriteria;
+import net.pool.station.core.domain.station.log.StationLogUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +27,8 @@ public class LoggingFactoryImpl<T> implements LoggingFactory<T> {
 
     LoginLogUseCase loginLogUseCase;
 
+    StationLogUseCase stationLogUseCase;
+
     @Override
     public void log(T data) {
         if (data instanceof AccountLog accountLog) {
@@ -32,6 +37,10 @@ public class LoggingFactoryImpl<T> implements LoggingFactory<T> {
 
         if (data instanceof LoginLog loginLog) {
             loginLogUseCase.save(loginLog);
+        }
+
+        if (data instanceof StationLog stationLog) {
+            stationLogUseCase.save(stationLog);
         }
     }
 
@@ -43,6 +52,10 @@ public class LoggingFactoryImpl<T> implements LoggingFactory<T> {
 
         if (criteria instanceof LoginLogCriteria loginLogCriteria) {
             return (Page<T>) loginLogUseCase.findAll(loginLogCriteria, pageable);
+        }
+
+        if (criteria instanceof StationLogCriteria stationLogCriteria) {
+            return (Page<T>) stationLogUseCase.findAll(stationLogCriteria, pageable);
         }
 
         return Page.empty();

@@ -70,6 +70,6 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
 
     private Long getCurrentAccountId() {
         return MyRequestContext.getCurrentAccountId()
-                .orElseThrow(MyAuthenticationException::new);
+                .orElse(0L);
     }
 }

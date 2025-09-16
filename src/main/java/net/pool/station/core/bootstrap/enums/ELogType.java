@@ -18,7 +18,14 @@ public enum ELogType implements EnumTypeProperty {
     ACCOUNT_UPDATE("UPDATE", "Cập nhật", "ACCOUNT"),
 
     LOGIN_LOGIN("LOGIN", "Đăng nhập", "LOGIN"),
-    LOGIN_LOGOUT("LOGOUT", "Đăng xuất", "LOGIN");
+    LOGIN_LOGOUT("LOGOUT", "Đăng xuất", "LOGIN"),
+
+    STATION_SAVE("SAVE", "Tạo mới", "STATION"),
+    STATION_UPDATE("UPDATE", "Cập nhật", "STATION"),
+    STATION_ACCEPT("ACCEPT", "Duyệt", "STATION"),
+    STATION_REJECT("REJECT", "Từ chối", "STATION"),
+    STATION_ACTIVE("ACTIVE", "Kích hoạt", "STATION"),
+    STATION_INACTIVE("INACTIVE", "Vô hiệu hóa", "STATION"),;
 
 
    String code;

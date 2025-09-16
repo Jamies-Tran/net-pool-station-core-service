@@ -21,4 +21,15 @@ public class EnvironmentVariable {
         int generatedCode = 100000 + random.nextInt(900000);
         return String.valueOf(generatedCode);
     }
+
+    public static String generateRandomCode(String source, int length) {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(source.length());
+            sb.append(source.charAt(index));
+        }
+
+        return sb.toString();
+    }
 }

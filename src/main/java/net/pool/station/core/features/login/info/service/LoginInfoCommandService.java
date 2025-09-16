@@ -47,7 +47,7 @@ public class LoginInfoCommandService {
                     if (!passwordEncoder.matches(password, account.password())) {
                         throw new MyAuthenticationException();
                     }
-                    if (MyObjectUtils.isEquals(EAccountStatus.DISABLE.getCode(), account.statusCode())) {
+                    if (MyObjectUtils.isNotEquals(EAccountStatus.ENABLE.getCode(), account.statusCode())) {
                         throw new MyLoginInvalidException();
                     }
                     Optional<LoginInfoEntity> exist = repository.findByEmail(email);

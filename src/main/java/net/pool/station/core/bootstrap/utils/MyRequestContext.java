@@ -26,6 +26,11 @@ public class MyRequestContext {
         if (auth == null || !auth.isAuthenticated()) {
             return Optional.empty();
         }
-        return Optional.of(Long.valueOf((String) auth.getPrincipal()));
+        Long tryToConvertToLong = MyObjectUtils.convertToLong((String) auth.getPrincipal());
+
+        if (MyObjectUtils.isEquals(0L , tryToConvertToLong)) {
+            return Optional.empty();
+        }
+        return Optional.of(tryToConvertToLong);
     }
 }
