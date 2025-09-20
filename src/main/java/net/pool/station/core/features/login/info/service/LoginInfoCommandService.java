@@ -36,9 +36,7 @@ public class LoginInfoCommandService {
 
     protected LoginInfo saveOrUpdate(
             @NonNull String email,
-            @NonNull String password,
-            Double latitude,
-            Double longitude
+            @NonNull String password
     ) {
         PasswordEncoder passwordEncoder = MyPasswordEncoderUtils.passwordEncoder();
         passwordEncoder.encode(password);
@@ -60,8 +58,6 @@ public class LoginInfoCommandService {
 
                         existGet.setRefreshToken(refreshToken);
                         existGet.setRefreshExpiredAt(refreshExpiredAt);
-                        existGet.setLatitude(latitude);
-                        existGet.setLongitude(longitude);
                         LoginInfoEntity updateLoginInfo = repository.save(existGet);
 
                         return LoginInfo.builder()
@@ -70,8 +66,6 @@ public class LoginInfoCommandService {
                                 .accessExpiredAt(accessExpiredAt)
                                 .refreshExpiredAt(updateLoginInfo.getRefreshExpiredAt())
                                 .accountId(account.accountId())
-                                .latitude(updateLoginInfo.getLatitude())
-                                .longitude(updateLoginInfo.getLongitude())
                                 .build();
                     } else {
                         String accessToken = tokenUtils.generateAccessToken(account.email());
@@ -85,8 +79,6 @@ public class LoginInfoCommandService {
                                 .accessExpiredAt(accessExpiredAt)
                                 .refreshExpiredAt(refreshExpiredAt)
                                 .accountId(account.accountId())
-                                .latitude(latitude)
-                                .longitude(longitude)
                                 .build();
                         repository.save(mapper.toEntity(loginInfo));
 
@@ -94,17 +86,6 @@ public class LoginInfoCommandService {
                     }
                 })
                 .orElseThrow(MyAuthenticationException::new);
-    }
-
-    protected void update(@NonNull Long accountId, @NonNull Double latitude, @NonNull Double longitude) {
-        repository.findByAccountId(accountId)
-                .ifPresent(
-                        foundLoginInfo -> {
-                            foundLoginInfo.setLatitude(latitude);
-                            foundLoginInfo.setLongitude(longitude);
-                            repository.save(foundLoginInfo);
-                        }
-                );
     }
 
     protected LoginInfo update(@NonNull String refreshToken) {
@@ -119,8 +100,6 @@ public class LoginInfoCommandService {
                             .accessExpiredAt(newAccessExpired)
                             .refreshToken(foundLoginInfo.getRefreshToken())
                             .refreshExpiredAt(foundLoginInfo.getRefreshExpiredAt())
-                            .latitude(foundLoginInfo.getLatitude())
-                            .longitude(foundLoginInfo.getLongitude())
                             .build();
                 })
                 .orElseThrow(() -> new MyAuthenticationException("Mời bạn đăng nhập lại"));

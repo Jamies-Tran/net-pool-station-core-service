@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.station;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Builder;
 import net.pool.station.core.bootstrap.enums.ERole;
 import net.pool.station.core.bootstrap.enums.EStationStatus;
@@ -24,17 +25,17 @@ public record StationCriteria(
         List<Double> distances
 ) {
     public StationCriteria {
-        search = MyObjectUtils.defaultValue(search);
-        province = MyObjectUtils.defaultValue(province);
-        commune = MyObjectUtils.defaultValue(commune);
-        district = MyObjectUtils.defaultValue(district);
+        search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
+        province = MyObjectUtils.defaultValue(province, new TypeReference<>() {});
+        commune = MyObjectUtils.defaultValue(commune, new TypeReference<>() {});
+        district = MyObjectUtils.defaultValue(district, new TypeReference<>() {});
         timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
         statusCodes = authorizeStatusCodes(statusCodes);
-        distances = MyObjectUtils.defaultValue(distances);
+        distances = MyObjectUtils.defaultValue(distances, new TypeReference<>() {});
     }
 
     private List<String> authorizeStatusCodes(List<String> statusCodes) {
-        statusCodes = MyObjectUtils.defaultValue(statusCodes);
+        statusCodes = MyObjectUtils.defaultValue(statusCodes, new TypeReference<>() {});
         Optional<LoginInfo> currentLoginInfo = MyRequestContext.currentLoginInfo();
 
         if (currentLoginInfo.isPresent()) {

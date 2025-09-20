@@ -1,5 +1,6 @@
 package net.pool.station.core.bootstrap.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -68,13 +69,17 @@ public class MyObjectUtils {
         }
     }
 
-    public static <T> T defaultValue(T value) {
-        if (value instanceof String stringValue) {
-            return (T) Optional.of(stringValue).orElse("");
+    public static <T> T defaultValue(T value, TypeReference<T> clazz) {
+        if (clazz.getType() == String.class) {
+            return (T) Optional.ofNullable(value).orElse((T) "");
         }
 
-        if (value instanceof Collection<?> collectionValue) {
-            return (T) Optional.of(collectionValue).orElse(List.of());
+        if (clazz.getType() == Collection.class) {
+            return (T) Optional.ofNullable(value).orElse((T) List.of());
+        }
+
+        if (clazz.getType() == Long.class) {
+            return (T) Optional.ofNullable(value).orElse((T) Long.valueOf(0));
         }
 
         return value;

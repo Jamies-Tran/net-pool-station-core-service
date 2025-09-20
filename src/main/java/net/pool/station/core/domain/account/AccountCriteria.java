@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.account;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Builder;
 import net.pool.station.core.bootstrap.enums.EAccountStatus;
 import net.pool.station.core.bootstrap.utils.MyDateTimeUtils;
@@ -21,9 +22,9 @@ public record AccountCriteria(
 ) {
     public AccountCriteria {
         timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
-        search = MyObjectUtils.defaultValue(search);
+        search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         statusCodes = authorizedStatusCodes(statusCodes);
-        roleIds = MyObjectUtils.defaultValue(roleIds);
+        roleIds = MyObjectUtils.defaultValue(roleIds, new TypeReference<>() {});
     }
 
     public static AccountCriteria of(
@@ -43,7 +44,7 @@ public record AccountCriteria(
     private List<String> authorizedStatusCodes(List<String> statusCodes) {
         LoginInfo currentLoginInfo = MyRequestContext.currentLoginInfo()
                 .orElse(LoginInfo.currentLoginInfoEmpty());
-        List<String> authorizedStatusCodes = MyObjectUtils.defaultValue(statusCodes);
+        List<String> authorizedStatusCodes = MyObjectUtils.defaultValue(statusCodes, new TypeReference<>() {});
         if (currentLoginInfo.isLoginEmpty()) {
             authorizedStatusCodes.remove(EAccountStatus.DISABLE.getCode());
         }

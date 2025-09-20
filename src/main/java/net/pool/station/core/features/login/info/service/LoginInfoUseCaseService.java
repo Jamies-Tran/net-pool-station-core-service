@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.login.info.LoginInfo;
@@ -30,22 +29,12 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
     @Transactional
     public LoginInfo saveOrUpdate(
             @NonNull String email,
-            @NonNull String password,
-            Double latitude,
-            Double longitude
+            @NonNull String password
     ) {
-        LoginInfo savedLoginInfo = commandService.saveOrUpdate(email, password, latitude, longitude);
-        loggingService.log(LoginLog.createLogin(savedLoginInfo.accountId(), latitude, longitude));
+        LoginInfo savedLoginInfo = commandService.saveOrUpdate(email, password);
+        loggingService.log(LoginLog.createLogin(savedLoginInfo.accountId()));
 
         return savedLoginInfo;
-    }
-
-    @Override
-    @Transactional
-    public void update(@NonNull Double latitude, @NonNull Double longitude) {
-        Long currentAccountId = MyRequestContext.getCurrentAccountId()
-                .orElseThrow(MyAuthenticationException::new);
-        commandService.update(currentAccountId, latitude, longitude);
     }
 
     @Override

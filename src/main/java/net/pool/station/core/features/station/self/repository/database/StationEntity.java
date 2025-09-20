@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -80,7 +81,8 @@ public class StationEntity extends Auditor {
             LocalDateTime now = LocalDateTime.now();
             String year = MyObjectUtils.convertToString(now.getYear());
             String dateMonth = now.format(DateTimeFormatter.ofPattern("ddMM"));
-            String random = EnvironmentVariable.generateRandomCode(stationName, 6);
+            String random = EnvironmentVariable.generateRandomCode(stationName.replace(" ", ""),
+                    stationName.length());
 
             stationCode = "ST_%s_%s_%s".formatted(year, dateMonth, random);
         }

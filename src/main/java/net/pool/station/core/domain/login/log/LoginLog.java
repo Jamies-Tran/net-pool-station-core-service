@@ -13,21 +13,16 @@ public record LoginLog(
         Long accountId,
         String logTypeCode,
         String logTypeName,
-        Double latitude,
-        Double longitude,
-        @With String address,
         @With String createdByUsername,
         String createdBy,
         LocalDateTime createdAt
 ) {
-    public static LoginLog createLogin(Long accountId, Double latitude, Double longitude) {
+    public static LoginLog createLogin(Long accountId) {
         return LoginLog.builder()
                 .accountId(accountId)
                 .logTypeCode(ELogType.LOGIN_LOGIN.getCode())
                 .logTypeName(ELogType.LOGIN_LOGIN.getName())
                 .createdAt(LocalDateTime.now())
-                .latitude(Optional.ofNullable(latitude).orElse(0.0))
-                .longitude(Optional.ofNullable(longitude).orElse(0.0))
                 .build();
     }
 

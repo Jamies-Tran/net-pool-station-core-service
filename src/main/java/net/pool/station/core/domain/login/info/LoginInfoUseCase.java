@@ -7,12 +7,8 @@ import java.util.Optional;
 public interface LoginInfoUseCase {
     LoginInfo saveOrUpdate(
             @NonNull String email,
-            @NonNull String password,
-            Double latitude,
-            Double longitude
+            @NonNull String password
     );
-
-    void update(@NonNull Double latitude, @NonNull Double longitude);
 
     LoginInfo update(@NonNull String refreshToken);
 

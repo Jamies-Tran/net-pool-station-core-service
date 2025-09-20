@@ -46,3 +46,9 @@ environment:
     expired: 900000
   refreshToken:
     expired: 7
+  map:
+    apiKey: gMs7uHEjx646z9dVVjrh60fRPMADssbjc2Z7KYd1
+    goongDomain: https://rsapi.goong.io
+    reverseGeo: /Geocode?api_key=${environment.map.apiKey}
+    detail: /geocode?api_key=${environment.map.apiKey}
+    place: /Place/AutoComplete?api_key=${environment.map.apiKey}

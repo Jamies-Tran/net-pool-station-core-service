@@ -25,9 +25,10 @@ public class EnvironmentVariable {
     public static String generateRandomCode(String source, int length) {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
+        String formatSource = source.replace(" ", "");
         for (int i = 0; i < length; i++) {
-            int index = random.nextInt(source.length());
-            sb.append(source.charAt(index));
+            int index = random.nextInt(formatSource.length());
+            sb.append(formatSource.charAt(index));
         }
 
         return sb.toString();

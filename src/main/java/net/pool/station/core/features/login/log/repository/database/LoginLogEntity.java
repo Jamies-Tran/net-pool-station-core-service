@@ -30,6 +30,4 @@ public class LoginLogEntity extends Auditor {
     String logTypeCode;
 
     String logTypeName;
-
-    String address;
 }

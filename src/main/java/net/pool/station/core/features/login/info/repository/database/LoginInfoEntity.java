@@ -41,8 +41,4 @@ public class LoginInfoEntity extends Auditor {
     String refreshToken;
 
     LocalDateTime refreshExpiredAt;
-
-    Double latitude;
-
-    Double longitude;
 }

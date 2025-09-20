@@ -15,9 +15,7 @@ public record LoginInfo(
         String accessToken,
         LocalDateTime accessExpiredAt,
         String refreshToken,
-        LocalDateTime refreshExpiredAt,
-        Double latitude,
-        Double longitude
+        LocalDateTime refreshExpiredAt
 ) {
     public static LoginInfo currentLoginInfoEmpty() {
         return LoginInfo.builder()

@@ -11,8 +11,6 @@ public record LoginInfoResponse(
         String accessToken,
         LocalDateTime accessExpiredAt,
         String refreshToken,
-        LocalDateTime refreshExpiredAt,
-        Double latitude,
-        Double longitude
+        LocalDateTime refreshExpiredAt
 ) {
 }

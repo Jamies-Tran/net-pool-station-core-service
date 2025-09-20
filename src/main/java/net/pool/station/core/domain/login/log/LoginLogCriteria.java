@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.login.log;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Builder;
 import net.pool.station.core.bootstrap.utils.MyDateTimeUtils;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
@@ -15,9 +16,9 @@ public record LoginLogCriteria(
         List<String> logTypeCodes
 ) {
     public LoginLogCriteria {
-        search = MyObjectUtils.defaultValue(search);
+        search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
-        logTypeCodes = MyObjectUtils.defaultValue(logTypeCodes);
+        logTypeCodes = MyObjectUtils.defaultValue(logTypeCodes, new TypeReference<>() {});
     }
 
     public static LoginLogCriteria of(

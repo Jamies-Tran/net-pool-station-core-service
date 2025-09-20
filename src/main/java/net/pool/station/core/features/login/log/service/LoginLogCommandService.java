@@ -21,9 +21,6 @@ public class LoginLogCommandService {
 
     protected void save(LoginLog loginLog) {
         ReverseGeoUseCase reverseGeoUseCase = MySpringContext.getBean(ReverseGeoUseCase.class);
-        String address = reverseGeoUseCase.reverseGeo(loginLog.latitude(), loginLog.longitude())
-                .map(ReverseGeo.Result::address)
-                .orElse("");
-        repository.save(mapper.toEntity(loginLog.withAddress(address)));
+        repository.save(mapper.toEntity(loginLog));
     }
 }
