@@ -52,7 +52,7 @@ public class LoginInfoCommandService {
                     if (exist.isPresent()) {
                         LoginInfoEntity existGet = exist.get();
                         String accessToken = tokenUtils.generateAccessToken(account.email());
-                        String refreshToken = UUID.randomUUID().toString();
+                        String refreshToken = tokenUtils.generateRefreshToken(account.email());
                         LocalDateTime refreshExpiredAt = tokenUtils.convertRefreshExpiredAt();
                         LocalDateTime accessExpiredAt = tokenUtils.convertAccessExpiredAt();
 
@@ -66,10 +66,11 @@ public class LoginInfoCommandService {
                                 .accessExpiredAt(accessExpiredAt)
                                 .refreshExpiredAt(updateLoginInfo.getRefreshExpiredAt())
                                 .accountId(account.accountId())
+                                .email(account.email())
                                 .build();
                     } else {
                         String accessToken = tokenUtils.generateAccessToken(account.email());
-                        String refreshToken = UUID.randomUUID().toString();
+                        String refreshToken = tokenUtils.generateRefreshToken(account.email());
                         LocalDateTime refreshExpiredAt = tokenUtils.convertRefreshExpiredAt();
                         LocalDateTime accessExpiredAt = tokenUtils.convertAccessExpiredAt();
                         LoginInfo loginInfo = LoginInfo.builder()
@@ -89,7 +90,8 @@ public class LoginInfoCommandService {
     }
 
     protected LoginInfo update(@NonNull String refreshToken) {
-        return repository.findByRefreshToken(refreshToken)
+        String email = tokenUtils.getUserIdentifyFromToken(refreshToken);
+        return repository.findByEmail(email)
                 .map(foundLoginInfo -> {
                     String newAccessToken = tokenUtils.generateAccessToken(foundLoginInfo.getEmail());
                     LocalDateTime newAccessExpired = tokenUtils.convertAccessExpiredAt();

@@ -45,6 +45,16 @@ public class MyTokenUtils {
 
     }
 
+    public String generateRefreshToken(String identification) {
+        return Jwts.builder()
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .subject(identification)
+                .expiration(refreshTokenExpiredAt())
+                .issuedAt(new Date())
+                .compact();
+
+    }
+
     public Date accessTokenExpiredAt() {
         return Date.from(Instant.now().plus(accessExpiredDuration, ChronoUnit.MINUTES));
     }
