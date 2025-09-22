@@ -5,9 +5,6 @@ import lombok.Builder;
 @Builder
 public record Space(
         Long spaceId,
-        Long stationId,
-        String spaceCode,
-        String spaceName,
         String typeCode,
         String typeName,
         String statusCode,

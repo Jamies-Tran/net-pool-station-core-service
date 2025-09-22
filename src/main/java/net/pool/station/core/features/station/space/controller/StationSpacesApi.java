@@ -1,16 +1,16 @@
-package net.pool.station.core.features.space.controller;
+package net.pool.station.core.features.station.space.controller;
 
 import jakarta.validation.Valid;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
-import net.pool.station.core.features.space.controller.models.SpaceRequest;
+import net.pool.station.core.features.station.space.controller.models.StationSpaceRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequestMapping("/v1/api/spaces")
-public interface SpacesApi {
+@RequestMapping("/v1/api/station-spaces")
+public interface StationSpacesApi {
     @PostMapping
-    @PreAuthorize("hasRole({'ROLE_PLATFORM_ADMIN'})")
-    MyValueResponse<?> save(@RequestBody @Valid SpaceRequest request);
+    @PreAuthorize("hasRole({'ROLE_STATION_OWNER'})")
+    MyValueResponse<?> save(@RequestBody @Valid StationSpaceRequest request);
 }

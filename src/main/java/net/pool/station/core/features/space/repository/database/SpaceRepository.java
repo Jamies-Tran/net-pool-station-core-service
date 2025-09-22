@@ -11,7 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface SpaceRepository extends JpaRepository<SpaceEntity, Long> {
-    Boolean existsByStationIdAndSpaceName(Long stationId, String spaceName);
+    Boolean existsByTypeCode(String typeCode);
+
+    Boolean existsByTypeName(String typeName);
 
     @Query("""
         SELECT s
@@ -25,14 +27,10 @@ public interface SpaceRepository extends JpaRepository<SpaceEntity, Long> {
         SELECT s
         FROM SpaceEntity s
         WHERE s.deleted = FALSE
-                AND (:#{#criteria.stationId()} = 0
-                        OR s.stationId = :#{#criteria.stationId()})
-                AND (:#{#criteria.search().empty} = TRUE
-                        OR (s.spaceName ILIKE %:#{#criteria.search()}%
-                                OR s.spaceCode ILIKE %:#{#criteria.search()}%))
+                AND (:#{#criteria.statusCodes().empty} = TRUE
+                        OR s.statusCode IN :#{#criteria.statusCodes()})
                 AND (:#{#criteria.typeCodes().empty} = TRUE
                         OR s.typeCode IN :#{#criteria.typeCodes()})
-                
         """)
     Page<SpaceEntity> findAll(SpaceCriteria criteria, Pageable pageable);
 }

@@ -4,8 +4,6 @@ import lombok.Builder;
 
 @Builder
 public record SpaceRequest(
-        Long stationId,
-        String spaceName,
         String typeCode,
         String typeName,
         String statusCode,

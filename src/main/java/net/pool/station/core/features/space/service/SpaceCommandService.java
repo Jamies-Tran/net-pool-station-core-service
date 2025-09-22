@@ -70,13 +70,22 @@ public class SpaceCommandService {
 
     private void validate(Space space, SpaceEntity exist) {
         if (MyObjectUtils.isNotEmpty(exist)) {
-            if (MyObjectUtils.isNotEquals(space.spaceName(), exist.getSpaceName())
-                && repository.existsByStationIdAndSpaceName(space.stationId(), space.spaceName())) {
+            if (MyObjectUtils.isNotEquals(space.typeCode(), exist.getTypeCode())
+                && repository.existsByTypeCode(space.typeCode())) {
+                throw new MyResourceDuplicateException("Mã space không được trùng");
+            }
+
+            if (MyObjectUtils.isNotEquals(space.typeName(), exist.getTypeName())
+                    && repository.existsByTypeName(space.typeName())) {
                 throw new MyResourceDuplicateException("Tên space không được trùng");
             }
         }
 
-        if (repository.existsByStationIdAndSpaceName(space.stationId(), space.spaceName())) {
+        if (repository.existsByTypeCode(space.typeCode())) {
+            throw new MyResourceDuplicateException("Mã space không được trùng");
+        }
+
+        if (repository.existsByTypeName(space.typeName())) {
             throw new MyResourceDuplicateException("Tên space không được trùng");
         }
     }

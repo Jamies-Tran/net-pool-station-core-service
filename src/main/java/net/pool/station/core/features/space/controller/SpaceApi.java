@@ -16,18 +16,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/v1/api/spaces/{spaceId}")
 public interface SpaceApi {
     @PutMapping
-    @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
+    @PreAuthorize("hasRole({'ROLE_PLATFORM_ADMIN'})")
     MyValueResponse<?> update(@PathVariable Long spaceId, @RequestBody @Valid SpaceRequest request);
 
     @PatchMapping("/enable")
-    @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
+    @PreAuthorize("hasRole({'ROLE_PLATFORM_ADMIN'})")
     MyValueResponse<?> enable(@PathVariable Long spaceId);
 
     @PatchMapping("/disable")
-    @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
+    @PreAuthorize("hasRole({'ROLE_PLATFORM_ADMIN'})")
     MyValueResponse<?> disable(@PathVariable Long spaceId);
 
     @DeleteMapping
-    @PreAuthorize("hasRole('ROLE_STATION_OWNER')")
+    @PreAuthorize("hasRole({'ROLE_PLATFORM_ADMIN'})")
     MyValueResponse<?> delete(@PathVariable Long spaceId);
 }

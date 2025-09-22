@@ -8,9 +8,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum ESpaceStatus {
-    ACTIVE("ACTIVE", "Kích hoạt"),
-    INACTIVE("INACTIVE", "Vô hiệu hóa");
+public enum EStationSpaceStatus {
+    ACTIVE("ACTIVE", "Đang hoạt động"),
+    INACTIVE("INACTIVE", "Tạm ngưng");
 
     String code;
     String name;

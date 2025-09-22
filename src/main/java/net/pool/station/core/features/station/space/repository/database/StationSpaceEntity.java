@@ -1,6 +1,5 @@
-package net.pool.station.core.features.space.repository.database;
+package net.pool.station.core.features.station.space.repository.database;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,26 +13,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
-import net.pool.station.core.bootstrap.enums.ESpaceStatus;
+import net.pool.station.core.bootstrap.enums.EStationSpaceStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
-
-import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "spaces")
+@Table(name = "station_spaces")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SpaceEntity extends Auditor {
+public class StationSpaceEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long stationSpaceId;
+
+    Long stationId;
+
     Long spaceId;
 
-    String typeCode;
+    String spaceCode;
 
-    String typeName;
+    String spaceName;
 
     String statusCode;
 
@@ -44,12 +45,8 @@ public class SpaceEntity extends Auditor {
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            statusCode = ESpaceStatus.ACTIVE.getCode();
-            statusName = ESpaceStatus.ACTIVE.getName();
-        }
-
-        if (MyObjectUtils.isEmpty(typeCode)) {
-            typeCode = UUID.randomUUID().toString();
+            statusCode = EStationSpaceStatus.ACTIVE.getCode();
+            statusName = EStationSpaceStatus.ACTIVE.getName();
         }
 
         deleted = false;
