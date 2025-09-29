@@ -3,7 +3,7 @@ package net.pool.station.core.features.map.detail.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.map.detail.Detail;
 import net.pool.station.core.domain.map.detail.DetailUseCase;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class DetailUseCaseService implements DetailUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Detail.Result> findDetailByPlaceId(DomainCode<String> placeId) {
+    public Optional<Detail.Result> findDetailByPlaceId(DomainKey<String> placeId) {
         return queryService.findByPlaceId(placeId.value());
     }
 }

@@ -11,7 +11,7 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyPasswordEncoderUtils;
 import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.bootstrap.utils.MyTokenUtils;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.features.login.info.repository.database.LoginInfoEntity;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class LoginInfoCommandService {
     ) {
         PasswordEncoder passwordEncoder = MyPasswordEncoderUtils.passwordEncoder();
         passwordEncoder.encode(password);
-        return accountUseCase().findByEmail(DomainCode.of(email))
+        return accountUseCase().findByEmail(DomainKey.of(email))
                 .map(account -> {
                     if (!passwordEncoder.matches(password, account.password())) {
                         throw new MyAuthenticationException();

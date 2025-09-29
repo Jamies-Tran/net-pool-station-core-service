@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.space.SpaceUseCase;
 import net.pool.station.core.features.space.controller.models.SpaceResponse;
 import net.pool.station.core.features.space.controller.models.SpaceResponseMapper;
@@ -21,7 +21,7 @@ public class SpacePubController implements SpacePubApi {
 
     @Override
     public MyValueResponse<SpaceResponse> findById(Long spaceId) {
-        SpaceResponse spaceResponse = spaceUseCase.findById(DomainCode.of(spaceId))
+        SpaceResponse spaceResponse = spaceUseCase.findById(DomainKey.of(spaceId))
                 .map(responseMapper::toModel)
                 .orElseThrow(MyResourceNotFoundException::new);
 

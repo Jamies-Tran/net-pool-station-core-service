@@ -11,6 +11,7 @@ import net.pool.station.core.domain.account.log.AccountLog;
 import net.pool.station.core.domain.account.log.AccountLogCriteria;
 import net.pool.station.core.domain.account.log.AccountLogUseCase;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +36,8 @@ public class AccountLogUseCaseService implements AccountLogUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AccountLog> findAll(AccountLogCriteria criteria, Pageable pageable) {
-        Page<AccountLog> accountLogs = queryService.findAll(criteria, pageable);
+    public Page<AccountLog> findAll(AccountLogCriteria criteria, PageRequest pageRequest) {
+        Page<AccountLog> accountLogs = queryService.findAll(criteria, pageRequest);
         List<Long> createdByList = accountLogs.stream()
                 .map(accountLog -> MyObjectUtils.convertToLong(accountLog.createdBy()))
                 .toList();

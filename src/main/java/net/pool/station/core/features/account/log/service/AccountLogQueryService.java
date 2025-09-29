@@ -8,6 +8,7 @@ import net.pool.station.core.domain.account.log.AccountLogCriteria;
 import net.pool.station.core.features.account.log.repository.database.AccountLogEntityMapper;
 import net.pool.station.core.features.account.log.repository.database.AccountLogRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,8 @@ public class AccountLogQueryService {
 
     AccountLogEntityMapper mapper;
 
-    protected Page<AccountLog> findAll(AccountLogCriteria criteria, Pageable pageable) {
-        return repository.findAll(criteria, pageable)
+    protected Page<AccountLog> findAll(AccountLogCriteria criteria, PageRequest pageRequest) {
+        return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
     }
 }

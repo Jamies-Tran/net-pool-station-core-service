@@ -9,7 +9,7 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.enums.EStationSpaceStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.station.space.StationSpace;
-import net.pool.station.core.features.station.self.repository.database.StationRepository;
+import net.pool.station.core.domain.station.space.StationSpaceId;
 import net.pool.station.core.features.station.space.repository.database.StationSpaceEntity;
 import net.pool.station.core.features.station.space.repository.database.StationSpaceEntityMapper;
 import net.pool.station.core.features.station.space.repository.database.StationSpaceRepository;
@@ -24,15 +24,17 @@ public class StationSpaceCommandService {
     StationSpaceEntityMapper mapper;
 
     protected void save(@NotNull StationSpace space) {
-        validate(space, null);
+        validate(space.stationSpaceId().stationId(), space, null);
         repository.save(mapper.toEntity(space));
     }
 
-    protected void update(@NotNull Long stationSpaceId, @NotNull StationSpace stationSpace) {
-        repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
+    protected void update(@NotNull StationSpaceId stationSpaceId,
+                          @NotNull StationSpace stationSpace)
+    {
+        repository.findById(stationSpaceId)
                 .ifPresentOrElse(
                         foundStationSpace -> {
-                            validate(stationSpace, foundStationSpace);
+                            validate(stationSpaceId.stationId(), stationSpace, foundStationSpace);
                             mapper.update(foundStationSpace, stationSpace);
                             repository.save(foundStationSpace);
                         },
@@ -42,8 +44,8 @@ public class StationSpaceCommandService {
                 );
     }
 
-    protected void delete(@NotNull Long stationSpaceId) {
-        repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
+    protected void delete(@NotNull StationSpaceId stationSpaceId) {
+        repository.findById(stationSpaceId)
                 .ifPresentOrElse(
                         foundStationSpace -> {
                             foundStationSpace.setDeleted(true);
@@ -55,8 +57,11 @@ public class StationSpaceCommandService {
                 );
     }
 
-    protected void updateStatus(@NotNull Long stationSpaceId, @NotNull EStationSpaceStatus status) {
-        repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
+    protected void updateStatus(
+            @NotNull StationSpaceId stationSpaceId,
+            @NotNull EStationSpaceStatus status
+    ) {
+        repository.findById(stationSpaceId)
                 .ifPresentOrElse(
                         foundStationSpace -> {
                             foundStationSpace.setStatusCode(status.getCode());
@@ -69,25 +74,27 @@ public class StationSpaceCommandService {
                 );
     }
 
-    private void validate(StationSpace source, StationSpaceEntity exists) {
+    private void validate(Long stationId, StationSpace source, StationSpaceEntity exists) {
         if (MyObjectUtils.isNotEmpty(exists)) {
             if (MyObjectUtils.isNotEquals(source.spaceName(), exists.getSpaceName())
-                && repository.existsByStationIdAndSpaceName(source.stationId(), source.spaceName())) {
+                && repository.existsByStationIdAndSpaceName(stationId, source.spaceName())) {
                 throw new MyResourceDuplicateException("Tên space đã tồn tại trong station");
             }
 
             if (MyObjectUtils.isNotEquals(source.spaceCode(), exists.getSpaceCode())
-                    && repository.existsByStationIdAndSpaceCode(source.stationId(), source.spaceCode())) {
+                    && repository.existsByStationIdAndSpaceCode(stationId, source.spaceCode())) {
+                throw new MyResourceDuplicateException("Mã space đã tồn tại trong station");
+            }
+        } else {
+            if (repository.existsByStationIdAndSpaceName(stationId, source.spaceName())) {
+                throw new MyResourceDuplicateException("Tên space đã tồn tại trong station");
+            }
+
+            if (repository.existsByStationIdAndSpaceCode(stationId, source.spaceCode())) {
                 throw new MyResourceDuplicateException("Mã space đã tồn tại trong station");
             }
         }
 
-        if (repository.existsByStationIdAndSpaceName(source.stationId(), source.spaceName())) {
-            throw new MyResourceDuplicateException("Tên space đã tồn tại trong station");
-        }
 
-        if (repository.existsByStationIdAndSpaceCode(source.stationId(), source.spaceCode())) {
-            throw new MyResourceDuplicateException("Mã space đã tồn tại trong station");
-        }
     }
 }

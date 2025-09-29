@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.email.verification.EmailVerification;
 import net.pool.station.core.domain.email.verification.EmailVerificationUseCase;
 import net.pool.station.core.features.email.verification.controller.models.EmailVerificationRequest;
@@ -28,7 +28,7 @@ public class EmailVerificationPubController implements EmailVerificationPubApi {
 
     @Override
     public MyValueResponse<?> verify(VerificationRequest request) {
-        useCase.verify(DomainCode.of(request.verificationCode()));
+        useCase.verify(DomainKey.of(request.verificationCode()));
 
         return MyValueResponse.successNoData();
     }

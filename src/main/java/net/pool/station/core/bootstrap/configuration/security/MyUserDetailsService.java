@@ -3,7 +3,7 @@ package net.pool.station.core.bootstrap.configuration.security;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.bootstrap.utils.MyPasswordEncoderUtils;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
@@ -24,7 +24,7 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Account> account = accountUseCase.findByEmail(DomainCode.of(username));
+        Optional<Account> account = accountUseCase.findByEmail(DomainKey.of(username));
 
         return account
                 .map(foundAccount -> User.builder()

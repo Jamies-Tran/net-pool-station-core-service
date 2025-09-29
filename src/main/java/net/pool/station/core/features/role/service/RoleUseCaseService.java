@@ -3,7 +3,7 @@ package net.pool.station.core.features.role.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.role.Role;
 import net.pool.station.core.domain.role.RoleUseCase;
 import org.springframework.stereotype.Service;
@@ -19,14 +19,14 @@ public class RoleUseCaseService implements RoleUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Role> findById(DomainCode<Long> id) {
+    public Optional<Role> findById(DomainKey<Long> id) {
         return queryService.findById(id.value());
     }
 
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Role> findByCode(DomainCode<String> code) {
+    public Optional<Role> findByCode(DomainKey<String> code) {
         return queryService.findByRoleCode(code.value());
     }
 }

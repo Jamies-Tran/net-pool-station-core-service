@@ -1,11 +1,10 @@
 package net.pool.station.core.domain.station.space;
 
 public record StationSpace(
-        Long stationSpaceId,
-        Long stationId,
-        Long spaceId,
+        StationSpaceId stationSpaceId,
         String spaceCode,
         String spaceName,
+        Integer capacity,
         String statusCode,
         String statusName,
         Boolean deleted

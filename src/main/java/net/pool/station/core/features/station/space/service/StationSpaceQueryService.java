@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.station.space.StationSpace;
 import net.pool.station.core.domain.station.space.StationSpaceCriteria;
+import net.pool.station.core.domain.station.space.StationSpaceId;
 import net.pool.station.core.features.station.space.repository.database.StationSpaceEntityMapper;
 import net.pool.station.core.features.station.space.repository.database.StationSpaceRepository;
 import org.springframework.data.domain.Page;
@@ -21,8 +22,8 @@ public class StationSpaceQueryService {
 
     StationSpaceEntityMapper mapper;
 
-    protected Optional<StationSpace> findById(Long stationSpaceId) {
-        return repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
+    protected Optional<StationSpace> findById(StationSpaceId stationSpaceId) {
+        return repository.findById(stationSpaceId)
                 .map(mapper::toDto);
     }
 

@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/v1/api/spaces")
 public interface SpacesApi {
     @PostMapping
-    @PreAuthorize("hasRole({'ROLE_PLATFORM_ADMIN'})")
+    @PreAuthorize("hasRole({'ROLE_SYSTEM_ADMIN'})")
     MyValueResponse<?> save(@RequestBody @Valid SpaceRequest request);
 }

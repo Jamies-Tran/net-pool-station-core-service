@@ -10,7 +10,7 @@ import java.util.List;
 
 @RequestMapping("/v1/pub/station-spaces")
 public interface StationSpacesPubApi {
-    @GetMapping
+    @GetMapping("/all")
     MyPageResponse<StationSpaceResponse> findAll(
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search,

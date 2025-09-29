@@ -1,9 +1,7 @@
 package net.pool.station.core.features.station.space.repository.database;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,17 +22,14 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 @Table(name = "station_spaces")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StationSpaceEntity extends Auditor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long stationSpaceId;
-
-    Long stationId;
-
-    Long spaceId;
+    @EmbeddedId
+    StationSpaceEmbeddedId stationSpaceId;
 
     String spaceCode;
 
     String spaceName;
+
+    Integer capacity;
 
     String statusCode;
 

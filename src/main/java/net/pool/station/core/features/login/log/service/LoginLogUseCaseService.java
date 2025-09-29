@@ -11,6 +11,7 @@ import net.pool.station.core.domain.login.log.LoginLog;
 import net.pool.station.core.domain.login.log.LoginLogCriteria;
 import net.pool.station.core.domain.login.log.LoginLogUseCase;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +36,8 @@ public class LoginLogUseCaseService implements LoginLogUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<LoginLog> findAll(LoginLogCriteria criteria, Pageable pageable) {
-        Page<LoginLog> loginLogs = queryService.findAll(criteria, pageable);
+    public Page<LoginLog> findAll(LoginLogCriteria criteria, PageRequest pageRequest) {
+        Page<LoginLog> loginLogs = queryService.findAll(criteria, pageRequest);
         List<Long> createdByList = loginLogs.stream()
                 .map(loginLog -> MyObjectUtils.convertToLong(loginLog.createdBy()))
                 .toList();

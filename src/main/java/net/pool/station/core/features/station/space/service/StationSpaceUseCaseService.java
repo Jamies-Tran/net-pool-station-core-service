@@ -5,9 +5,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.enums.EStationSpaceStatus;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.space.StationSpace;
 import net.pool.station.core.domain.station.space.StationSpaceCriteria;
+import net.pool.station.core.domain.station.space.StationSpaceId;
 import net.pool.station.core.domain.station.space.StationSpaceUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public class StationSpaceUseCaseService implements StationSpaceUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<StationSpace> findById(@NotNull DomainCode<Long> id) {
+    public Optional<StationSpace> findById(@NotNull DomainKey<StationSpaceId> id) {
         return queryService.findById(id.value());
     }
 
@@ -44,25 +45,25 @@ public class StationSpaceUseCaseService implements StationSpaceUseCase {
 
     @Override
     @Transactional
-    public void update(@NotNull DomainCode<Long> id,@NotNull StationSpace stationSpace) {
+    public void update(@NotNull DomainKey<StationSpaceId> id, @NotNull StationSpace stationSpace) {
         commandService.update(id.value(), stationSpace);
     }
 
     @Override
     @Transactional
-    public void enable(@NotNull DomainCode<Long> id) {
+    public void enable(@NotNull DomainKey<StationSpaceId> id) {
         commandService.updateStatus(id.value(), EStationSpaceStatus.ACTIVE);
     }
 
     @Override
     @Transactional
-    public void disable(@NotNull DomainCode<Long> id) {
+    public void disable(@NotNull DomainKey<StationSpaceId> id) {
         commandService.updateStatus(id.value(), EStationSpaceStatus.INACTIVE);
     }
 
     @Override
     @Transactional
-    public void delete(@NotNull DomainCode<Long> id) {
+    public void delete(@NotNull DomainKey<StationSpaceId> id) {
         commandService.delete(id.value());
     }
 }

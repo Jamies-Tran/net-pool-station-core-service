@@ -1,14 +1,14 @@
 package net.pool.station.core.features.station.space.controller.models;
 
 import lombok.Builder;
+import net.pool.station.core.domain.station.space.StationSpaceId;
 
 @Builder
 public record StationSpaceResponse(
-        Long stationSpaceId,
-        Long stationId,
-        Long spaceId,
+        StationSpaceId stationSpaceId,
         String spaceCode,
         String spaceName,
+        Integer capacity,
         String statusCode,
         String statusName
 ) {

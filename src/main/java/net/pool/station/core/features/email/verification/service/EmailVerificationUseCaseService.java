@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceDuplicateException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.enums.EMailType;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.email.sending.EmailSending;
 import net.pool.station.core.domain.email.sending.EmailUseCase;
@@ -44,13 +44,13 @@ public class EmailVerificationUseCaseService implements EmailVerificationUseCase
 
     @Override
     @Transactional
-    public void verify(@NonNull DomainCode<String> verificationCode) {
+    public void verify(@NonNull DomainKey<String> verificationCode) {
         EmailVerification emailVerification = queryService
                 .findByVerificationCode(verificationCode.value())
                 .orElseThrow(MyResourceNotFoundException::new);
-        accountUseCase.findByEmail(DomainCode.of(emailVerification.email()))
+        accountUseCase.findByEmail(DomainKey.of(emailVerification.email()))
                         .ifPresent(account -> {
-                            accountUseCase.activate(DomainCode.of(account.accountId()));
+                            accountUseCase.activate(DomainKey.of(account.accountId()));
                         });
         commandService.delete(emailVerification.emailVerificationId());
     }

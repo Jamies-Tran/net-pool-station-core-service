@@ -45,17 +45,17 @@ public class LoggingFactoryImpl<T> implements LoggingFactory<T> {
     }
 
     @Override
-    public <C> Page<T> findAll(C criteria, Pageable pageable) {
+    public <C> Page<T> findAll(C criteria, PageRequest pageRequest) {
         if (criteria instanceof AccountLogCriteria accountCriteria) {
-            return (Page<T>) accountLogUseCase.findAll(accountCriteria, pageable);
+            return (Page<T>) accountLogUseCase.findAll(accountCriteria, pageRequest);
         }
 
         if (criteria instanceof LoginLogCriteria loginLogCriteria) {
-            return (Page<T>) loginLogUseCase.findAll(loginLogCriteria, pageable);
+            return (Page<T>) loginLogUseCase.findAll(loginLogCriteria, pageRequest);
         }
 
         if (criteria instanceof StationLogCriteria stationLogCriteria) {
-            return (Page<T>) stationLogUseCase.findAll(stationLogCriteria, pageable);
+            return (Page<T>) stationLogUseCase.findAll(stationLogCriteria, pageRequest);
         }
 
         return Page.empty();

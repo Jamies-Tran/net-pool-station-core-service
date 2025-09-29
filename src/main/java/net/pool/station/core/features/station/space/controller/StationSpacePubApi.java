@@ -5,9 +5,10 @@ import net.pool.station.core.features.station.space.controller.models.StationSpa
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/v1/pub/station-spaces/{stationSpaceId}")
+@RequestMapping("/v1/pub/station-spaces")
 public interface StationSpacePubApi {
     @GetMapping
-    MyValueResponse<StationSpaceResponse> findById(@PathVariable Long stationSpaceId);
+    MyValueResponse<StationSpaceResponse> findById(@RequestParam Long stationId, @RequestParam Long spaceId);
 }

@@ -10,22 +10,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/v1/api/station-spaces/{stationSpaceId}")
+@RequestMapping("/v1/api/station-spaces")
 public interface StationSpaceApi {
     @PutMapping
     @PreAuthorize("hasRole({'ROLE_STATION_OWNER'})")
-    MyValueResponse<?> update(@PathVariable Long stationSpaceId,@RequestBody @Valid StationSpaceRequest request);
+    MyValueResponse<?> update(@RequestParam Long stationId,
+                              @RequestParam Long spaceId,
+                              @RequestBody @Valid StationSpaceRequest request);
 
     @PatchMapping("/enable")
     @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
-    MyValueResponse<?> enable(@PathVariable Long stationSpaceId);
+    MyValueResponse<?> enable(@RequestParam Long stationId, @RequestParam Long spaceId);
 
     @PatchMapping("/disable")
     @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
-    MyValueResponse<?> disable(@PathVariable Long stationSpaceId);
+    MyValueResponse<?> disable(@RequestParam Long stationId, @RequestParam Long spaceId);
 
     @DeleteMapping
     @PreAuthorize("hasRole({'ROLE_STATION_OWNER'})")
-    MyValueResponse<?> delete(@PathVariable Long stationSpaceId);
+    MyValueResponse<?> delete(@RequestParam Long stationId, @RequestParam Long spaceId);
 }

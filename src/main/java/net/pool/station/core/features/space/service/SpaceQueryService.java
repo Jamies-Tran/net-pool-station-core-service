@@ -8,6 +8,7 @@ import net.pool.station.core.domain.space.SpaceCriteria;
 import net.pool.station.core.features.space.repository.database.SpaceEntityMapper;
 import net.pool.station.core.features.space.repository.database.SpaceRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,8 @@ public class SpaceQueryService {
                 .map(mapper::toDto);
     }
 
-    protected Page<Space> findAll(SpaceCriteria criteria, Pageable pageable) {
-        return repository.findAll(criteria, pageable)
+    protected Page<Space> findAll(SpaceCriteria criteria, PageRequest pageRequest) {
+        return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
     }
 

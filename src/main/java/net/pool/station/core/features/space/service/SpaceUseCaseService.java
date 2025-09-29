@@ -4,11 +4,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.enums.ESpaceStatus;
-import net.pool.station.core.domain.DomainCode;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.space.Space;
 import net.pool.station.core.domain.space.SpaceCriteria;
 import net.pool.station.core.domain.space.SpaceUseCase;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,37 +32,37 @@ public class SpaceUseCaseService implements SpaceUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Space> findById(DomainCode<Long> spaceId) {
+    public Optional<Space> findById(DomainKey<Long> spaceId) {
         return queryService.findById(spaceId.value());
     }
 
     @Override
     @Transactional
-    public void update(DomainCode<Long> spaceId, Space space) {
+    public void update(DomainKey<Long> spaceId, Space space) {
         commandService.update(spaceId.value(), space);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Space> findAll(SpaceCriteria criteria, Pageable pageable) {
-        return queryService.findAll(criteria, pageable);
+    public Page<Space> findAll(SpaceCriteria criteria, PageRequest pageRequest) {
+        return queryService.findAll(criteria, pageRequest);
     }
 
     @Override
     @Transactional
-    public void delete(DomainCode<Long> spaceId) {
+    public void delete(DomainKey<Long> spaceId) {
         commandService.delete(spaceId.value());
     }
 
     @Override
     @Transactional
-    public void enable(DomainCode<Long> spaceId) {
+    public void enable(DomainKey<Long> spaceId) {
         commandService.updateStatus(spaceId.value(), ESpaceStatus.ACTIVE);
     }
 
     @Override
     @Transactional
-    public void disable(DomainCode<Long> spaceId) {
+    public void disable(DomainKey<Long> spaceId) {
         commandService.updateStatus(spaceId.value(), ESpaceStatus.INACTIVE);
     }
 }
