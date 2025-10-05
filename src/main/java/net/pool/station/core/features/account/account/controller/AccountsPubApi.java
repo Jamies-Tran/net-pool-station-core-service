@@ -30,6 +30,9 @@ public interface AccountsPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search,
 
+            @RequestParam(required = false, value = "stationId", defaultValue = "")
+            Long stationId,
+
             @RequestParam(required = false, value = "timeRange", defaultValue = "")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             List<LocalDateTime> timeRange,

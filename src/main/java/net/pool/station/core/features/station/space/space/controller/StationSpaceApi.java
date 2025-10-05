@@ -1,0 +1,33 @@
+package net.pool.station.core.features.station.space.space.controller;
+
+import jakarta.validation.Valid;
+import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
+import net.pool.station.core.features.station.space.space.controller.models.StationSpaceRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@RequestMapping("/v1/api/station-spaces")
+public interface StationSpaceApi {
+    @PutMapping
+    @PreAuthorize("hasRole({'ROLE_STATION_OWNER'})")
+    MyValueResponse<?> update(@RequestParam Long stationId,
+                              @RequestParam Long spaceId,
+                              @RequestBody @Valid StationSpaceRequest request);
+
+    @PatchMapping("/enable")
+    @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
+    MyValueResponse<?> enable(@RequestParam Long stationId, @RequestParam Long spaceId);
+
+    @PatchMapping("/disable")
+    @PreAuthorize("hasAnyRole({'ROLE_STATION_OWNER', 'ROLE_STATION_ADMIN'})")
+    MyValueResponse<?> disable(@RequestParam Long stationId, @RequestParam Long spaceId);
+
+    @DeleteMapping
+    @PreAuthorize("hasRole({'ROLE_STATION_OWNER'})")
+    MyValueResponse<?> delete(@RequestParam Long stationId, @RequestParam Long spaceId);
+}

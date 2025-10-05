@@ -87,15 +87,15 @@ public class AppExceptionHandler {
         );
     }
 
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    @ExceptionHandler(Exception.class)
-//    public MyValueResponse<?> internalExceptionHandler(Exception exc) {
-//        return MyValueResponse.error(
-//                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-//                EErrorCode.SERVER_ERROR.getCode(),
-//                exc.getMessage()
-//        );
-//    }
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public MyValueResponse<?> internalExceptionHandler(Exception exc) {
+        return MyValueResponse.error(
+                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                EErrorCode.SERVER_ERROR.getCode(),
+                exc.getMessage()
+        );
+    }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(MyLoginInvalidException.class)

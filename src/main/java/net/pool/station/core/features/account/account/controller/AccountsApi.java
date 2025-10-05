@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RequestMapping("/v1/api/accounts")
 @Tag(name = "Account", description = "QL tài khoản")
@@ -19,5 +20,5 @@ public interface AccountsApi {
 
     @PostMapping("/station-admin")
     @PreAuthorize("hasRole({'ROLE_STATION_OWNER'})")
-    MyValueResponse<?> saveForStationAdmin(@RequestBody @Valid AccountRequest request);
+    MyValueResponse<?> saveForStationAdmin(@RequestParam Long stationId, @RequestBody @Valid AccountRequest request);
 }

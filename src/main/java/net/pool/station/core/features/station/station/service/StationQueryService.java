@@ -32,15 +32,15 @@ public class StationQueryService {
                 .map(mapper::toDto);
     }
 
-    protected Page<String> findAllStationProvinces(String province, Pageable pageable) {
-        return repository.findAllStationProvince(province, pageable);
+    protected Page<String> findAllStationProvinces(String province, PageRequest pageRequest) {
+        return repository.findAllStationProvince(province, pageRequest);
     }
 
-    protected Page<String> findAllStationCommunes(String commune, Pageable pageable) {
-        return repository.findAllStationCommune(commune, pageable);
+    protected Page<String> findAllStationCommunes(String commune, PageRequest pageRequest) {
+        return repository.findAllStationCommune(commune, pageRequest);
     }
 
-    protected Page<String> findAllStationDistricts(String district, Pageable pageable) {
-        return repository.findAllStationDistrict(district, pageable);
+    protected Page<String> findAllStationDistricts(String district, PageRequest pageRequest) {
+        return repository.findAllStationDistrict(district, pageRequest);
     }
 }

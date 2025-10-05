@@ -4,12 +4,20 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.enums.ERole;
 import net.pool.station.core.bootstrap.enums.EStationStatus;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.logging.factory.LoggingFactory;
+import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.station.Station;
 import net.pool.station.core.domain.station.StationCriteria;
 import net.pool.station.core.domain.station.StationUseCase;
+import net.pool.station.core.domain.station.account.StationAccount;
+import net.pool.station.core.domain.station.account.StationAccountId;
+import net.pool.station.core.domain.station.account.StationAccountUseCase;
 import net.pool.station.core.domain.station.log.StationLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,11 +38,21 @@ public class StationUseCaseService implements StationUseCase {
 
     LoggingFactory<StationLog> loggingService;
 
+    StationAccountUseCase stationAccountUseCase;
+
     @Override
     @Transactional
     public void save(Station station) {
         Long savedId = commandService.save(station);
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
+        if (MyObjectUtils.isNotEquals(loginInfo.roleCode(), ERole.STATION_OWNER.getCode())) {
+            throw new MyAuthenticationException();
+        }
 
+        stationAccountUseCase.save(StationAccount.builder()
+                .stationAccountId(StationAccountId.of(savedId, loginInfo.accountId()))
+                .build());
         loggingService.log(StationLog.createSave(savedId));
     }
 
@@ -98,19 +116,19 @@ public class StationUseCaseService implements StationUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<String> findAllStationProvince(String province, Pageable pageable) {
-        return queryService.findAllStationProvinces(province, pageable);
+    public Page<String> findAllStationProvince(String province, PageRequest pageRequest) {
+        return queryService.findAllStationProvinces(province, pageRequest);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<String> findAllStationCommune(String commune, Pageable pageable) {
-        return queryService.findAllStationCommunes(commune, pageable);
+    public Page<String> findAllStationCommune(String commune, PageRequest pageRequest) {
+        return queryService.findAllStationCommunes(commune, pageRequest);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<String> findAllStationDistrict(String district, Pageable pageable) {
-        return queryService.findAllStationDistricts(district, pageable);
+    public Page<String> findAllStationDistrict(String district, PageRequest pageRequest) {
+        return queryService.findAllStationDistricts(district, pageRequest);
     }
 }

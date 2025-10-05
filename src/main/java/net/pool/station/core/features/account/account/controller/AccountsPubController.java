@@ -47,6 +47,7 @@ public class AccountsPubController implements AccountsPubApi {
     @Override
     public MyPageResponse<AccountResponse> findAll(
             String search,
+            Long stationId,
             List<LocalDateTime> timeRange,
             List<String> statusCodes,
             List<Long> roleIds,
@@ -54,7 +55,7 @@ public class AccountsPubController implements AccountsPubApi {
             Integer current,
             Integer pageSize
     ) {
-        AccountCriteria criteria = AccountCriteria.of(search, timeRange, statusCodes, roleIds);
+        AccountCriteria criteria = AccountCriteria.of(search, stationId, timeRange, statusCodes, roleIds);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<AccountResponse> responses = useCase.findAll(criteria, pageRequest)
                 .map(responseMapper::toModel);

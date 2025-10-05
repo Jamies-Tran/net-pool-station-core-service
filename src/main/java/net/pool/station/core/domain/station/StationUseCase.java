@@ -26,9 +26,9 @@ public interface StationUseCase {
 
     void enable(DomainKey<Long> stationId);
 
-    Page<String> findAllStationProvince(String province, Pageable pageable);
+    Page<String> findAllStationProvince(String province, PageRequest pageRequest);
 
-    Page<String> findAllStationCommune(String commune, Pageable pageable);
+    Page<String> findAllStationCommune(String commune, PageRequest pageRequest);
 
-    Page<String> findAllStationDistrict(String district, Pageable pageable);
+    Page<String> findAllStationDistrict(String district, PageRequest pageRequest);
 }

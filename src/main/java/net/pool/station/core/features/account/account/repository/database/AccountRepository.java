@@ -56,9 +56,13 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
     @Query("""
         SELECT a
         FROM AccountEntity a
+        LEFT JOIN StationAccountEntity sa ON a.accountId = sa.stationAccountId.accountId
+        LEFT JOIN StationEntity s ON s.stationId = sa.stationAccountId.stationId
         WHERE a.deleted = FALSE
                 AND (a.createdAt BETWEEN :#{#criteria.timeRange().get(0)} 
                         AND :#{#criteria.timeRange().get(1)})
+                AND (:#{#criteria.stationId()} = 0
+                        OR s.stationId = :#{#criteria.stationId()})
                 AND (:#{#criteria.search().empty} = TRUE
                         OR a.username ILIKE %:#{#criteria.search()}%
                         OR a.email ILIKE %:#{#criteria.search()}%

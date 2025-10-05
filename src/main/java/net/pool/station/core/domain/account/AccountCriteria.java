@@ -15,12 +15,14 @@ import java.util.Optional;
 
 @Builder
 public record AccountCriteria(
-        List<LocalDateTime> timeRange,
         String search,
+        Long stationId,
+        List<LocalDateTime> timeRange,
         List<String> statusCodes,
         List<Long> roleIds
 ) {
     public AccountCriteria {
+        stationId = MyObjectUtils.defaultValue(stationId, new TypeReference<>() {});
         timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         statusCodes = authorizedStatusCodes(statusCodes);
@@ -29,12 +31,14 @@ public record AccountCriteria(
 
     public static AccountCriteria of(
             String search,
+            Long stationId,
             List<LocalDateTime> timeRange,
             List<String> statusCodes,
             List<Long> roleIds
     ) {
         return AccountCriteria.builder()
                 .search(search)
+                .stationId(stationId)
                 .timeRange(timeRange)
                 .statusCodes(statusCodes)
                 .roleIds(roleIds)

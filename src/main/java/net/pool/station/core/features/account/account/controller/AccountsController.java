@@ -26,8 +26,8 @@ public class AccountsController implements AccountsApi {
     }
 
     @Override
-    public MyValueResponse<?> saveForStationAdmin(AccountRequest request) {
-        useCase.save(requestMapper.toDto(request), ERole.STATION_ADMIN);
+    public MyValueResponse<?> saveForStationAdmin(Long stationId, AccountRequest request) {
+        useCase.save(stationId, requestMapper.toDto(request), ERole.STATION_ADMIN);
 
         return MyValueResponse.successNoData();
     }

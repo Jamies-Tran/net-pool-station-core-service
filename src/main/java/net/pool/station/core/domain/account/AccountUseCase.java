@@ -14,6 +14,8 @@ public interface AccountUseCase {
 
     void save(Account account, ERole role);
 
+    void save(Long stationId, Account account, ERole role);
+
     Page<Account> findAll(AccountCriteria criteria, PageRequest pageRequest);
 
     Optional<Account> findById(DomainKey<Long> accountId);

@@ -10,6 +10,7 @@ import net.pool.station.core.domain.email.sending.EmailSending;
 import net.pool.station.core.domain.email.sending.EmailUseCase;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -23,6 +24,7 @@ public class EmailUseCaseService implements EmailUseCase {
 
 
     @Override
+    @Async("mailExecutor")
     public void sendMail(EmailSending emailSending) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();

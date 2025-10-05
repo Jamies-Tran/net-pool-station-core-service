@@ -16,6 +16,9 @@ import net.pool.station.core.domain.account.log.AccountLog;
 import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.role.Role;
 import net.pool.station.core.domain.role.RoleUseCase;
+import net.pool.station.core.domain.station.account.StationAccount;
+import net.pool.station.core.domain.station.account.StationAccountId;
+import net.pool.station.core.domain.station.account.StationAccountUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +40,8 @@ public class AccountUseCaseService implements AccountUseCase {
 
     LoggingFactory<AccountLog> loggingService;
 
+    StationAccountUseCase stationAccountUseCase;
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Account> findByEmail(DomainKey<String> email) {
@@ -55,6 +60,18 @@ public class AccountUseCaseService implements AccountUseCase {
                 .orElseThrow(MyResourceNotFoundException::new);
         Long savedId = commandService.save(account.withRoleId(foundRole.roleId()));
         loggingService.log(AccountLog.createSave(savedId));
+    }
+
+    @Override
+    @Transactional
+    public void save(Long stationId, Account account, ERole role) {
+        Role foundRole = roleUseCase.findByCode(DomainKey.of(role.getCode()))
+                .orElseThrow(MyResourceNotFoundException::new);
+        Long savedId = commandService.save(account.withRoleId(foundRole.roleId()));
+        loggingService.log(AccountLog.createSave(savedId));
+        stationAccountUseCase.save(StationAccount.builder()
+                .stationAccountId(StationAccountId.of(savedId, stationId))
+                .build());
     }
 
     @Override
