@@ -1,14 +1,14 @@
-package net.pool.station.core.features.space.controller;
+package net.pool.station.core.features.area.area.controller;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
-import net.pool.station.core.domain.space.SpaceCriteria;
-import net.pool.station.core.domain.space.SpaceUseCase;
-import net.pool.station.core.features.space.controller.models.SpaceResponse;
-import net.pool.station.core.features.space.controller.models.SpaceResponseMapper;
+import net.pool.station.core.domain.area.AreaCriteria;
+import net.pool.station.core.domain.area.AreaUseCase;
+import net.pool.station.core.features.area.area.controller.models.AreaResponse;
+import net.pool.station.core.features.area.area.controller.models.AreaResponseMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,20 +18,23 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class SpacesPubController implements SpacesPubApi {
-    SpaceUseCase spaceUseCase;
+public class AreasPubController implements AreasPubApi {
+    AreaUseCase areaUseCase;
 
-    SpaceResponseMapper responseMapper;
+    AreaResponseMapper responseMapper;
 
     @Override
-    public MyPageResponse<SpaceResponse> findAll(
+    public MyPageResponse<AreaResponse> findAll(
             String search,
+            Long stationId,
+            Long spaceId,
             List<String> statusCodes,
+            List<String> typeCodes,
             String sorter, Integer current, Integer pageSize
     ) {
-        SpaceCriteria criteria = SpaceCriteria.of(search, statusCodes);
+        AreaCriteria criteria = AreaCriteria.of(search, stationId, spaceId, statusCodes, typeCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
-        Page<SpaceResponse> responses = spaceUseCase.findAll(criteria, pageRequest)
+        Page<AreaResponse> responses = areaUseCase.findAll(criteria, pageRequest)
                 .map(responseMapper::toModel);
 
         return MyPageResponse.success(responses);

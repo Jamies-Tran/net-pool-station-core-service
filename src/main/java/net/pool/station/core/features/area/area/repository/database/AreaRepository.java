@@ -28,14 +28,20 @@ public interface AreaRepository extends JpaRepository<AreaEntity, Long> {
         SELECT a
         FROM AreaEntity a
         INNER JOIN AreaTypeEntity at ON a.areaTypeId = at.areaTypeId
+        INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId.stationId = a.stationId
+                AND ss.stationSpaceId.spaceId = a.spaceId
         WHERE a.deleted = FALSE
                 AND (:#{#criteria.search().empty} = TRUE
                         OR a.areaName ILIKE %:#{#criteria.search()}%
-                        OR a.areaCode ILIKE %:#{#criteria.search()}%)
+                        OR a.areaCode = :#{#criteria.search()})
                 AND (:#{#criteria.typeCodes().empty} = TRUE
                         OR at.typeCode IN :#{#criteria.typeCodes()})
                 AND (:#{#criteria.statusCodes().empty} = TRUE
                         OR a.statusCode IN :#{#criteria.statusCodes()})
+                AND (:#{#criteria.stationId()} = 0
+                        OR a.stationId = :#{#criteria.stationId()})
+                AND (:#{#criteria.spaceId()} = 0
+                        OR a.spaceId = :#{#criteria.spaceId()})
         """)
     Page<AreaEntity> findAll(AreaCriteria criteria, Pageable pageable);
 }

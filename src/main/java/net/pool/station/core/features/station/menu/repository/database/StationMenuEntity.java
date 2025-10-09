@@ -1,4 +1,4 @@
-package net.pool.station.core.features.area.area.repository.database;
+package net.pool.station.core.features.station.menu.repository.database;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,30 +13,37 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
-import net.pool.station.core.bootstrap.enums.EAreaStatus;
+import net.pool.station.core.bootstrap.enums.EMenuStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "areas")
+@Table(name = "station_menus")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AreaEntity extends Auditor {
+public class StationMenuEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long areaId;
+    Long stationMenuId;
 
     Long stationId;
 
-    Long spaceId;
+    String menuCode;
 
-    Long areaTypeId;
+    String menuName;
 
-    String areaCode;
+    String typeCode;
 
-    String areaName;
+    String typeName;
+
+    String description;
+
+    Long price;
 
     String statusCode;
 
@@ -47,9 +54,15 @@ public class AreaEntity extends Auditor {
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            statusCode = EAreaStatus.ACTIVE.getCode();
-            statusName = EAreaStatus.ACTIVE.getName();
+            statusCode = EMenuStatus.ENABLE.getCode();
+            statusName = EMenuStatus.ENABLE.getName();
         }
+
+        if (MyObjectUtils.isEmpty(menuCode)) {
+            menuCode = "menu-%s".formatted(LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")));
+        }
+
         deleted = false;
     }
 }

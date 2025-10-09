@@ -75,10 +75,12 @@ public class AreaCommandService {
                 && repository.existsByAreaCode(area.areaCode())) {
                 throw new MyResourceDuplicateException("Mã khu vực không được trùng lặp");
             }
+        } else {
+            if (repository.existsByAreaCode(area.areaCode())) {
+                throw new MyResourceDuplicateException("Mã khu vực không được trùng lặp");
+            }
         }
 
-        if (repository.existsByAreaCode(area.areaCode())) {
-            throw new MyResourceDuplicateException("Mã khu vực không được trùng lặp");
-        }
+
     }
 }

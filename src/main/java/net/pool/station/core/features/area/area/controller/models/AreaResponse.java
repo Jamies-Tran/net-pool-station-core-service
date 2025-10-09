@@ -1,6 +1,6 @@
-package net.pool.station.core.domain.area;
+package net.pool.station.core.features.area.area.controller.models;
 
-public record Area(
+public record AreaResponse(
         Long areaId,
         Long stationId,
         Long spaceId,

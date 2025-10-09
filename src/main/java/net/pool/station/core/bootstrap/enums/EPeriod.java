@@ -12,10 +12,10 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum EPeriod implements EnumProperty {
-    MORNING("MORNING", "Ca sáng"),
-    AFTERNOON("AFTERNOON", "Ca chiều"),
-    EVENING("EVENING", "Ca tối"),
-    NIGHT("NIGHT", "Ca đêm"),
+    MORNING("MORNING", "Sáng"),
+    AFTERNOON("AFTERNOON", "Chiều"),
+    EVENING("EVENING", "Tối"),
+    NIGHT("NIGHT", "Đêm"),
     UNKNOWN("UNKNOWN", "Không xác định");
 
     String code;

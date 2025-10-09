@@ -34,7 +34,8 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
                 AND (s.createdAt BETWEEN :#{#criteria.timeRange().get(0)}
                     AND :#{#criteria.timeRange().get(1)})
                 AND (:#{#criteria.search().empty} = TRUE
-                        OR s.stationName ILIKE %:#{#criteria.search()}%)
+                        OR (s.stationName ILIKE %:#{#criteria.search()}%
+                                OR s.statusCode = :#{#criteria.search()}))
                 AND (:#{#criteria.province().empty} = TRUE
                         OR s.province ILIKE :#{#criteria.province()})
                 AND (:#{#criteria.commune().empty} = TRUE

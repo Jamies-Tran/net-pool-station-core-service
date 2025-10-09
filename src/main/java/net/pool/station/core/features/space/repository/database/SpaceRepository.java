@@ -27,10 +27,11 @@ public interface SpaceRepository extends JpaRepository<SpaceEntity, Long> {
         SELECT s
         FROM SpaceEntity s
         WHERE s.deleted = FALSE
+                AND (:#{#criteria.search().empty} = TRUE
+                        OR (s.typeName ILIKE %:#{#criteria.search()}%
+                                OR s.typeCode = :#{#criteria.search()}))
                 AND (:#{#criteria.statusCodes().empty} = TRUE
                         OR s.statusCode IN :#{#criteria.statusCodes()})
-                AND (:#{#criteria.typeCodes().empty} = TRUE
-                        OR s.typeCode IN :#{#criteria.typeCodes()})
         """)
     Page<SpaceEntity> findAll(SpaceCriteria criteria, Pageable pageable);
 }

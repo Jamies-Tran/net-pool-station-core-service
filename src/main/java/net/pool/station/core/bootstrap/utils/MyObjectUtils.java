@@ -5,6 +5,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -76,6 +77,10 @@ public class MyObjectUtils {
 
         if (clazz.getType() == Collection.class) {
             return (T) Optional.ofNullable(value).orElse((T) List.of());
+        }
+
+        if (clazz.getType() == Map.class) {
+            return (T) Optional.ofNullable(value).orElse((T) Map.of());
         }
 
         if (clazz.getType() == Long.class) {
