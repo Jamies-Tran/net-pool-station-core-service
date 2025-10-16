@@ -3,6 +3,7 @@ package net.pool.station.core.features.station.resource.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceDuplicateException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.enums.EResourceStatus;
@@ -24,6 +25,13 @@ public class StationResourceCommandService {
     protected void save(StationResource stationResource) {
         validate(stationResource, null);
         repository.save(mapper.toEntity(stationResource));
+    }
+
+    protected void save(Long areaId, StationResource stationResource) {
+        if (!repository.validateToken(areaId)) {
+            throw new MyAuthenticationException();
+        }
+        repository.save(mapper.toEntity(stationResource.withAreaId(areaId)));
     }
 
     protected void update(Long stationResourceId, StationResource stationResource) {

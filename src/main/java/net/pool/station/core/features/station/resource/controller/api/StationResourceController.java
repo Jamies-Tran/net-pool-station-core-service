@@ -1,4 +1,4 @@
-package net.pool.station.core.features.station.resource.controller;
+package net.pool.station.core.features.station.resource.controller.api;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,8 +6,8 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
-import net.pool.station.core.features.station.resource.controller.models.StationResourceRequest;
-import net.pool.station.core.features.station.resource.controller.models.StationResourceRequestMapper;
+import net.pool.station.core.features.station.resource.controller.api.models.StationResourceRequest;
+import net.pool.station.core.features.station.resource.controller.api.models.StationResourceRequestMapper;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

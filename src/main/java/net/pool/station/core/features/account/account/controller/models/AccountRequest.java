@@ -16,10 +16,6 @@ public record AccountRequest(
                 message = "Vui lòng nhập mật khẩu"
         )
         String password,
-        @Length(
-                message = "Số CCCD phải có ít nhất 12 ký tự số",
-                min = 12
-        )
         String identification,
         @NotNull(
                 message = "Vui lập nhập số điện thoại"

@@ -1,8 +1,8 @@
-package net.pool.station.core.features.station.resource.controller;
+package net.pool.station.core.features.station.resource.controller.api;
 
 import jakarta.validation.Valid;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
-import net.pool.station.core.features.station.resource.controller.models.StationResourceRequest;
+import net.pool.station.core.features.station.resource.controller.api.models.StationResourceRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

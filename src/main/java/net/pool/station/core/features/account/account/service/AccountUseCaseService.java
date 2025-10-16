@@ -70,7 +70,7 @@ public class AccountUseCaseService implements AccountUseCase {
         Long savedId = commandService.save(account.withRoleId(foundRole.roleId()));
         loggingService.log(AccountLog.createSave(savedId));
         stationAccountUseCase.save(StationAccount.builder()
-                .stationAccountId(StationAccountId.of(savedId, stationId))
+                .stationAccountId(StationAccountId.of(stationId, savedId))
                 .build());
     }
 

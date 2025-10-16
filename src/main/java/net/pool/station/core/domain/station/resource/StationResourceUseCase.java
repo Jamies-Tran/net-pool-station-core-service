@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface StationResourceUseCase {
     void save(StationResource stationResource);
 
+    void saveWithSocketToken(String token, StationResource stationResource);
+
     Page<StationResource> findAll(StationResourceCriteria criteria, PageRequest pageRequest);
 
     Optional<StationResource> findById(DomainKey<Long> stationResourceId);

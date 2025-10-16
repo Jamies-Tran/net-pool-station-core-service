@@ -1,10 +1,12 @@
 package net.pool.station.core.domain.station.resource;
 
+import lombok.With;
+
 import java.util.List;
 
 public record StationResource(
         Long stationResourceId,
-        Long areaId,
+        @With Long areaId,
         String resourceCode,
         String resourceName,
         String typeCode,
@@ -13,6 +15,10 @@ public record StationResource(
         String statusName,
         Specs specs
 ) {
+    public record AreaId(
+            Long areaId
+    ) {}
+
     public record Specs(
         PcSpec pcSpec,
         BilliardTableSpec billiardTableSpec,

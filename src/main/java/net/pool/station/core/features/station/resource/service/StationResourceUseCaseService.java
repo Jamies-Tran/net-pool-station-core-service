@@ -1,9 +1,12 @@
 package net.pool.station.core.features.station.resource.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.mapper.MyObjectMapper;
 import net.pool.station.core.bootstrap.enums.EResourceStatus;
+import net.pool.station.core.bootstrap.utils.MyAesEncryptionUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceCriteria;
@@ -27,6 +30,15 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     @Transactional
     public void save(StationResource stationResource) {
         commandService.save(stationResource);
+    }
+
+    @Override
+    @Transactional
+    public void saveWithSocketToken(String token, StationResource stationResource) {
+        String encryptedToken = MyAesEncryptionUtils.decrypt(token);
+        StationResource.AreaId areaId = MyObjectMapper
+                .convertObjectFromString(encryptedToken, new TypeReference<StationResource.AreaId>() {});
+        commandService.save(areaId.areaId(), stationResource);
     }
 
     @Override

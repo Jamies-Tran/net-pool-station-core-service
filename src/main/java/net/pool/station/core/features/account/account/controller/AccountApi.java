@@ -19,9 +19,11 @@ public interface AccountApi {
     MyValueResponse<?> update(@PathVariable Long accountId, @RequestBody @Valid AccountRequest request);
 
     @PatchMapping("/enable")
+    @PreAuthorize("hasAnyRole({'ROLE_SYSTEM_ADMIN', 'ROLE_PLATFORM_ADMIN', 'ROLE_STATION_OWNER'})")
     MyValueResponse<?> enable(@PathVariable Long accountId);
 
     @PatchMapping("/disable")
+    @PreAuthorize("hasAnyRole({'ROLE_SYSTEM_ADMIN', 'ROLE_PLATFORM_ADMIN', 'ROLE_STATION_OWNER'})")
     MyValueResponse<?> disable(@PathVariable Long accountId);
 
     @DeleteMapping

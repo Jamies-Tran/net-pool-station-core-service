@@ -30,4 +30,11 @@ public interface StationResourceRepository extends JpaRepository<StationResource
                       OR s.statusCode IN :#{#criteria.statusCodes()})
         """)
     Page<StationResourceEntity> findAll(StationResourceCriteria criteria, Pageable pageable);
+
+    @Query("""
+        SELECT COUNT(a) > 0
+        FROM AreaEntity a
+        WHERE a.areaId = :areaId
+        """)
+    Boolean validateToken(Long areaId);
 }

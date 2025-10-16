@@ -1,0 +1,11 @@
+package net.pool.station.core.features.station.resource.controller.websocket.models;
+
+import net.pool.station.core.bootstrap.configuration.mapper.MapStructConfig;
+import net.pool.station.core.bootstrap.configuration.mapper.ModelMapper;
+import net.pool.station.core.domain.station.resource.StationResource;
+import org.mapstruct.Mapper;
+
+@Mapper(config = MapStructConfig.class, implementationName = "StationResourceRequestSocketMapper")
+public interface StationResourceRequestMapper extends ModelMapper<StationResourceRequest, StationResource> {
+
+}

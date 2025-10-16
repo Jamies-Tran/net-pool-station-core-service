@@ -1,6 +1,7 @@
 package net.pool.station.core.bootstrap.configuration.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,15 @@ public class MyObjectMapper {
             return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             log.error("[{}-convertDataToJsonString] có lỗi xảy ra: {} ", MyObjectMapper.class.getSimpleName(), e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T convertObjectFromString(String data, TypeReference<T> typeReference) {
+        try {
+            return objectMapper.convertValue(data, typeReference);
+        } catch (Exception e) {
+            log.error("[{}-convertObjectFromString] có lỗi xảy ra: {} ", MyObjectMapper.class.getSimpleName(), e.getMessage());
             throw new RuntimeException(e);
         }
     }

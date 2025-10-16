@@ -1,4 +1,4 @@
-package net.pool.station.core.features.station.resource.controller;
+package net.pool.station.core.features.station.resource.controller.api;
 
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import org.springframework.web.bind.annotation.GetMapping;

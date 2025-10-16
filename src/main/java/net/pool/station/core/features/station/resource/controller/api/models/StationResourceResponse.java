@@ -1,4 +1,4 @@
-package net.pool.station.core.features.station.resource.controller.models;
+package net.pool.station.core.features.station.resource.controller.api.models;
 
 import net.pool.station.core.domain.station.resource.StationResource;
 
