@@ -31,8 +31,8 @@ spring:
           auth: true
           starttls:
             enable: true
-#  profiles:
-#    active: develop
+  profiles:
+    active: develop
 
 server:
   port: 8080
