@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.station.resource;
 
+import lombok.Builder;
 import lombok.With;
 
 import java.util.List;
@@ -20,37 +21,22 @@ public record StationResource(
     ) {}
 
     public record Specs(
-        PcSpec pcSpec,
-        BilliardTableSpec billiardTableSpec,
-        ConsoleSpec consoleSpec
+            String cpu,
+            String ram,
+            List<Gpu> gpus,
+            List<Storage> storages
     ) {
-        public record PcSpec(
-                String cpu,
-                String ram,
-                String gpu,
-                List<Storage> storages,
-                String mainboard
-        ) {
-            public record Storage(
-                    String type,
-                    String capacity
-            ) {}
-        }
-
-        public record BilliardTableSpec(
-                String typeCode,
-                String typeName,
-                String surfaceTypeCode,
-                String surfaceTypeName,
-                String clothTypeCode,
-                String clothTypeName
+        @Builder
+        public record Storage(
+                String model,
+                String serial,
+                String capacity
         ) {}
 
-        public record ConsoleSpec (
-                Double tvScreenSize,
-                String resolution,
-                String refreshRate,
-                String inputLag
+        @Builder
+        public record Gpu(
+                String name,
+                String vRam
         ) {}
     }
 }

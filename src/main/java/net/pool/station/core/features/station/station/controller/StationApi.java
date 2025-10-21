@@ -41,5 +41,6 @@ public interface StationApi {
     MyValueResponse<?> disable(@PathVariable Long stationId);
 
     @DeleteMapping
+    @PreAuthorize("hasAnyRole({'ROLE_PLATFORM_ADMIN', 'ROLE_STATION_OWNER'})")
     MyValueResponse<?> delete(@PathVariable Long stationId);
 }
