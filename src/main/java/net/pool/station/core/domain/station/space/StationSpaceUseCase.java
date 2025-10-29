@@ -10,16 +10,16 @@ import java.util.Optional;
 public interface StationSpaceUseCase {
     void save(@NotNull StationSpace stationSpace);
 
-    Optional<StationSpace> findById(@NotNull DomainKey<StationSpaceId> id);
+    Optional<StationSpace> findById(@NotNull DomainKey<Long> id);
 
     Page<StationSpace> findAll(@NotNull StationSpaceCriteria criteria,@NotNull Pageable pageable);
 
-    void update(@NotNull DomainKey<StationSpaceId> id, @NotNull StationSpace stationSpace);
+    void update(@NotNull DomainKey<Long> id, @NotNull StationSpace stationSpace);
 
-    void enable(@NotNull DomainKey<StationSpaceId> id);
+    void enable(@NotNull DomainKey<Long> id);
 
-    void disable(@NotNull DomainKey<StationSpaceId> id);
+    void disable(@NotNull DomainKey<Long> id);
 
-    void delete(@NotNull DomainKey<StationSpaceId> id);
+    void delete(@NotNull DomainKey<Long> id);
 
 }

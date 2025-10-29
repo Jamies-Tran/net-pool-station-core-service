@@ -5,7 +5,9 @@ import net.pool.station.core.domain.station.space.StationSpaceId;
 
 @Builder
 public record StationSpaceResponse(
-        StationSpaceId stationSpaceId,
+        Long stationSpaceId,
+        Long stationId,
+        Long spaceId,
         String spaceCode,
         String spaceName,
         Integer capacity,

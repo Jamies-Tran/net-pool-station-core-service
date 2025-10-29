@@ -7,7 +7,6 @@ import net.pool.station.core.bootstrap.enums.ETimeSlotStatus;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.space.timeslot.StationSpaceTimeSlot;
 import net.pool.station.core.domain.station.space.timeslot.StationSpaceTimeSlotCriteria;
-import net.pool.station.core.domain.station.space.timeslot.StationSpaceTimeSlotId;
 import net.pool.station.core.domain.station.space.timeslot.StationSpaceTimeSlotUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,19 +37,19 @@ public class StationSpaceTimeSlotUseCaseService implements StationSpaceTimeSlotU
 
     @Override
     @Transactional
-    public void enable(DomainKey<StationSpaceTimeSlotId> id) {
+    public void enable(DomainKey<Long> id) {
         commandService.updateStatus(id.value(), ETimeSlotStatus.ENABLED);
     }
 
     @Override
     @Transactional
-    public void disable(DomainKey<StationSpaceTimeSlotId> id) {
+    public void disable(DomainKey<Long> id) {
         commandService.updateStatus(id.value(), ETimeSlotStatus.DISABLED);
     }
 
     @Override
     @Transactional
-    public void delete(DomainKey<StationSpaceTimeSlotId> id) {
+    public void delete(DomainKey<Long> id) {
         commandService.delete(id.value());
     }
 }

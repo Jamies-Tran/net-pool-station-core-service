@@ -4,7 +4,9 @@ import lombok.Builder;
 
 @Builder
 public record StationSpaceTimeSlotResponse(
-        StationSpaceTimeSlotIdModel stationSpaceTimeSlotId,
+        Long stationSpaceSlotId,
+        Long stationSpaceId,
+        Long timeSlotId,
         String statusCode,
         String statusName
 ) {

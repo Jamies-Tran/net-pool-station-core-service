@@ -14,9 +14,9 @@ public interface AreaRepository extends JpaRepository<AreaEntity, Long> {
     @Query("""
         SELECT COUNT(a) > 0
         FROM AreaEntity a
-        INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId.stationId = a.stationId 
-                AND ss.stationSpaceId.spaceId = a.spaceId
-        INNER JOIN StationEntity s ON s.stationId = ss.stationSpaceId.stationId
+        INNER JOIN StationSpaceEntity ss ON ss.stationId = a.stationId 
+                AND ss.spaceId = a.spaceId
+        INNER JOIN StationEntity s ON s.stationId = ss.stationId
         WHERE a.areaCode = :areaCode
               AND a.deleted = FALSE
         """)
@@ -28,8 +28,8 @@ public interface AreaRepository extends JpaRepository<AreaEntity, Long> {
         SELECT a
         FROM AreaEntity a
         INNER JOIN AreaTypeEntity at ON a.areaTypeId = at.areaTypeId
-        INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId.stationId = a.stationId
-                AND ss.stationSpaceId.spaceId = a.spaceId
+        INNER JOIN StationSpaceEntity ss ON ss.stationId = a.stationId
+                AND ss.spaceId = a.spaceId
         WHERE a.deleted = FALSE
                 AND (:#{#criteria.search().empty} = TRUE
                         OR a.areaName ILIKE %:#{#criteria.search()}%

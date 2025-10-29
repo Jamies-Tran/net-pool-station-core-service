@@ -21,9 +21,8 @@ public class StationSpacePubController implements StationSpacePubApi {
     StationSpaceResponseMapper responseMapper;
 
     @Override
-    public MyValueResponse<StationSpaceResponse> findById(Long stationId, Long spaceId) {
-        StationSpaceId id = StationSpaceId.of(stationId, spaceId);
-        StationSpaceResponse response = stationSpaceUseCase.findById(DomainKey.of(id))
+    public MyValueResponse<StationSpaceResponse> findById(Long stationSpaceId) {
+        StationSpaceResponse response = stationSpaceUseCase.findById(DomainKey.of(stationSpaceId))
                 .map(responseMapper::toModel)
                 .orElseThrow(MyResourceNotFoundException::new);
 

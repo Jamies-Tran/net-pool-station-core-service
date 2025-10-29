@@ -3,7 +3,8 @@ package net.pool.station.core.features.station.space.space.controller.models;
 import net.pool.station.core.domain.station.space.StationSpaceId;
 
 public record StationSpaceRequest(
-        StationSpaceId stationSpaceId,
+        Long stationId,
+        Long spaceId,
         String spaceCode,
         String spaceName,
         Integer capacity,

@@ -20,33 +20,29 @@ public class StationSpaceController implements StationSpaceApi{
     StationSpaceRequestMapper requestMapper;
 
     @Override
-    public MyValueResponse<?> update(Long stationId, Long spaceId, StationSpaceRequest request) {
-        StationSpaceId id = StationSpaceId.of(stationId, spaceId);
-        stationSpaceUseCase.update(DomainKey.of(id), requestMapper.toDto(request));
+    public MyValueResponse<?> update(Long stationSpaceId, StationSpaceRequest request) {
+        stationSpaceUseCase.update(DomainKey.of(stationSpaceId), requestMapper.toDto(request));
 
         return MyValueResponse.successNoData() ;
     }
 
     @Override
-    public MyValueResponse<?> enable(Long stationId, Long spaceId) {
-        StationSpaceId id = StationSpaceId.of(stationId, spaceId);
-        stationSpaceUseCase.enable(DomainKey.of(id));
+    public MyValueResponse<?> enable(Long stationSpaceId) {
+        stationSpaceUseCase.enable(DomainKey.of(stationSpaceId));
 
         return MyValueResponse.successNoData() ;
     }
 
     @Override
-    public MyValueResponse<?> disable(Long stationId, Long spaceId) {
-        StationSpaceId id = StationSpaceId.of(stationId, spaceId);
-        stationSpaceUseCase.disable(DomainKey.of(id));
+    public MyValueResponse<?> disable(Long stationSpaceId) {
+        stationSpaceUseCase.disable(DomainKey.of(stationSpaceId));
 
         return MyValueResponse.successNoData() ;
     }
 
     @Override
-    public MyValueResponse<?> delete(Long stationId, Long spaceId) {
-        StationSpaceId id = StationSpaceId.of(stationId, spaceId);
-        stationSpaceUseCase.delete(DomainKey.of(id));
+    public MyValueResponse<?> delete(Long stationSpaceId) {
+        stationSpaceUseCase.delete(DomainKey.of(stationSpaceId));
 
         return MyValueResponse.successNoData() ;
     }

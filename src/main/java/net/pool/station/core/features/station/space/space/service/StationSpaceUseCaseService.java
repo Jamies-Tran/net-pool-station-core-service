@@ -33,7 +33,7 @@ public class StationSpaceUseCaseService implements StationSpaceUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<StationSpace> findById(@NotNull DomainKey<StationSpaceId> id) {
+    public Optional<StationSpace> findById(@NotNull DomainKey<Long> id) {
         return queryService.findById(id.value());
     }
 
@@ -45,25 +45,25 @@ public class StationSpaceUseCaseService implements StationSpaceUseCase {
 
     @Override
     @Transactional
-    public void update(@NotNull DomainKey<StationSpaceId> id, @NotNull StationSpace stationSpace) {
+    public void update(@NotNull DomainKey<Long> id, @NotNull StationSpace stationSpace) {
         commandService.update(id.value(), stationSpace);
     }
 
     @Override
     @Transactional
-    public void enable(@NotNull DomainKey<StationSpaceId> id) {
+    public void enable(@NotNull DomainKey<Long> id) {
         commandService.updateStatus(id.value(), EStationSpaceStatus.ACTIVE);
     }
 
     @Override
     @Transactional
-    public void disable(@NotNull DomainKey<StationSpaceId> id) {
+    public void disable(@NotNull DomainKey<Long> id) {
         commandService.updateStatus(id.value(), EStationSpaceStatus.INACTIVE);
     }
 
     @Override
     @Transactional
-    public void delete(@NotNull DomainKey<StationSpaceId> id) {
+    public void delete(@NotNull DomainKey<Long> id) {
         commandService.delete(id.value());
     }
 }

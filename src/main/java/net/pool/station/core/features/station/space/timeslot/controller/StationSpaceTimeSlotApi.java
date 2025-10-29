@@ -3,44 +3,17 @@ package net.pool.station.core.features.station.space.timeslot.controller;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/v1/api/station-space-slots")
+@RequestMapping("/v1/api/station-space-slots/{stationSpaceSlotId}")
 public interface StationSpaceTimeSlotApi {
     @PatchMapping("/enable")
-    MyValueResponse<?> enable(
-            @RequestParam
-            Long stationId,
-
-            @RequestParam
-            Long spaceId,
-
-            @RequestParam
-            Long timeSlotId
-    );
+    MyValueResponse<?> enable(@PathVariable Long stationSpaceSlotId);
 
     @PatchMapping("/disable")
-    MyValueResponse<?> disable(
-            @RequestParam
-            Long stationId,
-
-            @RequestParam
-            Long spaceId,
-
-            @RequestParam
-            Long timeSlotId
-    );
+    MyValueResponse<?> disable(@PathVariable Long stationSpaceSlotId);
 
     @DeleteMapping
-    MyValueResponse<?> delete(
-            @RequestParam
-            Long stationId,
-
-            @RequestParam
-            Long spaceId,
-
-            @RequestParam
-            Long timeSlotId
-    );
+    MyValueResponse<?> delete(@PathVariable Long stationSpaceSlotId);
 }

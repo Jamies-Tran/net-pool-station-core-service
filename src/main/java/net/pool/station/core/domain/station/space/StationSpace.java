@@ -1,7 +1,9 @@
 package net.pool.station.core.domain.station.space;
 
 public record StationSpace(
-        StationSpaceId stationSpaceId,
+        Long stationSpaceId,
+        Long stationId,
+        Long spaceId,
         String spaceCode,
         String spaceName,
         Integer capacity,

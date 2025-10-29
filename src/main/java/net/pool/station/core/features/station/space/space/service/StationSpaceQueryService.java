@@ -22,8 +22,8 @@ public class StationSpaceQueryService {
 
     StationSpaceEntityMapper mapper;
 
-    protected Optional<StationSpace> findById(StationSpaceId stationSpaceId) {
-        return repository.findById(stationSpaceId)
+    protected Optional<StationSpace> findById(Long stationSpaceId) {
+        return repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
                 .map(mapper::toDto);
     }
 

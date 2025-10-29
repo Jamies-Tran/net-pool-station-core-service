@@ -24,17 +24,17 @@ public class StationSpaceCommandService {
     StationSpaceEntityMapper mapper;
 
     protected void save(@NotNull StationSpace space) {
-        validate(space.stationSpaceId().stationId(), space, null);
+        validate(space.stationId(), space, null);
         repository.save(mapper.toEntity(space));
     }
 
-    protected void update(@NotNull StationSpaceId stationSpaceId,
+    protected void update(@NotNull Long stationSpaceId,
                           @NotNull StationSpace stationSpace)
     {
-        repository.findById(stationSpaceId)
+        repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
                 .ifPresentOrElse(
                         foundStationSpace -> {
-                            validate(stationSpaceId.stationId(), stationSpace, foundStationSpace);
+                            validate(stationSpace.stationId(), stationSpace, foundStationSpace);
                             mapper.update(foundStationSpace, stationSpace);
                             repository.save(foundStationSpace);
                         },
@@ -44,8 +44,8 @@ public class StationSpaceCommandService {
                 );
     }
 
-    protected void delete(@NotNull StationSpaceId stationSpaceId) {
-        repository.findById(stationSpaceId)
+    protected void delete(@NotNull Long stationSpaceId) {
+        repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
                 .ifPresentOrElse(
                         foundStationSpace -> {
                             foundStationSpace.setDeleted(true);
@@ -58,10 +58,10 @@ public class StationSpaceCommandService {
     }
 
     protected void updateStatus(
-            @NotNull StationSpaceId stationSpaceId,
+            @NotNull Long stationSpaceId,
             @NotNull EStationSpaceStatus status
     ) {
-        repository.findById(stationSpaceId)
+        repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
                 .ifPresentOrElse(
                         foundStationSpace -> {
                             foundStationSpace.setStatusCode(status.getCode());

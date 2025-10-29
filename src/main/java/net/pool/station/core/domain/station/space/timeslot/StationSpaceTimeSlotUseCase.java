@@ -11,9 +11,9 @@ public interface StationSpaceTimeSlotUseCase {
 
     Page<StationSpaceTimeSlot> findAll(StationSpaceTimeSlotCriteria criteria, PageRequest pageRequest);
 
-    void enable(DomainKey<StationSpaceTimeSlotId> id);
+    void enable(DomainKey<Long> id);
 
-    void disable(DomainKey<StationSpaceTimeSlotId> id);
+    void disable(DomainKey<Long> id);
 
-    void delete(DomainKey<StationSpaceTimeSlotId> id);
+    void delete(DomainKey<Long> id);
 }
