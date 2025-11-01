@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.enums.EAccountStatus;
+import net.pool.station.core.bootstrap.enums.EGameGenre;
+import net.pool.station.core.bootstrap.enums.EGameStatus;
 import net.pool.station.core.bootstrap.enums.ELogType;
 import net.pool.station.core.bootstrap.rest.response.MyListResponse;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
@@ -42,6 +44,22 @@ public class CategoryPubController implements CategoryPubApi {
     public MyListResponse<CategoryResponse> findLoginLogTypeCategory(String search) {
         List<CategoryResponse> responses = responseMapper
                 .toModel(useCase.findAllType(search, "LOGIN", ELogType.class));
+
+        return MyListResponse.success(responses);
+    }
+
+    @Override
+    public MyListResponse<CategoryResponse> findGameGenreCategory(String search) {
+        List<CategoryResponse> responses = responseMapper
+                .toModel(useCase.findAll(search, EGameGenre.class));
+
+        return MyListResponse.success(responses);
+    }
+
+    @Override
+    public MyListResponse<CategoryResponse> findGameStatusCategory(String search) {
+        List<CategoryResponse> responses = responseMapper
+                .toModel(useCase.findAll(search, EGameStatus.class));
 
         return MyListResponse.success(responses);
     }

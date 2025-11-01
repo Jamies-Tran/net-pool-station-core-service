@@ -28,9 +28,9 @@ public class StationResourceSpecsController implements StationResourceSpecApi {
     ConsoleSpecRequestMapper csSpecRequestMapper;
 
     @Override
-    public MyValueResponse<?> saveForPc(Long areaId, PCSpecsRequest request) {
+    public MyValueResponse<?> saveForPc(Long stationResourceId, PCSpecsRequest request) {
         StationResourceSpec spec = pcRequestMapper.toDto(request);
-        spec = spec.withAreaId(areaId)
+        spec = spec.withStationResourceId(stationResourceId)
                 .withTypeCode(ESpecType.PC.getCode())
                 .withTypeName(ESpecType.PC.getName());
         stationResourceSpecUseCase.save(spec);
@@ -39,9 +39,9 @@ public class StationResourceSpecsController implements StationResourceSpecApi {
     }
 
     @Override
-    public MyValueResponse<?> saveForBilliardTable(Long areaId, BilliardTableSpecRequest request) {
+    public MyValueResponse<?> saveForBilliardTable(Long stationResourceId, BilliardTableSpecRequest request) {
         StationResourceSpec spec = btSpecRequestMapper.toDto(request);
-        spec = spec.withAreaId(areaId)
+        spec = spec.withStationResourceId(stationResourceId)
                 .withTypeCode(ESpecType.Billiard_TABLE.getCode())
                 .withTypeName(ESpecType.Billiard_TABLE.getName());
         stationResourceSpecUseCase.save(spec);
@@ -50,9 +50,9 @@ public class StationResourceSpecsController implements StationResourceSpecApi {
     }
 
     @Override
-    public MyValueResponse<?> saveForConsole(Long areaId, ConsoleSpecRequest request) {
+    public MyValueResponse<?> saveForConsole(Long stationResourceId, ConsoleSpecRequest request) {
         StationResourceSpec spec = csSpecRequestMapper.toDto(request);
-        spec = spec.withAreaId(areaId)
+        spec = spec.withStationResourceId(stationResourceId)
                 .withTypeCode(ESpecType.CONSOLE.getCode())
                 .withTypeName(ESpecType.CONSOLE.getName());
         stationResourceSpecUseCase.save(spec);

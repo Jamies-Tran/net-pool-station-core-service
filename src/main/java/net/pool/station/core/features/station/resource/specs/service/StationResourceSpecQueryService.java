@@ -18,8 +18,8 @@ public class StationResourceSpecQueryService {
 
     StationResourceSpecEntityMapper mapper;
 
-    protected Optional<StationResourceSpec> findByAreaId(Long areaId) {
-        return repository.findByAreaIdAndDeletedFalse(areaId)
+    protected Optional<StationResourceSpec> findByStationResourceId(Long stationResourceId) {
+        return repository.findByStationResourceIdAndDeletedFalse(stationResourceId)
                 .map(mapper::toDto);
     }
 }

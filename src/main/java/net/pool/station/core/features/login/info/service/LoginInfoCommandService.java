@@ -66,6 +66,7 @@ public class LoginInfoCommandService {
                                 .refreshExpiredAt(updateLoginInfo.getRefreshExpiredAt())
                                 .accountId(account.accountId())
                                 .email(account.email())
+                                .roleCode(account.role().roleCode())
                                 .build();
                     } else {
                         String accessToken = tokenUtils.generateAccessToken(account.email());

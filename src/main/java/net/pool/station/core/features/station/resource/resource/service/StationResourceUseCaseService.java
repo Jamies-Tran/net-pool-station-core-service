@@ -11,6 +11,8 @@ import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceCriteria;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
+import net.pool.station.core.domain.station.resource.specs.StationResourceSpec;
+import net.pool.station.core.domain.station.resource.specs.StationResourceSpecUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     StationResourceCommandService commandService;
 
     StationResourceQueryService queryService;
+
+    StationResourceSpecUseCase stationResourceSpecUseCase;
 
     @Override
     @Transactional
@@ -50,7 +54,11 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     @Override
     @Transactional(readOnly = true)
     public Optional<StationResource> findById(DomainKey<Long> stationResourceId) {
-        return queryService.findById(stationResourceId.value());
+        StationResourceSpec spec = stationResourceSpecUseCase.findByStationResourceId(stationResourceId)
+                .orElse(null);
+        return queryService
+                .findById(stationResourceId.value())
+                .map(s -> s.withSpec(spec));
     }
 
     @Override

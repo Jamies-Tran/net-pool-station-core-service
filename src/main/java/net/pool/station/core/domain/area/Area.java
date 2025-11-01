@@ -2,8 +2,7 @@ package net.pool.station.core.domain.area;
 
 public record Area(
         Long areaId,
-        Long stationId,
-        Long spaceId,
+        Long stationSpaceId,
         Long areaTypeId,
         String areaCode,
         String areaName,

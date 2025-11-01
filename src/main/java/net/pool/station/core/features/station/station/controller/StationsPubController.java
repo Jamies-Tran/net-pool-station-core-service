@@ -31,11 +31,29 @@ public class StationsPubController implements StationsPubApi {
             String commune,
             String district,
             Double distance,
-            List<LocalDateTime> timeRange,
+            String gameName,
+            String pcGpuModel,
+            String pcGpuSerial,
+            String pcCpu,
+            String btTypeCode,
+            Double csScreenSize,
+            String csResolution,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize)
     {
-        StationCriteria criteria = StationCriteria.of(search, province, commune, district, distance, timeRange,
+        StationCriteria criteria = StationCriteria.of(
+                search,
+                province,
+                commune,
+                district,
+                distance,
+                gameName,
+                pcGpuModel,
+                pcGpuSerial,
+                pcCpu,
+                btTypeCode,
+                csScreenSize,
+                csResolution,
                 statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<StationResponse> responses = stationUseCase.findAll(criteria, pageRequest)

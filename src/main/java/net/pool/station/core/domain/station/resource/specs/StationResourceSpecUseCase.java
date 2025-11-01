@@ -7,9 +7,7 @@ import java.util.Optional;
 public interface StationResourceSpecUseCase {
     void save(StationResourceSpec stationResourceSpec);
 
-    Optional<StationResourceSpec> findByAreaId(DomainKey<Long> areaId);
-
-    void update(DomainKey<Long> stationResourceSpecId, StationResourceSpec stationResourceSpec);
+    Optional<StationResourceSpec> findByStationResourceId(DomainKey<Long> stationResourceId);
 
     void delete(DomainKey<Long> stationResourceSpecId);
 }

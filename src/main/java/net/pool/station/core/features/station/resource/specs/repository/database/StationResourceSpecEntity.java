@@ -1,9 +1,11 @@
 package net.pool.station.core.features.station.resource.specs.repository.database;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,7 +28,7 @@ public class StationResourceSpecEntity extends Auditor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long stationResourceSpecId;
 
-    Long areaId;
+    Long stationResourceId;
 
     String pcCpu;
 
@@ -40,6 +42,7 @@ public class StationResourceSpecEntity extends Auditor {
 
     String pcStorageName;
 
+    @Column(name = "pc_storage_vram")
     String pcStorageVRam;
 
     String btTypeCode;
@@ -66,13 +69,8 @@ public class StationResourceSpecEntity extends Auditor {
 
     Boolean deleted;
 
-
-    public String hash() {
-        return "%s;%s;%s;%s;%s;%s;%s;%s"
-                .formatted(areaId, pcCpu, pcRam, pcGpuModel, pcGpuSerial, pcGpuCapacity, pcStorageName, pcStorageVRam);
-    }
-
-    public Boolean equals(StationResourceSpecEntity obj) {
-        return MyObjectUtils.isEquals(obj.hash(), this.hash());
+    @PrePersist
+    private void prePersist() {
+        deleted = false;
     }
 }

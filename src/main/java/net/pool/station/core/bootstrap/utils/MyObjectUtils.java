@@ -75,7 +75,7 @@ public class MyObjectUtils {
             return (T) Optional.ofNullable(value).orElse((T) "");
         }
 
-        if (clazz.getType() == Collection.class) {
+        if (clazz.getType() == Collection.class || clazz.getType() == List.class) {
             return (T) Optional.ofNullable(value).orElse((T) List.of());
         }
 
@@ -85,6 +85,10 @@ public class MyObjectUtils {
 
         if (clazz.getType() == Long.class) {
             return (T) Optional.ofNullable(value).orElse((T) Long.valueOf(0));
+        }
+
+        if (clazz.getType() == Double.class) {
+            return (T) Optional.ofNullable(value).orElse((T) Double.valueOf(0));
         }
 
         return value;

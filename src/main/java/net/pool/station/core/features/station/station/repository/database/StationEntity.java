@@ -78,13 +78,7 @@ public class StationEntity extends Auditor {
         }
 
         if (MyObjectUtils.isEmpty(stationCode)) {
-            LocalDateTime now = LocalDateTime.now();
-            String year = MyObjectUtils.convertToString(now.getYear());
-            String dateMonth = now.format(DateTimeFormatter.ofPattern("ddMM"));
-            String random = EnvironmentVariable.generateRandomCode(stationName.replace(" ", ""),
-                    stationName.length());
-
-            stationCode = "ST_%s_%s_%s".formatted(year, dateMonth, random);
+            stationCode = "ST_%s".formatted(UUID.randomUUID().toString());
         }
 
         metadata = Optional.ofNullable(metadata).orElse(Station.Metadata.empty());

@@ -27,14 +27,8 @@ public class StationResourceSpecUseCaseService implements StationResourceSpecUse
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<StationResourceSpec> findByAreaId(DomainKey<Long> areaId) {
-        return queryService.findByAreaId(areaId.value());
-    }
-
-    @Override
-    @Transactional
-    public void update(DomainKey<Long> stationResourceSpecId, StationResourceSpec stationResourceSpec) {
-        commandService.update(stationResourceSpecId.value(), stationResourceSpec);
+    public Optional<StationResourceSpec> findByStationResourceId(DomainKey<Long> stationResourceId) {
+        return queryService.findByStationResourceId(stationResourceId.value());
     }
 
     @Override

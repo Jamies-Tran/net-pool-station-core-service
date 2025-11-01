@@ -21,7 +21,7 @@ public record StationResourceCriteria(
         areaId = MyObjectUtils.defaultValue(areaId, new TypeReference<>() {});
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         typeCodes = MyObjectUtils.defaultValue(typeCodes, new TypeReference<>() {});
-        statusCodes = authorizedStatusCodes();
+        statusCodes = authorizedStatusCodes(statusCodes);
     }
 
     public static StationResourceCriteria of(
@@ -38,13 +38,14 @@ public record StationResourceCriteria(
                 .build();
     }
 
-    private List<String> authorizedStatusCodes() {
+    private List<String> authorizedStatusCodes(List<String> statusCodes) {
+        List<String> authorizedStatus = MyObjectUtils.defaultValue(statusCodes, new TypeReference<List>() {});
+
         LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
                 .orElse(LoginInfo.currentLoginInfoEmpty());
-        List<String> authorizedStatus = MyObjectUtils.defaultValue(statusCodes, new TypeReference<>() {});
         if (loginInfo.isLoginEmpty()
                 || MyObjectUtils.isEquals(ERole.PLAYER.getCode(), loginInfo.roleCode())) {
-            authorizedStatus.removeIf(s -> MyObjectUtils.isNotEquals(EResourceStatus.ENABLE.getCode(), s));
+            authorizedStatus = List.of(EResourceStatus.ENABLE.getCode());
         }
 
         return authorizedStatus;

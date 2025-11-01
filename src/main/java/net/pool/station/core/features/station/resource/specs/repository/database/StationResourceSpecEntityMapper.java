@@ -9,6 +9,6 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapStructConfig.class)
 public interface StationResourceSpecEntityMapper extends EntityMapper<StationResourceSpecEntity, StationResourceSpec> {
-    @Mapping(target = "areaId", ignore = true)
+    @Mapping(target = "stationResourceId", ignore = true)
     void update(@MappingTarget StationResourceSpecEntity target, StationResourceSpec source);
 }

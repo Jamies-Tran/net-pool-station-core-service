@@ -20,6 +20,13 @@ public record StationCriteria(
         String province,
         String commune,
         String district,
+        String gameName,
+        String pcGpuModel,
+        String pcGpuSerial,
+        String pcCpu,
+        String btTypeCode,
+        Double csScreenSize,
+        String csResolution,
         List<LocalDateTime> timeRange,
         List<String> statusCodes,
         List<Double> distances
@@ -29,8 +36,13 @@ public record StationCriteria(
         province = MyObjectUtils.defaultValue(province, new TypeReference<>() {});
         commune = MyObjectUtils.defaultValue(commune, new TypeReference<>() {});
         district = MyObjectUtils.defaultValue(district, new TypeReference<>() {});
-        timeRange = MyDateTimeUtils.defaultTimeRange(timeRange);
         statusCodes = authorizeStatusCodes(statusCodes);
+        gameName = MyObjectUtils.defaultValue(gameName, new TypeReference<>() {});
+        pcGpuModel = MyObjectUtils.defaultValue(pcGpuModel, new TypeReference<>() {});
+        pcGpuSerial = MyObjectUtils.defaultValue(pcGpuSerial, new TypeReference<>() {});
+        btTypeCode = MyObjectUtils.defaultValue(btTypeCode, new TypeReference<>() {});
+        csScreenSize = MyObjectUtils.defaultValue(csScreenSize, new TypeReference<>() {});
+        csResolution = MyObjectUtils.defaultValue(csResolution, new TypeReference<>() {});
         distances = MyObjectUtils.defaultValue(distances, new TypeReference<>() {});
     }
 
@@ -53,7 +65,13 @@ public record StationCriteria(
                                      String commune,
                                      String district,
                                      Double distance,
-                                     List<LocalDateTime> timeRange,
+                                     String gameName,
+                                     String pcGpuModel,
+                                     String pcGpuSerial,
+                                     String pcCpu,
+                                     String btTypeCode,
+                                     Double csScreenSize,
+                                     String csResolution,
                                      List<String> statusCodes) {
         List<Double> distances = new ArrayList<>();
         if (MyObjectUtils.isNotEmpty(distance)) {
@@ -65,7 +83,13 @@ public record StationCriteria(
                 .province(province)
                 .commune(commune)
                 .district(district)
-                .timeRange(timeRange)
+                .gameName(gameName)
+                .pcGpuModel(pcGpuModel)
+                .pcGpuSerial(pcGpuSerial)
+                .pcCpu(pcCpu)
+                .btTypeCode(btTypeCode)
+                .csScreenSize(csScreenSize)
+                .csResolution(csResolution)
                 .statusCodes(statusCodes)
                 .distances(distances)
                 .build();

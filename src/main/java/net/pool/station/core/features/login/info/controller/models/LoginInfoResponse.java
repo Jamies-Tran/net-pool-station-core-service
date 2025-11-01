@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public record LoginInfoResponse(
         Long accountId,
         String email,
+        String roleCode,
         String accessToken,
         LocalDateTime accessExpiredAt,
         String refreshToken,

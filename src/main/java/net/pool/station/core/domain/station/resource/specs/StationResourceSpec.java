@@ -6,7 +6,7 @@ public record StationResourceSpec(
         Long stationResourceSpecId,
 
         @With
-        Long areaId,
+        Long stationResourceId,
 
         String pcCpu,
 

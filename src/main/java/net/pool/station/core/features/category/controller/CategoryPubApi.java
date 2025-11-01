@@ -25,4 +25,16 @@ public interface CategoryPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search
     );
+
+    @GetMapping("/game-genre")
+    MyListResponse<CategoryResponse> findGameGenreCategory(
+            @RequestParam(required = false, value = "search", defaultValue = "")
+            String search
+    );
+
+    @GetMapping("/game-status")
+    MyListResponse<CategoryResponse> findGameStatusCategory(
+            @RequestParam(required = false, value = "search", defaultValue = "")
+            String search
+    );
 }

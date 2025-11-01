@@ -30,9 +30,12 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
     @Query("""
         SELECT s
         FROM StationEntity s
+        LEFT JOIN StationSpaceEntity ss ON ss.stationId = s.stationId
+        LEFT JOIN GameEntity g ON g.stationSpaceId = ss.stationSpaceId
+        LEFT JOIN AreaEntity a ON a.stationSpaceId = ss.stationSpaceId
+        LEFT JOIN StationResourceEntity sr ON sr.areaId = a.areaId
+        LEFT JOIN StationResourceSpecEntity srs ON sr.stationResourceId = srs.stationResourceId
         WHERE s.deleted = FALSE
-                AND (s.createdAt BETWEEN :#{#criteria.timeRange().get(0)}
-                    AND :#{#criteria.timeRange().get(1)})
                 AND (:#{#criteria.search().empty} = TRUE
                         OR (s.stationName ILIKE %:#{#criteria.search()}%
                                 OR s.statusCode = :#{#criteria.search()}))
@@ -44,6 +47,20 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
                         OR s.district ILIKE :#{#criteria.district()})
                 AND (:#{#criteria.statusCodes().empty} = TRUE
                         OR s.statusCode IN :#{#criteria.statusCodes()})
+                AND (:#{#criteria.gameName().empty} = TRUE
+                        OR g.gameName ILIKE %:#{#criteria.gameName()}%)
+                AND (:#{#criteria.pcCpu().empty} = TRUE
+                        OR srs.pcCpu = :#{#criteria.pcCpu()})
+                AND (:#{#criteria.pcGpuModel().empty} = TRUE
+                        OR srs.pcGpuModel = :#{#criteria.pcGpuModel()})
+                AND (:#{#criteria.pcGpuSerial().empty} = TRUE
+                        OR srs.pcGpuSerial = :#{#criteria.pcGpuSerial()})
+                AND (:#{#criteria.btTypeCode().empty} = TRUE
+                        OR srs.btTypeCode = :#{#criteria.btTypeCode()})
+                AND (:#{#criteria.csResolution().empty} = TRUE
+                        OR srs.csResolution = :#{#criteria.csResolution()})
+                AND (:#{#criteria.csScreenSize()} = 0.0
+                        OR srs.csScreenSize = :#{#criteria.csScreenSize()})
         """)
     Page<StationEntity> findAll(StationCriteria criteria, Pageable pageable);
 

@@ -20,33 +20,17 @@ public class StationResourceSpecCommandService {
     StationResourceSpecEntityMapper mapper;
 
     protected void save(StationResourceSpec stationResourceSpec) {
-
-        repository.findByAreaIdAndDeletedFalse(stationResourceSpec.areaId())
-                .ifPresentOrElse(
-                        foundSpec -> {
-                            if (MyObjectUtils.isEquals(ESpecType.PC.getCode(), foundSpec.getTypeCode())) {
-                                if (!foundSpec.equals(mapper.toEntity(stationResourceSpec))) {
+        repository.findByStationResourceIdAndDeletedFalse(stationResourceSpec.stationResourceId())
+                        .ifPresentOrElse(
+                                foundEntity -> {
+                                    mapper.update(foundEntity, stationResourceSpec);
+                                    repository.save(foundEntity);
+                                },
+                                () -> {
                                     repository.save(mapper.toEntity(stationResourceSpec));
                                 }
-                            }
-                        },
-                        () -> {
-                            repository.save(mapper.toEntity(stationResourceSpec));
-                        }
-                );
-    }
+                        );
 
-    protected void update(Long stationResourceSpecId, StationResourceSpec stationResourceSpec) {
-        repository.findByStationResourceSpecIdAndDeletedFalse(stationResourceSpecId)
-                .ifPresentOrElse(
-                        foundSpec -> {
-                            mapper.update(foundSpec, stationResourceSpec);
-                            repository.save(foundSpec);
-                        },
-                        () -> {
-                            throw new MyResourceNotFoundException();
-                        }
-                );
     }
 
     protected void delete(Long stationResourceSpecId) {

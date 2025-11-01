@@ -29,9 +29,26 @@ public interface StationsPubApi {
             @RequestParam(required = false, value = "distance", defaultValue = "")
             Double distance,
 
-            @RequestParam(required = false, value = "timeRange", defaultValue = "")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            List<LocalDateTime> timeRange,
+            @RequestParam(required = false, value = "gameName", defaultValue = "")
+            String gameName,
+
+            @RequestParam(required = false, value = "pcGpuModel", defaultValue = "")
+            String pcGpuModel,
+
+            @RequestParam(required = false, value = "pcGpuSerial", defaultValue = "")
+            String pcGpuSerial,
+
+            @RequestParam(required = false, value = "pcCpu", defaultValue = "")
+            String pcCpu,
+
+            @RequestParam(required = false, value = "btTypeCode", defaultValue = "")
+            String btTypeCode,
+
+            @RequestParam(required = false, value = "csScreenSize", defaultValue = "")
+            Double csScreenSize,
+
+            @RequestParam(required = false, value = "csResolution", defaultValue = "")
+            String csResolution,
 
             @RequestParam(required = false, value = "statusCodes", defaultValue = "")
             List<String> statusCodes,
