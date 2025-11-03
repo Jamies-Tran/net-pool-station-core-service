@@ -7,6 +7,7 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EAccountStatus;
 import net.pool.station.core.bootstrap.utils.MyAuthorizationUtils;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.bootstrap.enums.ERole;
 import net.pool.station.core.domain.account.Account;
@@ -19,6 +20,8 @@ import net.pool.station.core.domain.role.RoleUseCase;
 import net.pool.station.core.domain.station.account.StationAccount;
 import net.pool.station.core.domain.station.account.StationAccountId;
 import net.pool.station.core.domain.station.account.StationAccountUseCase;
+import net.pool.station.core.domain.wallet.Wallet;
+import net.pool.station.core.domain.wallet.WalletUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +45,8 @@ public class AccountUseCaseService implements AccountUseCase {
 
     StationAccountUseCase stationAccountUseCase;
 
+    WalletUseCase walletUseCase;
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Account> findByEmail(DomainKey<String> email) {
@@ -59,6 +64,10 @@ public class AccountUseCaseService implements AccountUseCase {
         Role foundRole = roleUseCase.findByCode(DomainKey.of(role.getCode()))
                 .orElseThrow(MyResourceNotFoundException::new);
         Long savedId = commandService.save(account.withRoleId(foundRole.roleId()));
+        if (MyObjectUtils.isEquals(ERole.PLAYER.getCode(), foundRole.roleCode())
+            || MyObjectUtils.isEquals(ERole.STATION_OWNER.getCode(), foundRole.roleCode())) {
+            walletUseCase.save(DomainKey.of(savedId), Wallet.empty());
+        }
         loggingService.log(AccountLog.createSave(savedId));
     }
 
