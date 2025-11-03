@@ -9,6 +9,7 @@ import net.pool.station.core.domain.role.RoleUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,4 +30,11 @@ public class RoleUseCaseService implements RoleUseCase {
     public Optional<Role> findByCode(DomainKey<String> code) {
         return queryService.findByRoleCode(code.value());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Role> findAll(String search) {
+        return queryService.findAll(search);
+    }
+
 }

@@ -9,6 +9,7 @@ import net.pool.station.core.features.role.repository.database.RoleEntityMapper;
 import net.pool.station.core.features.role.repository.database.RoleRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,5 +28,9 @@ public class RoleQueryService {
     protected Optional<Role> findById(Long roleId) {
         return repository.findById(roleId)
                 .map(mapper::toDto);
+    }
+
+    protected List<Role> findAll(String search) {
+        return mapper.toDto(repository.findAll(search));
     }
 }
