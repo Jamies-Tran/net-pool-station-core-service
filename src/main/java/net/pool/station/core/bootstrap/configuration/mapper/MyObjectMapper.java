@@ -10,6 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,6 +32,22 @@ public class MyObjectMapper {
         } catch (JsonProcessingException e) {
             log.error("[{}-convertDataToJsonString] có lỗi xảy ra: {} ", MyObjectMapper.class.getSimpleName(), e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    public static String convertAndSortJsonToString(Map<String, Object> data) {
+        try {
+            data = data.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue,
+                            LinkedHashMap::new
+                    ));
+            return objectMapper.writeValueAsString(data);
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 

@@ -118,6 +118,7 @@ public class AccountUseCaseService implements AccountUseCase {
     public void enable(DomainKey<Long> accountId) {
         validateUpdateStatus(accountId);
         commandService.update(accountId.value(), EAccountStatus.ENABLE);
+        walletUseCase.enable(accountId);
         loggingService.log(AccountLog.createEnable(accountId.value()));
     }
 
@@ -126,6 +127,7 @@ public class AccountUseCaseService implements AccountUseCase {
     public void disable(DomainKey<Long> accountId) {
         validateUpdateStatus(accountId);
         commandService.update(accountId.value(), EAccountStatus.DISABLE);
+        walletUseCase.disable(accountId);
         loggingService.log(AccountLog.createDisable(accountId.value()));
     }
 
@@ -133,6 +135,7 @@ public class AccountUseCaseService implements AccountUseCase {
     @Transactional
     public void activate(DomainKey<Long> accountId) {
         commandService.update(accountId.value(), EAccountStatus.ENABLE);
+        walletUseCase.enable(accountId);
         loggingService.log(AccountLog.createVerify(accountId.value()));
     }
 
@@ -140,6 +143,7 @@ public class AccountUseCaseService implements AccountUseCase {
     @Transactional
     public void delete(DomainKey<Long> accountId) {
         commandService.delete(accountId.value());
+        walletUseCase.disable(accountId);
     }
 
     private void validateUpdateStatus(DomainKey<Long> accountId) {

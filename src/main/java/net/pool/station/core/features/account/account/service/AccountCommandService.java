@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceDuplicateException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EAccountStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.account.Account;
@@ -82,6 +83,7 @@ public class AccountCommandService {
         repository.findByAccountId(accountId)
                 .ifPresentOrElse(
                         foundAccount -> {
+                            validateUpdateStatus(status, foundAccount.getStatusCode());
                             foundAccount.setStatusCode(status.getCode());
                             foundAccount.setStatusName(status.getName());
                             repository.save(foundAccount);
@@ -90,6 +92,22 @@ public class AccountCommandService {
                             throw new MyResourceNotFoundException();
                         }
                 );
+    }
+
+    private void validateUpdateStatus(EAccountStatus status, String statusCode) {
+        switch (status) {
+            case ENABLE -> {
+                if (MyObjectUtils.isNotEquals(statusCode, EAccountStatus.DISABLE.getCode())) {
+                    throw new MyResourceNotValid();
+                }
+            }
+            case DISABLE -> {
+                if (MyObjectUtils.isNotEquals(statusCode, EAccountStatus.ENABLE.getCode())) {
+                    throw new MyResourceNotValid();
+                }
+            }
+            default -> throw new MyResourceNotValid();
+        }
     }
 
     private void validate(Account account, AccountEntity foundAccount) {
