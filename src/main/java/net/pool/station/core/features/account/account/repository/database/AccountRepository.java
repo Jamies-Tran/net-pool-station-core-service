@@ -1,6 +1,7 @@
 package net.pool.station.core.features.account.account.repository.database;
 
 import net.pool.station.core.domain.account.AccountCriteria;
+import net.pool.station.core.features.account.account.repository.database.models.StationDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -81,4 +82,16 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
                 AND a.accountId IN :accountIds
         """)
     List<AccountEntity> findAllByAccountIdIn(List<Long> accountIds);
+
+    @Query("""
+        SELECT 
+                s.stationId AS stationId,
+                s.stationCode AS stationCode,
+                s.stationName AS stationName
+        FROM AccountEntity a
+        INNER JOIN StationAccountEntity sa ON a.accountId = sa.stationAccountId.accountId
+        INNER JOIN StationEntity s ON sa.stationAccountId.stationId = s.stationId
+        WHERE a.accountId = :accountId
+        """)
+    List<StationDao> findAllStationByAccountId(Long accountId);
 }

@@ -67,6 +67,7 @@ public class LoginInfoCommandService {
                                 .accountId(account.accountId())
                                 .email(account.email())
                                 .roleCode(account.role().roleCode())
+                                .stations(account.stations())
                                 .build();
                     } else {
                         String accessToken = tokenUtils.generateAccessToken(account.email());
@@ -81,6 +82,7 @@ public class LoginInfoCommandService {
                                 .accessExpiredAt(accessExpiredAt)
                                 .refreshExpiredAt(refreshExpiredAt)
                                 .accountId(account.accountId())
+                                .stations(account.stations())
                                 .build();
                         repository.save(mapper.toEntity(loginInfo));
 

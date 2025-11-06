@@ -2,14 +2,17 @@ package net.pool.station.core.domain.login.info;
 
 import lombok.Builder;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.domain.account.Account;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record LoginInfo(
         Long loginInfoId,
         Long accountId,
         String email,
+        List<Account.Station> stations,
         String username,
         String roleCode,
         String accessToken,
