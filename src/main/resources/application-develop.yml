@@ -47,3 +47,12 @@ environment:
     reverseGeo: ${REVERSE_GEO}
     detail: ${ADDRESS_DETAIL}
     place: ${PLACE}
+  aes:
+    secretKey: ${AES_SECRET}
+  payOs:
+    api-merchant-host: ${API_MERCHANT_HOST}
+    client-id: ${CLIENT_ID}
+    api-key: ${API_KEY}
+    checksum-key: ${API_CHECKSUM_KEY}
+    returnUrl: ${RETURN_URL}
+    cancelUrl: ${CANCEL_URL}
