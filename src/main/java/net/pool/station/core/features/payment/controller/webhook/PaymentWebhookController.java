@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.features.payment.controller.webhook.models.PaymentWebhookRequest;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -13,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentWebhookController implements PaymentWebhookApi {
     @Override
     public MyValueResponse<?> webhook(PaymentWebhookRequest request) {
-        return null;
+        if (MyObjectUtils.isEmpty(request.signature()) && MyObjectUtils.isEquals(request.code(), "00")) {
+            return MyValueResponse.successNoData();
+        }
+
+        return MyValueResponse.successNoData();
     }
 }

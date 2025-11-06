@@ -1,6 +1,11 @@
 package net.pool.station.core.domain.payment;
 
+import lombok.Builder;
+
+@Builder
 public record Payment(
+        Long walletId,
+        Long bookingId,
         Integer amount,
         String currency,
         String paymentTypeCode,

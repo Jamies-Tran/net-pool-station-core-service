@@ -1,5 +1,8 @@
 package net.pool.station.core.domain.transaction;
 
+import lombok.Builder;
+
+@Builder
 public record Transaction(
         Long transactionId,
         Long bookingId,
