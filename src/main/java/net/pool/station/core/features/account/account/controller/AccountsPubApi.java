@@ -49,7 +49,7 @@ public interface AccountsPubApi {
             @RequestParam(required = false, value = "current", defaultValue = "0")
             Integer current,
 
-            @RequestParam(required = false, value = "current", defaultValue = "25")
+            @RequestParam(required = false, value = "pageSize", defaultValue = "25")
             Integer pageSize
     );
 }
