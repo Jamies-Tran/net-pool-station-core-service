@@ -23,11 +23,15 @@ public class TransactionCommandService {
         return mapper.toDto(savedTransaction);
     }
 
-    protected void update(String transactionCode, Transaction transaction) {
-        repository.findByTransactionCode(transactionCode)
-                .ifPresent(foundEntity -> {
+    protected Transaction update(String transactionCode, Transaction transaction) {
+
+        return repository.findByTransactionCode(transactionCode)
+                .map(foundEntity -> {
                     mapper.update(foundEntity, transaction);
-                    repository.save(foundEntity);
-                });
+                    TransactionEntity saveEntity = repository.save(foundEntity);
+
+                    return mapper.toDto(saveEntity);
+                })
+                .orElse(null);
     }
 }
