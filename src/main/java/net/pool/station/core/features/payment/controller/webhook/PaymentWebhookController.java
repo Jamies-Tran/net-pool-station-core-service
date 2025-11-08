@@ -30,7 +30,7 @@ public class PaymentWebhookController implements PaymentWebhookApi {
             return MyValueResponse.successNoData();
         }
 
-        transactionUseCase.update(DomainKey.of(request.code()), requestMapper.toDto(request.data()));
+        transactionUseCase.update(DomainKey.of(request.data().orderCode()), requestMapper.toDto(request.data()));
 
         return MyValueResponse.successNoData();
     }
