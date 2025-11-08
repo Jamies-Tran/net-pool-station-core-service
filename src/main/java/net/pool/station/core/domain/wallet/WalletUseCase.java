@@ -9,7 +9,7 @@ public interface WalletUseCase {
 
     Optional<Wallet> findByAccountId(DomainKey<Long> accountId);
 
-    void updateBalance(DomainKey<Long> accountId, Double balance);
+    void updateBalance(DomainKey<Long> walletId, Integer balance);
 
     void enable(DomainKey<Long> accountId);
 

@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.service;
+package net.pool.station.core.features.wallet.wallet.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +8,8 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.enums.EWalletStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.wallet.Wallet;
-import net.pool.station.core.features.wallet.repository.database.WalletEntityMapper;
-import net.pool.station.core.features.wallet.repository.database.WalletRepository;
+import net.pool.station.core.features.wallet.wallet.repository.database.WalletEntityMapper;
+import net.pool.station.core.features.wallet.wallet.repository.database.WalletRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,8 +45,8 @@ public class WalletCommandService {
                 );
     }
 
-    protected void updateBalance(Long accountId, Double balance) {
-        repository.findByAccountId(accountId)
+    protected void updateBalance(Long walletId, Integer balance) {
+        repository.findById(walletId)
                 .ifPresentOrElse(
                         foundEntity -> {
                             if (MyObjectUtils.isNotEquals(foundEntity.getStatusCode(), EWalletStatus.ENABLE.getCode())) {

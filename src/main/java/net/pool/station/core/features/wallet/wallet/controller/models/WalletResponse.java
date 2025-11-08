@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.controller.models;
+package net.pool.station.core.features.wallet.wallet.controller.models;
 
 public record WalletResponse(
         Long walletId,

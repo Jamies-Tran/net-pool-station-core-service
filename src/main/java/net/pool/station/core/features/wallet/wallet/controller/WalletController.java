@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.controller;
+package net.pool.station.core.features.wallet.wallet.controller;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -7,8 +7,8 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.wallet.WalletUseCase;
-import net.pool.station.core.features.wallet.controller.models.WalletResponse;
-import net.pool.station.core.features.wallet.controller.models.WalletResponseMapper;
+import net.pool.station.core.features.wallet.wallet.controller.models.WalletResponse;
+import net.pool.station.core.features.wallet.wallet.controller.models.WalletResponseMapper;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

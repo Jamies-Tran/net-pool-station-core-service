@@ -3,7 +3,11 @@ package net.pool.station.core.features.transaction.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.enums.EPaymentStatus;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.payment.PaymentWebhook;
 import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionCriteria;
 import net.pool.station.core.domain.transaction.TransactionUseCase;
@@ -12,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -44,5 +50,23 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Transactional
     public void update(DomainKey<String> transactionCode, Transaction transaction) {
         commandService.update(transactionCode.value(), transaction);
+    }
+
+    @Override
+    @Transactional
+    public void update(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook) {
+        if (MyObjectUtils.isEquals(paymentWebhook.code(), "00")) {
+            Transaction transaction = Transaction.builder()
+                    .statusCode(EPaymentStatus.PAID.getCode())
+                    .statusName(EPaymentStatus.PAID.getName())
+                    .paymentCompleteAt(LocalDateTime
+                            .parse(paymentWebhook.transactionDateTime(),
+                                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build();
+            commandService.update(transactionCode.value(), transaction);
+
+        }
+
+
     }
 }

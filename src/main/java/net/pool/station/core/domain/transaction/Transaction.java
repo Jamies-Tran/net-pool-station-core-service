@@ -2,6 +2,8 @@ package net.pool.station.core.domain.transaction;
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record Transaction(
         Long transactionId,
@@ -14,6 +16,7 @@ public record Transaction(
         String paymentTypeName,
         String paymentMethodCode,
         String paymentMethodName,
+        LocalDateTime paymentCompleteAt,
         String statusCode,
         String statusName
 ) {

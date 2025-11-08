@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.controller.models;
+package net.pool.station.core.features.wallet.wallet.controller.models;
 
 import net.pool.station.core.bootstrap.configuration.mapper.MapStructConfig;
 import net.pool.station.core.bootstrap.configuration.mapper.ModelMapper;

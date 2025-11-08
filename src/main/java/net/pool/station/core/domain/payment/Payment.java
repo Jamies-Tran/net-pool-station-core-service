@@ -17,7 +17,7 @@ public record Payment(
         String accountNumber,
         String accountName,
         String description,
-        String paymentLink,
+        String paymentLinkId,
         String orderCode,
         String status,
         String checkoutUrl,

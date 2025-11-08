@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.repository.database;
+package net.pool.station.core.features.wallet.wallet.repository.database;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +30,7 @@ public class WalletEntity {
 
     Long accountId;
 
-    Double balance;
+    Integer balance;
 
     Boolean directPayment;
 
@@ -48,7 +48,7 @@ public class WalletEntity {
         }
 
         if (MyObjectUtils.isEmpty(balance)) {
-            balance = 0.0;
+            balance = 0;
         }
 
         deleted = false;
@@ -56,7 +56,7 @@ public class WalletEntity {
 
     @PreUpdate
     private void preUpdate() {
-        if (balance < 0.0) {
+        if (balance < 0) {
             directPayment = false;
         }
     }

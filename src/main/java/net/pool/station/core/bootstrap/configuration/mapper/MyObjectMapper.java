@@ -16,6 +16,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class MyObjectMapper {
     static ObjectMapper objectMapper;
 
@@ -24,7 +25,7 @@ public class MyObjectMapper {
         objectMapper = injectObjectMapper;
     }
 
-    public static String convertDataToJsonString(Object data) {
+    public static String convertFromObjectToString(Object data) {
         try {
             return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
@@ -33,15 +34,23 @@ public class MyObjectMapper {
         }
     }
 
-    public static Map<String, Object> convert(Object object) {
+    public static Map<String, Object> convertFromStringToMap(String object) {
         try {
-            return objectMapper.convertValue(object, Map.class);
+            return objectMapper.readValue(object, new TypeReference<Map<String, Object>>(){});
         } catch (Exception e) {
             throw new RuntimeException();
         }
     }
 
-    public static <T> T convertObjectFromString(String data, TypeReference<T> typeReference) {
+    public static Map<String, Object> convertFromObjectToMap(Object object) {
+        try {
+            return objectMapper.convertValue(object, new TypeReference<Map<String, Object>>() {});
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
+    public static <T> T convertFromStringToObject(String data, TypeReference<T> typeReference) {
         try {
             return objectMapper.convertValue(data, typeReference);
         } catch (Exception e) {

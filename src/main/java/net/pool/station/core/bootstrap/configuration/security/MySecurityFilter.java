@@ -73,7 +73,7 @@ public class MySecurityFilter extends OncePerRequestFilter {
                             EErrorCode.TOKEN_EXPIRED.getCode());
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
-            response.getWriter().write(MyObjectMapper.convertDataToJsonString(errorResponse));
+            response.getWriter().write(MyObjectMapper.convertFromObjectToString(errorResponse));
         } catch (MyAuthenticationException e) {
             MyValueResponse<?> errorResponse = MyValueResponse
                     .error(e.getMessage(),
@@ -81,7 +81,7 @@ public class MySecurityFilter extends OncePerRequestFilter {
                             EErrorCode.NO_AUTHORITY.getCode());
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setContentType("application/json");
-            response.getWriter().write(MyObjectMapper.convertDataToJsonString(errorResponse));
+            response.getWriter().write(MyObjectMapper.convertFromObjectToString(errorResponse));
         }  catch (RuntimeException e) {
             log.error("[{}-doFilterInternal] Xác thực that bại", this.getClass().getSimpleName());
             MyValueResponse<?> errorResponse = MyValueResponse
@@ -90,7 +90,7 @@ public class MySecurityFilter extends OncePerRequestFilter {
                             EErrorCode.AUTHORIZE_EXCEPTION.getCode());
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
-            response.getWriter().write(MyObjectMapper.convertDataToJsonString(errorResponse));
+            response.getWriter().write(MyObjectMapper.convertFromObjectToString(errorResponse));
         } finally {
             String authorization = requestWrapper.getHeader("Authorization");
             String method = request.getMethod();

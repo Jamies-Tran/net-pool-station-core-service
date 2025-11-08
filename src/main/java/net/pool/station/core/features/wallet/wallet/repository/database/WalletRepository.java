@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.repository.database;
+package net.pool.station.core.features.wallet.wallet.repository.database;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

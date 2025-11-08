@@ -1,4 +1,4 @@
-package net.pool.station.core.features.wallet.service;
+package net.pool.station.core.features.wallet.wallet.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +34,8 @@ public class WalletUseCaseService implements WalletUseCase {
 
     @Override
     @Transactional
-    public void updateBalance(DomainKey<Long> accountId, Double balance) {
-        commandService.updateBalance(accountId.value(), balance);
+    public void updateBalance(DomainKey<Long> walletId, Integer balance) {
+        commandService.updateBalance(walletId.value(), balance);
     }
 
     @Override

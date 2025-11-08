@@ -1,7 +1,7 @@
-package net.pool.station.core.features.wallet.controller;
+package net.pool.station.core.features.wallet.wallet.controller;
 
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
-import net.pool.station.core.features.wallet.controller.models.WalletResponse;
+import net.pool.station.core.features.wallet.wallet.controller.models.WalletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;

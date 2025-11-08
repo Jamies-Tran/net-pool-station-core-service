@@ -41,7 +41,7 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     public void saveWithSocketToken(String token, StationResource stationResource) {
         String encryptedToken = MyAesEncryptionUtils.decrypt(token);
         StationResource.AreaId areaId = MyObjectMapper
-                .convertObjectFromString(encryptedToken, new TypeReference<StationResource.AreaId>() {});
+                .convertFromStringToObject(encryptedToken, new TypeReference<StationResource.AreaId>() {});
         commandService.save(areaId.areaId(), stationResource);
     }
 

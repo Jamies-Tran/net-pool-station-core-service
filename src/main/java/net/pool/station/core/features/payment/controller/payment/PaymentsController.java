@@ -24,8 +24,8 @@ public class PaymentsController implements PaymentsApi {
     @Override
     public MyValueResponse<PaymentResponse> createWalletPayment(WalletPaymentRequest request) {
         Payment payment = Payment.builder()
-                .walletId(request.walletId())
                 .amount(request.amount())
+                .currency(request.currency())
                 .description("Thanh toán ví NPS")
                 .paymentMethodCode(EPaymentMethod.BANK_TRANSFER.getCode())
                 .paymentMethodName(EPaymentMethod.BANK_TRANSFER.getName())

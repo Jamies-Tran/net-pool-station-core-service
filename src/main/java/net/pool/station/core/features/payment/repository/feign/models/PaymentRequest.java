@@ -1,13 +1,14 @@
 package net.pool.station.core.features.payment.repository.feign.models;
 
 import lombok.Builder;
-import net.pool.station.core.bootstrap.utils.MyHMacEncryptionUtils;
+import lombok.With;
 
 import java.util.List;
+import java.util.Map;
 
 @Builder
 public record PaymentRequest(
-        String orderCode,
+        Long orderCode,
         Integer amount,
         String description,
         String buyerName,
@@ -16,7 +17,7 @@ public record PaymentRequest(
         List<ItemRequest> items,
         String cancelUrl,
         String returnUrl,
-        String signature
+        @With String signature
 ) {
     @Builder
     public record ItemRequest (
@@ -26,7 +27,13 @@ public record PaymentRequest(
             String unit
     ) {}
 
-    public String signature() {
-        return MyHMacEncryptionUtils.encrypt(this);
+    public Map<String, Object> generateRawSignature() {
+        return Map.of(
+                "amount", amount,
+                "cancelUrl", cancelUrl,
+                "description", description,
+                "orderCode", orderCode,
+                "returnUrl", returnUrl
+        );
     }
 }

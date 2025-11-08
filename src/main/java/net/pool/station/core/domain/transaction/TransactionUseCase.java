@@ -1,6 +1,7 @@
 package net.pool.station.core.domain.transaction;
 
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.payment.PaymentWebhook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -14,4 +15,6 @@ public interface TransactionUseCase {
     Optional<Transaction> findByTransactionCode(DomainKey<String> transactionCode);
 
     void update(DomainKey<String> transactionCode, Transaction transaction);
+
+    void update(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook);
 }
