@@ -40,7 +40,6 @@ public class WalletCommandService {
                             repository.save(foundEntity);
                         },
                         () -> {
-                           throw new MyResourceNotFoundException();
                         }
                 );
     }
