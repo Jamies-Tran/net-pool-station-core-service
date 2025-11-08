@@ -61,7 +61,9 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Override
     @Transactional
     public void update(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook) {
+        log.info("Received webhook: {}", paymentWebhook);
         if (MyObjectUtils.isEquals(paymentWebhook.code(), "00")) {
+            log.info("Processing transaction");
             Transaction transaction = Transaction.builder()
                     .statusCode(EPaymentStatus.PAID.getCode())
                     .statusName(EPaymentStatus.PAID.getName())
@@ -70,6 +72,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build();
             Transaction savedTransaction = commandService.update(transactionCode.value(), transaction);
+            log.info("Transaction updated: {}", savedTransaction);
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
                 WalletLedger walletLedger = WalletLedger.builder()
                         .walletId(savedTransaction.walletId())
