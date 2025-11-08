@@ -25,7 +25,8 @@ public class WalletLedgerUseCaseService implements WalletLedgerUseCase {
     @Transactional
     public void save(WalletLedger walletLedger) {
         WalletLedger saveLedger = commandService.save(walletLedger);
-        walletUseCase.updateBalance(DomainKey.of(saveLedger.walletId()), saveLedger.newBalance());
+        Integer newBalance = saveLedger.currentBalance() + saveLedger.changeAmount();
+        walletUseCase.updateBalance(DomainKey.of(saveLedger.walletId()), newBalance);
     }
 
     @Override

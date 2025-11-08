@@ -8,8 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface WalletLedgerRepository extends JpaRepository<WalletLedgerEntity, Long> {
     @Query("""
         SELECT w.balance
-        FROM WalletLedgerEntity wl
-        INNER JOIN WalletEntity w ON wl.walletId = w.walletId
+        FROM WalletEntity w
         WHERE w.walletId = :walletId
         """)
     Integer findCurrentBalanceByWalletId(Long walletId);

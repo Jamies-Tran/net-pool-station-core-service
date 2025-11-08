@@ -12,7 +12,4 @@ public record WalletLedger(
         Integer changeAmount,
         Integer newBalance
 ) {
-    public WalletLedger {
-        newBalance = currentBalance + changeAmount;
-    }
 }
