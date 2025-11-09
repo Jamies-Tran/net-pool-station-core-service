@@ -6,7 +6,10 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.wallet.WalletUseCase;
 import net.pool.station.core.domain.wallet.ledger.WalletLedger;
+import net.pool.station.core.domain.wallet.ledger.WalletLedgerCriteria;
 import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,21 +22,23 @@ import java.util.Optional;
 public class WalletLedgerUseCaseService implements WalletLedgerUseCase {
     WalletLedgerCommandService commandService;
 
+    WalletLedgerQueryService queryService;
+
     WalletUseCase walletUseCase;
 
     @Override
     @Transactional
     public void save(WalletLedger walletLedger) {
         WalletLedger saveLedger = commandService.save(walletLedger);
-        Integer newBalance = saveLedger.currentBalance() + saveLedger.changeAmount();
-        walletUseCase.updateBalance(DomainKey.of(saveLedger.walletId()), newBalance);
+        walletUseCase.updateBalance(DomainKey.of(saveLedger.walletId()), saveLedger.newBalance());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<WalletLedger> findAllByWalletId(Long walletId) {
-        return List.of();
+    public Page<WalletLedger> findAll(WalletLedgerCriteria criteria, PageRequest pageRequest) {
+        return queryService.findAll(criteria, pageRequest);
     }
+
 
     @Override
     @Transactional(readOnly = true)

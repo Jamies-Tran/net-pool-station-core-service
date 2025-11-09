@@ -17,10 +17,8 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
         SELECT t
         FROM TransactionEntity t
         LEFT JOIN WalletEntity w ON t.walletId = w.walletId
-        LEFT JOIN BookingEntity b ON t.bookingId = b.bookingId
         LEFT JOIN AccountEntity wa ON w.accountId = wa.accountId
-        LEFT JOIN AccountEntity ba ON b.accountId = ba.accountId
-        WHERE COALESCE(wa.accountId, ba.accountId) = :#{#criteria.accountId()}
+        WHERE wa.accountId = :#{#criteria.accountId()}
             AND (t.createdAt BETWEEN :#{#criteria.timeRange().get(0)} AND :#{#criteria.timeRange().get(1)})
             AND (:#{#criteria.paymentTypeCodes().empty} = TRUE
                     OR t.paymentTypeCode IN :#{#criteria.paymentTypeCodes()})
