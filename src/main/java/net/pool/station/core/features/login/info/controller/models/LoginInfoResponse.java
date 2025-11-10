@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 public record LoginInfoResponse(
         Long accountId,
+        String username,
         String email,
         String roleCode,
         String accessToken,

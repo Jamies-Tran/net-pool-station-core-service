@@ -65,6 +65,7 @@ public class LoginInfoCommandService {
                                 .accessExpiredAt(accessExpiredAt)
                                 .refreshExpiredAt(updateLoginInfo.getRefreshExpiredAt())
                                 .accountId(account.accountId())
+                                .username(account.username())
                                 .email(account.email())
                                 .roleCode(account.role().roleCode())
                                 .stations(account.stations())
@@ -75,6 +76,7 @@ public class LoginInfoCommandService {
                         LocalDateTime refreshExpiredAt = tokenUtils.convertRefreshExpiredAt();
                         LocalDateTime accessExpiredAt = tokenUtils.convertAccessExpiredAt();
                         LoginInfo loginInfo = LoginInfo.builder()
+                                .username(account.username())
                                 .email(account.email())
                                 .roleCode(account.role().roleCode())
                                 .accessToken(accessToken)
