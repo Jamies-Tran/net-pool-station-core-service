@@ -26,8 +26,13 @@ public class ScheduleQueryService {
                 .map(mapper::toDto);
     }
 
-    protected Page<Schedule> findAll(ScheduleCriteria criteria, PageRequest pageRequest) {
-        return repository.findAll(criteria.specifications(), pageRequest)
+    protected Page<Schedule> findAllByStation(ScheduleCriteria criteria, PageRequest pageRequest) {
+        return repository.findAllByStation(criteria, pageRequest)
+                .map(mapper::toDto);
+    }
+
+    protected Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest) {
+        return repository.findAllByStationResource(criteria, pageRequest)
                 .map(mapper::toDto);
     }
 }

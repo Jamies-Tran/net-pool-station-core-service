@@ -14,7 +14,9 @@ public interface ScheduleUseCase {
 
     Optional<Schedule> findById(DomainKey<Long> scheduleId);
 
-    Page<Schedule> findAll(ScheduleCriteria criteria, PageRequest pageRequest);
+    Page<Schedule> findAllByStation(ScheduleCriteria criteria, PageRequest pageRequest);
+
+    Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest);
 
     void update(DomainKey<Long> scheduleId, Schedule schedule);
 

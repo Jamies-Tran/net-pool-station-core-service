@@ -31,10 +31,6 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
 
     ScheduleQueryService queryService;
 
-    EmailUseCase emailUseCase;
-
-    AccountUseCase accountUseCase;
-
     TimeSlotUseCase timeSlotUseCase;
 
     @Override
@@ -63,9 +59,14 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
     }
 
     @Override
+    public Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest) {
+        return queryService.findAllByStationResource(criteria, pageRequest);
+    }
+
+    @Override
     @Transactional(readOnly = true)
-    public Page<Schedule> findAll(ScheduleCriteria criteria, PageRequest pageRequest) {
-        return queryService.findAll(criteria, pageRequest);
+    public Page<Schedule> findAllByStation(ScheduleCriteria criteria, PageRequest pageRequest) {
+        return queryService.findAllByStation(criteria, pageRequest);
     }
 
     @Override

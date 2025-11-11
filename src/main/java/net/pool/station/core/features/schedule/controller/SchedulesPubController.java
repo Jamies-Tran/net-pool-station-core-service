@@ -25,15 +25,31 @@ public class SchedulesPubController implements SchedulesPubApi {
     ScheduleResponseMapper responseMapper;
 
     @Override
-    public MyPageResponse<ScheduleResponse> findAll(
+    public MyPageResponse<ScheduleResponse> findAllByStation(
             Long stationId,
             List<LocalDate> dateRange,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize
     ) {
-        ScheduleCriteria criteria = ScheduleCriteria.of(stationId, dateRange, statusCodes);
+        ScheduleCriteria criteria = ScheduleCriteria.ofStation(stationId, dateRange, statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
-        Page<ScheduleResponse> responses = scheduleUseCase.findAll(criteria, pageRequest)
+        Page<ScheduleResponse> responses = scheduleUseCase.findAllByStation(criteria, pageRequest)
+                .map(responseMapper::toModel);
+
+        return MyPageResponse.success(responses);
+    }
+
+    @Override
+    public MyPageResponse<ScheduleResponse> findAllByStationResource(
+            Long stationResourceId,
+            List<LocalDate> dateRange,
+            List<String> statusCodes,
+            String sorter, Integer current, Integer pageSize
+    ) {
+
+        ScheduleCriteria criteria = ScheduleCriteria.ofStationResource(stationResourceId, dateRange, statusCodes);
+        PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
+        Page<ScheduleResponse> responses = scheduleUseCase.findAllByStationResource(criteria, pageRequest)
                 .map(responseMapper::toModel);
 
         return MyPageResponse.success(responses);

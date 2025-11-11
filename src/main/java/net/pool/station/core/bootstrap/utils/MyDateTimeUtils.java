@@ -3,6 +3,7 @@ package net.pool.station.core.bootstrap.utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -65,5 +66,19 @@ public class MyDateTimeUtils {
                 return start;
             }
         }
+    }
+
+    public static List<LocalDate> defaultDateRange(List<LocalDate> dateRange) {
+        if (dateRange.size() == 1 || dateRange.isEmpty()) {
+            return List.of();
+        }
+
+        if (dateRange.size() > 2) {
+            return Stream.of(dateRange.get(0), dateRange.get(1))
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+        }
+
+        return dateRange;
     }
 }
