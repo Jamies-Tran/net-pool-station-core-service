@@ -22,10 +22,10 @@ public class StationSpaceSchedulesController implements StationSpaceSchedulesApi
     StationSpaceScheduleRequestMapper requestMapper;
 
     @Override
-    public MyValueResponse<?> save(Long scheduleId, StationSpaceScheduleListRequest request) {
+    public MyValueResponse<?> save(Long stationSpaceId, StationSpaceScheduleListRequest request) {
         List<StationSpaceSchedule> stationSpaceSchedules = requestMapper
                 .toDto(request.stationSpaceSchedules());
-        stationSpaceScheduleUseCase.save(DomainKey.of(scheduleId), stationSpaceSchedules);
+        stationSpaceScheduleUseCase.save(DomainKey.of(stationSpaceId), stationSpaceSchedules);
 
         return MyValueResponse.successNoData();
     }

@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping("/v1/api/station-space-schedules")
 public interface StationSpaceSchedulesApi {
-    @PostMapping("/{scheduleId}")
-    MyValueResponse<?> save(@PathVariable Long scheduleId, @RequestBody @Valid StationSpaceScheduleListRequest request);
+    @PostMapping("/{stationSpaceId}")
+    MyValueResponse<?> save(@PathVariable Long stationSpaceId, @RequestBody @Valid StationSpaceScheduleListRequest request);
 }

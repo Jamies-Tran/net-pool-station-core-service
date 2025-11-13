@@ -4,8 +4,8 @@ import lombok.With;
 
 public record StationSpaceSchedule(
         Long stationSpaceScheduleId,
-        @With Long scheduleId,
-        Long stationSpaceId,
+        Long scheduleId,
+        @With Long stationSpaceId,
         String statusCode,
         String statusName
 ) {

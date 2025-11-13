@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class StationSpaceScheduleUseCaseService implements StationSpaceScheduleSlotUseCase {
+public class StationSpaceScheduleSlotUseCaseService implements StationSpaceScheduleSlotUseCase {
     StationSpaceScheduleSlotCommandService commandService;
 
     @Override

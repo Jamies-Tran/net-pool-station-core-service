@@ -18,9 +18,10 @@ public class StationSpaceScheduleCommandService {
 
     StationSpaceScheduleEntityMapper mapper;
 
-    protected void saveAll(Long scheduleId, List<StationSpaceSchedule> stationSpaceSchedules) {
+    protected void saveAll(Long stationSpaceId, List<StationSpaceSchedule> stationSpaceSchedules) {
         List<StationSpaceSchedule> newStationSpaceSchedules = stationSpaceSchedules.stream()
-                .map(stationSpaceSchedule -> stationSpaceSchedule.withScheduleId(scheduleId))
+                .map(stationSpaceSchedule -> stationSpaceSchedule
+                        .withStationSpaceId(stationSpaceId))
                 .toList();
 
         repository.saveAll(mapper.toEntity(newStationSpaceSchedules));

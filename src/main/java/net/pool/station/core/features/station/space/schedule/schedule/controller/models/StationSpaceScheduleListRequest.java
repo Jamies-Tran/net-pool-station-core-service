@@ -5,5 +5,5 @@ import java.util.List;
 public record StationSpaceScheduleListRequest(
         List<StationSpaceScheduleRequest> stationSpaceSchedules
 ) {
-    public record StationSpaceScheduleRequest(Long stationSpaceId) {}
+    public record StationSpaceScheduleRequest(Long scheduleId) {}
 }

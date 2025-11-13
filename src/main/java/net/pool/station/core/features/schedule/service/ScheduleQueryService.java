@@ -5,12 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleCriteria;
+import net.pool.station.core.features.schedule.repository.database.ScheduleEntity;
 import net.pool.station.core.features.schedule.repository.database.ScheduleEntityMapper;
 import net.pool.station.core.features.schedule.repository.database.ScheduleRepository;
+import net.pool.station.core.features.schedule.repository.database.models.ScheduleDaoMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,6 +24,8 @@ public class ScheduleQueryService {
     ScheduleRepository repository;
 
     ScheduleEntityMapper mapper;
+
+    ScheduleDaoMapper daoMapper;
 
     protected Optional<Schedule> findById(Long scheduleId) {
         return repository.findByScheduleIdAndDeletedFalse(scheduleId)
@@ -32,7 +38,9 @@ public class ScheduleQueryService {
     }
 
     protected Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest) {
-        return repository.findAllByStationResource(criteria, pageRequest)
-                .map(mapper::toDto);
+        Page<Long> scheduleIds = repository.findAllByStationResource(criteria, pageRequest);
+        List<ScheduleEntity> schedules = repository.findAllByScheduleIdIn(scheduleIds.getContent());
+
+        return new PageImpl<>(mapper.toDto(schedules), pageRequest, scheduleIds.getTotalElements());
     }
 }

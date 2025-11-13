@@ -48,7 +48,7 @@ public class SchedulesPubController implements SchedulesPubApi {
     ) {
 
         ScheduleCriteria criteria = ScheduleCriteria.ofStationResource(stationResourceId, dateRange, statusCodes);
-        PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
+        PageRequest pageRequest = PageRequest.of(current, pageSize);
         Page<ScheduleResponse> responses = scheduleUseCase.findAllByStationResource(criteria, pageRequest)
                 .map(responseMapper::toModel);
 

@@ -19,7 +19,7 @@ public class StationSpaceScheduleUseCaseService implements StationSpaceScheduleU
 
     @Override
     @Transactional
-    public void save(DomainKey<Long> scheduleId, List<StationSpaceSchedule> stationSpaceSchedules) {
-        commandService.saveAll(scheduleId.value(), stationSpaceSchedules);
+    public void save(DomainKey<Long> stationSpaceId, List<StationSpaceSchedule> stationSpaceSchedules) {
+        commandService.saveAll(stationSpaceId.value(), stationSpaceSchedules);
     }
 }
