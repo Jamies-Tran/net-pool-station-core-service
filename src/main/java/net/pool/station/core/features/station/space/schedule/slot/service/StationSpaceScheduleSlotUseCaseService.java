@@ -17,7 +17,9 @@ public class StationSpaceScheduleSlotUseCaseService implements StationSpaceSched
     StationSpaceScheduleSlotCommandService commandService;
 
     @Override
-    public void save(DomainKey<Long> stationSpaceScheduleId, List<StationSpaceScheduleSlot> slots) {
-        commandService.saveAll(stationSpaceScheduleId.value(), slots);
+    public void save(DomainKey<Long> stationSpaceId,
+                     DomainKey<Long> scheduleId,
+                     List<StationSpaceScheduleSlot> slots) {
+        commandService.saveAll(stationSpaceId.value(), scheduleId.value(), slots);
     }
 }

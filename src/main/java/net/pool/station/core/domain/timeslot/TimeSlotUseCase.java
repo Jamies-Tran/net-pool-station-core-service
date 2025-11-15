@@ -19,6 +19,8 @@ public interface TimeSlotUseCase {
 
     List<TimeSlot> findAllByScheduleId(DomainKey<Long> scheduleId);
 
+    List<TimeSlot> findAllByScheduleIdAndStationResourceId(DomainKey<Long> scheduleId, DomainKey<Long> stationResourceId);
+
     void delete(DomainKey<Long> timeSlotId);
 
 }

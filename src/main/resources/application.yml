@@ -41,6 +41,8 @@ environment:
   dateTime:
     distance: 1
     unit: DAY
+  date:
+    distance: 7
   accessToken:
     secretKey: ftoLRVxHq82BzLq3stXhnOJRo4azrVab
     expired: 900000

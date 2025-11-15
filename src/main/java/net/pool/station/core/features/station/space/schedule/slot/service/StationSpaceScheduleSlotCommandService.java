@@ -3,6 +3,7 @@ package net.pool.station.core.features.station.space.schedule.slot.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.domain.station.space.schedule.slot.StationSpaceScheduleSlot;
 import net.pool.station.core.features.station.space.schedule.slot.repository.database.StationSpaceScheduleSlotEntityMapper;
 import net.pool.station.core.features.station.space.schedule.slot.repository.database.StationSpaceScheduleSlotRepository;
@@ -18,7 +19,11 @@ public class StationSpaceScheduleSlotCommandService {
 
     StationSpaceScheduleSlotEntityMapper mapper;
 
-    protected void saveAll(Long stationSpaceScheduleId, List<StationSpaceScheduleSlot> slots) {
+    protected void saveAll(Long stationSpaceId,
+                           Long scheduleId,
+                           List<StationSpaceScheduleSlot> slots) {
+        Long stationSpaceScheduleId = repository.findStationSpaceScheduleId(stationSpaceId, scheduleId)
+                .orElseThrow(MyResourceNotFoundException::new);
         List<StationSpaceScheduleSlot> newSlots = slots.stream()
                 .map(slot -> slot.withStationSpaceScheduleId(stationSpaceScheduleId))
                 .toList();

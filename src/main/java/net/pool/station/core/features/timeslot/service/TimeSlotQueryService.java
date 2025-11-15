@@ -40,4 +40,10 @@ public class TimeSlotQueryService {
     protected List<TimeSlot> findAllByScheduleId(Long scheduleId) {
         return mapper.toDto(repository.findAllByScheduleId(scheduleId));
     }
+
+    protected List<TimeSlot> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId) {
+        List<Long> timeSlotIds = repository.findAllByScheduleIdAndStationResourceId(scheduleId, stationResourceId);
+
+        return mapper.toDto(repository.findAllByTimeSlotIdIn(timeSlotIds));
+    }
 }

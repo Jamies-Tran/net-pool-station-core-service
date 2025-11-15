@@ -12,7 +12,9 @@ import java.util.stream.Stream;
 
 @Configuration
 public class MyDateTimeUtils {
-    private static Integer distance;
+    private static Integer dateTimeDistance;
+
+    private static Integer dateDistance;
 
     private static String unit;
 
@@ -21,21 +23,28 @@ public class MyDateTimeUtils {
         MyDateTimeUtils.unit = unit;
     }
 
+
+
     @Value("${environment.dateTime.distance:1}")
-    public void setDistance(Integer distance) {
-        MyDateTimeUtils.distance = distance;
+    public void setDateTimeDistance(Integer dateTimeDistance) {
+        MyDateTimeUtils.dateTimeDistance = dateTimeDistance;
+    }
+
+    @Value("${environment.date.distance:7}")
+    public void setDateDistance(Integer dateDistance) {
+        MyDateTimeUtils.dateDistance = dateDistance;
     }
 
     public static List<LocalDateTime> defaultTimeRange(List<LocalDateTime> timeRange) {
         if (timeRange.size() == 1) {
             LocalDateTime start = timeRange.getFirst();
-            LocalDateTime end = adjust(start, false);
+            LocalDateTime end = adjustDateTime(start, false);
             return List.of(start, end);
         }
 
         if (timeRange.isEmpty()) {
             LocalDateTime end = LocalDateTime.now();
-            LocalDateTime start = adjust(end, false);
+            LocalDateTime start = adjustDateTime(end, false);
             return List.of(start, end);
         }
 
@@ -48,37 +57,43 @@ public class MyDateTimeUtils {
         return timeRange;
     }
 
-    private static LocalDateTime adjust(LocalDateTime start, Boolean isForward) {
+    public static List<LocalDate> defaultDateRange(List<LocalDate> dateRange) {
+        if (dateRange.isEmpty()) {
+            return List.of(LocalDate.now(), adjustDate(LocalDate.now(), true));
+        }
+
+        if (dateRange.size() == 1) {
+            return List.of(dateRange.getFirst(), adjustDate(dateRange.getFirst(), true));
+        }
+
+        return Stream.of(dateRange.get(0), dateRange.get(1))
+                .sorted()
+                .toList();
+
+    }
+
+    private static LocalDate adjustDate(LocalDate start, Boolean isForward) {
+        return Objects.nonNull(isForward) && isForward
+                ? start.plusDays(dateDistance) : start.minusDays(dateDistance);
+    }
+
+    private static LocalDateTime adjustDateTime(LocalDateTime start, Boolean isForward) {
         switch (unit) {
             case "DAY" -> {
                 return Objects.nonNull(isForward) && isForward
-                        ? start.plusDays(distance) : start.minusDays(distance);
+                        ? start.plusDays(dateTimeDistance) : start.minusDays(dateTimeDistance);
             }
             case "HOUR" -> {
                 return Objects.nonNull(isForward) && isForward
-                        ? start.plusHours(distance) : start.minusHours(distance);
+                        ? start.plusHours(dateTimeDistance) : start.minusHours(dateTimeDistance);
             }
             case "MINUTE" -> {
                 return Objects.nonNull(isForward) && isForward
-                        ? start.plusMinutes(distance) : start.minusMinutes(distance);
+                        ? start.plusMinutes(dateTimeDistance) : start.minusMinutes(dateTimeDistance);
             }
             default -> {
                 return start;
             }
         }
-    }
-
-    public static List<LocalDate> defaultDateRange(List<LocalDate> dateRange) {
-        if (dateRange.size() == 1 || dateRange.isEmpty()) {
-            return List.of();
-        }
-
-        if (dateRange.size() > 2) {
-            return Stream.of(dateRange.get(0), dateRange.get(1))
-                    .sorted(Comparator.reverseOrder())
-                    .toList();
-        }
-
-        return dateRange;
     }
 }

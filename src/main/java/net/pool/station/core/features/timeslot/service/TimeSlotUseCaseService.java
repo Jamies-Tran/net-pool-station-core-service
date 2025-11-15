@@ -57,6 +57,12 @@ public class TimeSlotUseCaseService implements TimeSlotUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<TimeSlot> findAllByScheduleIdAndStationResourceId(DomainKey<Long> scheduleId, DomainKey<Long> stationResourceId) {
+        return queryService.findAllByScheduleIdAndStationResourceId(scheduleId.value(), stationResourceId.value());
+    }
+
+    @Override
     @Transactional
     public void delete(DomainKey<Long> timeSlotId) {
         commandService.delete(timeSlotId.value());

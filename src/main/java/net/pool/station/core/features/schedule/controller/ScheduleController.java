@@ -24,15 +24,6 @@ public class ScheduleController implements ScheduleApi {
     ScheduleRequestMapper requestMapper;
 
     @Override
-    public MyValueResponse<ScheduleResponse> findById(Long scheduleId) {
-        ScheduleResponse response = scheduleUseCase.findById(DomainKey.of(scheduleId))
-                .map(responseMapper::toModel)
-                .orElseThrow(MyResourceNotFoundException::new);
-
-        return MyValueResponse.success(response);
-    }
-
-    @Override
     public MyValueResponse<?> update(Long scheduleId, ScheduleRequest request) {
         scheduleUseCase.update(DomainKey.of(scheduleId), requestMapper.toDto(request));
 

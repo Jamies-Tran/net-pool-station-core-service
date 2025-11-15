@@ -59,6 +59,18 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<Schedule> findById(DomainKey<Long> scheduleId, DomainKey<Long> stationResourceId) {
+        List<TimeSlot> timeSlots = timeSlotUseCase
+                .findAllByScheduleIdAndStationResourceId(scheduleId, stationResourceId);
+
+        return queryService.findById(scheduleId.value())
+                .map(schedule -> schedule.withTimeSlots(timeSlots));
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest) {
         return queryService.findAllByStationResource(criteria, pageRequest);
     }

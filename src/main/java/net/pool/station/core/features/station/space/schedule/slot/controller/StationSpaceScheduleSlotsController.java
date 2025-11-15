@@ -22,9 +22,16 @@ public class StationSpaceScheduleSlotsController implements StationSpaceSchedule
     StationSpaceScheduleSlotRequestMapper requestMapper;
 
     @Override
-    public MyValueResponse<?> save(Long stationSpaceScheduleId, StationSpaceScheduleSlotListRequest request) {
+    public MyValueResponse<?> save(Long stationSpaceId,
+                                   Long scheduleId,
+                                   StationSpaceScheduleSlotListRequest request
+    ) {
         List<StationSpaceScheduleSlot> slots = requestMapper.toDto(request.stationSpaceScheduleSlots());
-        stationSpaceScheduleSlotUseCase.save(DomainKey.of(stationSpaceScheduleId), slots);
+        stationSpaceScheduleSlotUseCase.save(
+                DomainKey.of(stationSpaceId),
+                DomainKey.of(scheduleId),
+                slots
+        );
 
         return MyValueResponse.successNoData();
     }

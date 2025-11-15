@@ -43,9 +43,8 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
         INNER JOIN AreaEntity a ON a.stationSpaceId = sp.stationSpaceId
         INNER JOIN StationResourceEntity sr ON sr.areaId = a.areaId
         WHERE sr.stationResourceId = :#{#criteria.stationResourceId()}
-            AND (:#{#criteria.dateRange().empty} = TRUE
-                    OR COALESCE(sc2.date, sc1.date) BETWEEN :#{#criteria.startFrom()} 
-                            AND :#{#criteria.endTo()})
+            AND (COALESCE(sc2.date, sc1.date) BETWEEN :#{#criteria.startFrom()}
+                AND :#{#criteria.endTo()})
             AND (:#{#criteria.statusCodes().empty} = TRUE
                     OR COALESCE(sc2.statusCode, sc1.statusCode) IN :#{#criteria.statusCodes()} )
         """)

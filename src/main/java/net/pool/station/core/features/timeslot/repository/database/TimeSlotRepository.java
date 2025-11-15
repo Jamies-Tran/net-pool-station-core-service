@@ -27,4 +27,22 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
     List<TimeSlotEntity> findAllByScheduleId(Long scheduleId);
 
     void deleteAllByScheduleId(Long scheduleId);
+
+    @Query("""
+        SELECT DISTINCT COALESCE(t1.timeSlotId, t2.timeSlotId) AS timeSlotId
+        FROM StationResourceEntity sr
+        INNER JOIN AreaEntity a ON a.areaId = sr.areaId
+        INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId = a.stationSpaceId
+        LEFT JOIN StationSpaceScheduleEntity sss ON sss.stationSpaceId = ss.stationSpaceId
+        LEFT JOIN StationSpaceScheduleSlotEntity ssst ON ssst.stationSpaceScheduleId = sss.stationSpaceScheduleId
+        LEFT JOIN TimeSlotEntity t1 ON ssst.timeSlotId = t1.timeSlotId
+        LEFT JOIN StationEntity s ON ss.stationId = s.stationId
+        LEFT JOIN ScheduleEntity sc ON sc.stationId = s.stationId AND sc.scheduleId = :scheduleId
+        LEFT JOIN TimeSlotEntity t2 ON sc.scheduleId = t2.scheduleId
+        WHERE sss.scheduleId = :scheduleId
+                AND sr.stationResourceId = :stationResourceId
+        """)
+    List<Long> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId);
+
+    List<TimeSlotEntity> findAllByTimeSlotIdIn(List<Long> timeSlotIds);
 }

@@ -36,6 +36,8 @@ environment:
   dateTime:
     distance: ${DATETIME_DISTANCE}
     unit: ${DATETIME_UNIT}
+  date:
+    distance: ${DATE_DISTANCE}
   accessToken:
     secretKey: ${ACCESS_TOKEN_SECRET_KEY}
     expired: ${ACCESS_TOKEN_EXPIRED}

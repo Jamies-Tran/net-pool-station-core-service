@@ -14,6 +14,8 @@ public interface ScheduleUseCase {
 
     Optional<Schedule> findById(DomainKey<Long> scheduleId);
 
+    Optional<Schedule> findById(DomainKey<Long> scheduleId, DomainKey<Long> stationResourceId);
+
     Page<Schedule> findAllByStation(ScheduleCriteria criteria, PageRequest pageRequest);
 
     Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest);
