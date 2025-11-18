@@ -20,6 +20,8 @@ public interface ScheduleUseCase {
 
     Page<Schedule> findAllByStationResource(ScheduleCriteria criteria, PageRequest pageRequest);
 
+    Page<Schedule> findAllByStationSpace(ScheduleCriteria criteria, PageRequest pageRequest);
+
     void update(DomainKey<Long> scheduleId, Schedule schedule);
 
     void enable(DomainKey<Long> scheduleId);

@@ -30,6 +30,8 @@ public class AreaEntity extends Auditor {
 
     Long stationSpaceId;
 
+    Integer price;
+
     String areaCode;
 
     String areaName;

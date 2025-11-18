@@ -22,4 +22,10 @@ public class StationSpaceScheduleUseCaseService implements StationSpaceScheduleU
     public void save(DomainKey<Long> stationSpaceId, List<StationSpaceSchedule> stationSpaceSchedules) {
         commandService.saveAll(stationSpaceId.value(), stationSpaceSchedules);
     }
+
+    @Override
+    @Transactional
+    public void deleteAllByStationSpaceId(DomainKey<Long> stationSpaceId) {
+        commandService.deleteAllByStationSpaceId(stationSpaceId.value());
+    }
 }

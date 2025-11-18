@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface StationSpaceScheduleUseCase {
     void save(DomainKey<Long> stationSpaceId, List<StationSpaceSchedule> stationSpaceSchedules);
+
+    void deleteAllByStationSpaceId(DomainKey<Long> stationSpaceId);
 }

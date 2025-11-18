@@ -43,4 +43,11 @@ public class ScheduleQueryService {
 
         return new PageImpl<>(mapper.toDto(schedules), pageRequest, scheduleIds.getTotalElements());
     }
+
+    protected Page<Schedule> findAllByStationSpace(ScheduleCriteria criteria, PageRequest pageRequest) {
+        Page<Long> scheduleIds = repository.findAllByStationSpace(criteria, pageRequest);
+        List<ScheduleEntity> schedules = repository.findAllByScheduleIdIn(scheduleIds.getContent());
+
+        return new PageImpl<>(mapper.toDto(schedules), pageRequest, scheduleIds.getTotalElements());
+    }
 }

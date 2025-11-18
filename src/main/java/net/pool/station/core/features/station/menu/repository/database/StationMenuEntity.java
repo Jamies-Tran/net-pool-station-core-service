@@ -43,7 +43,7 @@ public class StationMenuEntity extends Auditor {
 
     String description;
 
-    Long price;
+    Integer price;
 
     String statusCode;
 

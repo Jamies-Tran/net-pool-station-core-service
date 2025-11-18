@@ -3,6 +3,7 @@ package net.pool.station.core.features.station.space.schedule.schedule.controlle
 import jakarta.validation.Valid;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.features.station.space.schedule.schedule.controller.models.StationSpaceScheduleListRequest;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,4 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface StationSpaceSchedulesApi {
     @PostMapping("/{stationSpaceId}")
     MyValueResponse<?> save(@PathVariable Long stationSpaceId, @RequestBody @Valid StationSpaceScheduleListRequest request);
+
+    @DeleteMapping("/{stationSpaceId}")
+    MyValueResponse<?> deleteAllByStationSpaceId(@PathVariable Long stationSpaceId);
+
 }

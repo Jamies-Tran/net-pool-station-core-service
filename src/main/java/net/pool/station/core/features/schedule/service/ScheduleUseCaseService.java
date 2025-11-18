@@ -77,6 +77,12 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Schedule> findAllByStationSpace(ScheduleCriteria criteria, PageRequest pageRequest) {
+        return queryService.findAllByStationSpace(criteria, pageRequest);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<Schedule> findAllByStation(ScheduleCriteria criteria, PageRequest pageRequest) {
         return queryService.findAllByStation(criteria, pageRequest);
     }

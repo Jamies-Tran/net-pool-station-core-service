@@ -7,6 +7,6 @@ public record StationMenuRequest(
         String typeCode,
         String typeName,
         String description,
-        Long price
+        Integer price
 ) {
 }

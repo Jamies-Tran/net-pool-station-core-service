@@ -38,7 +38,7 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
         FROM ScheduleEntity sc1
         INNER JOIN StationEntity st ON sc1.stationId = st.stationId
         INNER JOIN StationSpaceEntity sp ON st.stationId = sp.stationId
-        LEFT JOIN StationSpaceScheduleEntity sss ON sp.stationSpaceId = sss.stationSpaceId
+        LEFT JOIN StationSpaceScheduleEntity sss ON sp.stationSpaceId = sss.stationSpaceId AND sss.deleted = FALSE
         LEFT JOIN ScheduleEntity sc2 ON sss.scheduleId = sc2.scheduleId
         INNER JOIN AreaEntity a ON a.stationSpaceId = sp.stationSpaceId
         INNER JOIN StationResourceEntity sr ON sr.areaId = a.areaId
@@ -50,5 +50,22 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
         """)
     Page<Long> findAllByStationResource(ScheduleCriteria criteria, Pageable pageable);
 
+    @Query("""
+        SELECT DISTINCT COALESCE(sc2.scheduleId, sc1.scheduleId) AS scheduleId
+        FROM ScheduleEntity sc1
+        INNER JOIN StationEntity st ON sc1.stationId = st.stationId
+        INNER JOIN StationSpaceEntity sp ON st.stationId = sp.stationId
+        LEFT JOIN StationSpaceScheduleEntity sss ON sp.stationSpaceId = sss.stationSpaceId AND sss.deleted = FALSE
+        LEFT JOIN ScheduleEntity sc2 ON sss.scheduleId = sc2.scheduleId
+        WHERE sp.stationSpaceId = :#{#criteria.stationSpaceId()}
+            AND (COALESCE(sc2.date, sc1.date) BETWEEN :#{#criteria.startFrom()}
+                AND :#{#criteria.endTo()})
+            AND (:#{#criteria.statusCodes().empty} = TRUE
+                    OR COALESCE(sc2.statusCode, sc1.statusCode) IN :#{#criteria.statusCodes()} )
+        """)
+    Page<Long> findAllByStationSpace(ScheduleCriteria criteria, Pageable pageable);
+
     List<ScheduleEntity> findAllByScheduleIdIn(List<Long> scheduleIds);
+
+
 }

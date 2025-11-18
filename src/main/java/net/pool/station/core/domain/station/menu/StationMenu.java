@@ -11,7 +11,7 @@ public record StationMenu(
         String typeCode,
         String typeName,
         String description,
-        Long price,
+        Integer price,
         String statusCode,
         String statusName
 ) {

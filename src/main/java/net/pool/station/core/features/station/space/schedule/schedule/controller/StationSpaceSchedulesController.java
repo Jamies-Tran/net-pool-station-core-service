@@ -29,4 +29,11 @@ public class StationSpaceSchedulesController implements StationSpaceSchedulesApi
 
         return MyValueResponse.successNoData();
     }
+
+    @Override
+    public MyValueResponse<?> deleteAllByStationSpaceId(Long stationSpaceId) {
+        stationSpaceScheduleUseCase.deleteAllByStationSpaceId(DomainKey.of(stationSpaceId));
+
+        return MyValueResponse.successNoData();
+    }
 }

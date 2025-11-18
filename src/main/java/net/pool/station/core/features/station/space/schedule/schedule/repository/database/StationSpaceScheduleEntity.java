@@ -29,6 +29,7 @@ public class StationSpaceScheduleEntity extends Auditor {
     Long stationSpaceScheduleId;
     Long scheduleId;
     Long stationSpaceId;
+    Boolean deleted;
     String statusCode;
     String statusName;
 
@@ -38,5 +39,6 @@ public class StationSpaceScheduleEntity extends Auditor {
             statusCode = EStationSpaceScheduleStatus.ENABLE.getCode();
             statusName = EStationSpaceScheduleStatus.ENABLE.getName();
         }
+        deleted = false;
     }
 }

@@ -54,4 +54,19 @@ public class SchedulesPubController implements SchedulesPubApi {
 
         return MyPageResponse.success(responses);
     }
+
+    @Override
+    public MyPageResponse<ScheduleResponse> findAllByStationSpace(
+            Long stationSpaceId,
+            List<LocalDate> dateRange,
+            List<String> statusCodes,
+            String sorter, Integer current, Integer pageSize
+    ) {
+        ScheduleCriteria criteria = ScheduleCriteria.ofStationSpace(stationSpaceId, dateRange, statusCodes);
+        PageRequest pageRequest = PageRequest.of(current, pageSize);
+        Page<ScheduleResponse> responses = scheduleUseCase.findAllByStationSpace(criteria, pageRequest)
+                .map(responseMapper::toModel);
+
+        return MyPageResponse.success(responses);
+    }
 }
