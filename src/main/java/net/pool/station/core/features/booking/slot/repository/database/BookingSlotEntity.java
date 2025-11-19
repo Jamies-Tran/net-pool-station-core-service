@@ -1,4 +1,4 @@
-package net.pool.station.core.features.booking.resource.repository.database;
+package net.pool.station.core.features.booking.slot.repository.database;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -16,9 +16,9 @@ import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "booking_resource")
+@Table(name = "booking_slot")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingResourceEntity extends Auditor {
+public class BookingSlotEntity extends Auditor {
     @EmbeddedId
-    BookingResourceEntityId bookingResourceId;
+    BookingSlotEntityId bookingSlotId;
 }

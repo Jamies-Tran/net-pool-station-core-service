@@ -20,5 +20,5 @@ import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingMenuEntity extends Auditor {
     @EmbeddedId
-    BookingMenuEntityId id;
+    BookingMenuEntityId bookingMenuId;
 }

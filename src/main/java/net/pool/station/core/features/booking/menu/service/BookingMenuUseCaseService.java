@@ -15,15 +15,19 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingMenuUseCaseService implements BookingMenuUseCase {
+    BookingMenuCommandService commandService;
+
+    BookingMenuQueryService queryService;
+
     @Override
     @Transactional
     public void save(DomainKey<Long> bookingId, List<BookingMenu> bookingMenus) {
-
+        commandService.saveAll(bookingId.value(), bookingMenus);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<BookingMenu> findAllByBookingId(DomainKey<Long> bookingId) {
-        return List.of();
+        return queryService.findAllByBookingId(bookingId.value());
     }
 }

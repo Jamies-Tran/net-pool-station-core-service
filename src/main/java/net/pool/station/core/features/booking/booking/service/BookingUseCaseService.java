@@ -8,10 +8,15 @@ import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingCriteria;
 import net.pool.station.core.domain.booking.BookingUseCase;
+import net.pool.station.core.domain.booking.menu.BookingMenu;
+import net.pool.station.core.domain.booking.menu.BookingMenuUseCase;
 import net.pool.station.core.domain.booking.resource.BookingResource;
 import net.pool.station.core.domain.booking.resource.BookingResourceUseCase;
+import net.pool.station.core.domain.booking.slot.BookingSlot;
+import net.pool.station.core.domain.booking.slot.BookingSlotUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
+import net.pool.station.core.features.booking.menu.service.BookingMenuUseCaseService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.parameters.P;
@@ -31,6 +36,10 @@ public class BookingUseCaseService implements BookingUseCase {
 
     BookingResourceUseCase bookingResourceUseCase;
 
+    BookingMenuUseCase bookingMenuUseCase;
+
+    BookingSlotUseCase bookingSlotUseCase;
+
     ScheduleUseCase scheduleUseCase;
 
     @Override
@@ -39,7 +48,10 @@ public class BookingUseCaseService implements BookingUseCase {
 
         Booking savedBooking = commandService.save(booking);
 
-        bookingResourceUseCase.save(DomainKey.of(savedBooking.bookingId()), booking.bookingResources());
+        DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
+        bookingResourceUseCase.save(bookingId, booking.bookingResources());
+        bookingMenuUseCase.save(bookingId, booking.bookingMenus());
+        bookingSlotUseCase.save(bookingId, booking.bookingSlots());
     }
 
     @Override
@@ -51,7 +63,16 @@ public class BookingUseCaseService implements BookingUseCase {
                             .orElse(null);
                     List<BookingResource> bookingResources = bookingResourceUseCase
                             .findAllByBookingId(DomainKey.of(booking.bookingId()));
-                    return booking.withSchedule(schedule).withBookingResources(bookingResources);
+                    List<BookingMenu> bookingMenus = bookingMenuUseCase
+                            .findAllByBookingId(DomainKey.of(booking.bookingId()));
+                    List<BookingSlot> bookingSlots = bookingSlotUseCase
+                            .findAllByBookingId(DomainKey.of(booking.bookingId()));
+
+                    return booking
+                            .withSchedule(schedule)
+                            .withBookingResources(bookingResources)
+                            .withBookingMenus(bookingMenus)
+                            .withBookingSlots(bookingSlots);
                 });
     }
 

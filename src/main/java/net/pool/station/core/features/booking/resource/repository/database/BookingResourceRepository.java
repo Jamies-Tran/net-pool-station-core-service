@@ -10,14 +10,17 @@ import java.util.List;
 @Repository
 public interface BookingResourceRepository extends JpaRepository<BookingResourceEntity, BookingResourceEntityId> {
     @Query("""
-        SELECT 
+        SELECT
+                br.bookingResourceId AS bookingResourceId,
                 sr.resourceCode AS resourceCode,
                 sr.resourceName AS resourceName,
                 sr.typeCode AS typeCode,
-                sr.typeName AS typeName
+                sr.typeName AS typeName,
+                a.price AS price
         FROM BookingResourceEntity br
         INNER JOIN StationResourceEntity sr ON sr.stationResourceId = br.id.stationResourceId
-        WHERE br.id.bookingId = :bookingId
+        INNER JOIN AreaEntity a ON sr.areaId = a.areaId
+        WHERE br.bookingResourceId.bookingId = :bookingId
         """)
     List<BookingResourceDao> findAllByBookingId(Long bookingId);
 }

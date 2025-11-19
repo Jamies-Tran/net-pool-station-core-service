@@ -22,8 +22,8 @@ public class BookingMenuCommandService {
     protected void saveAll(Long bookingId, List<BookingMenu> bookingMenus) {
         bookingMenus = bookingMenus.stream()
                 .map(bookingMenu -> {
-                    BookingMenuId bookingMenuId = bookingMenu.id().withBookingId(bookingId);
-                    return bookingMenu.withId(bookingMenuId);
+                    BookingMenuId bookingMenuId = bookingMenu.bookingMenuId().withBookingId(bookingId);
+                    return bookingMenu.withBookingMenuId(bookingMenuId);
                 })
                 .toList();
         repository.saveAll(mapper.toEntity(bookingMenus));
