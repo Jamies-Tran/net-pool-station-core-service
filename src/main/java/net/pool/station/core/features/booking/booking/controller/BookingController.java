@@ -7,6 +7,7 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.BookingUseCase;
+import net.pool.station.core.features.booking.booking.controller.models.BookingCancelRequest;
 import net.pool.station.core.features.booking.booking.controller.models.BookingResponse;
 import net.pool.station.core.features.booking.booking.controller.models.BookingResponseMapper;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,5 +27,12 @@ public class BookingController implements BookingApi {
                 .orElseThrow(MyResourceNotFoundException::new);
 
         return MyValueResponse.success(response);
+    }
+
+    @Override
+    public MyValueResponse<?> cancel(Long bookingId, BookingCancelRequest request) {
+        bookingUseCase.cancel(DomainKey.of(bookingId), request.cancelReason());
+
+        return MyValueResponse.successNoData();
     }
 }
