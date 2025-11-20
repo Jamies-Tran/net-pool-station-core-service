@@ -3,7 +3,7 @@ package net.pool.station.core.features.booking.resource.repository.database.dao;
 import net.pool.station.core.domain.booking.resource.BookingResourceId;
 
 public interface BookingResourceDao {
-    BookingResourceId bookingResourceId();
+    BookingResourceDaoId getBookingResourceId();
 
     String getResourceCode();
 

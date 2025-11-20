@@ -3,7 +3,9 @@ package net.pool.station.core.features.booking.booking.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.enums.EBookingStatus;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingCriteria;
@@ -14,6 +16,7 @@ import net.pool.station.core.domain.booking.resource.BookingResource;
 import net.pool.station.core.domain.booking.resource.BookingResourceUseCase;
 import net.pool.station.core.domain.booking.slot.BookingSlot;
 import net.pool.station.core.domain.booking.slot.BookingSlotUseCase;
+import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
 import net.pool.station.core.features.booking.menu.service.BookingMenuUseCaseService;
@@ -45,8 +48,10 @@ public class BookingUseCaseService implements BookingUseCase {
     @Override
     @Transactional
     public void save(Booking booking) {
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
 
-        Booking savedBooking = commandService.save(booking);
+        Booking savedBooking = commandService.save(booking.withAccountId(loginInfo.accountId()));
 
         DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
         bookingResourceUseCase.save(bookingId, booking.bookingResources());

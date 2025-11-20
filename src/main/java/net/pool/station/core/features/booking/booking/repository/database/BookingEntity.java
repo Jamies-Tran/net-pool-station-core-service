@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,10 +38,14 @@ public class BookingEntity {
     String statusName;
     Boolean deleted;
 
+    @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
             statusCode = EBookingStatus.NEW.getCode();
             statusName = EBookingStatus.NEW.getName();
+        }
+        if (StringUtils.isEmpty(bookingCode)) {
+            bookingCode = "BOOKING_%s".formatted(System.currentTimeMillis());
         }
         deleted = false;
     }

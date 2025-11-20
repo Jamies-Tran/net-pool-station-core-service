@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.domain.station.space.schedule.slot.StationSpaceScheduleSlot;
+import net.pool.station.core.features.station.space.schedule.slot.repository.database.StationSpaceScheduleSlotEntity;
 import net.pool.station.core.features.station.space.schedule.slot.repository.database.StationSpaceScheduleSlotEntityMapper;
 import net.pool.station.core.features.station.space.schedule.slot.repository.database.StationSpaceScheduleSlotRepository;
 import org.springframework.stereotype.Service;
@@ -29,5 +30,22 @@ public class StationSpaceScheduleSlotCommandService {
                 .toList();
 
         repository.saveAll(mapper.toEntity(newSlots));
+    }
+
+    protected void delete(Long stationSpaceId, Long timeSlotId) {
+        repository.findByStationSpaceIdAndTimeSlotId(stationSpaceId, timeSlotId)
+                .ifPresentOrElse(
+                        foundEntity -> {
+                            repository.delete(foundEntity);
+                        },
+                        () -> {
+                            throw new MyResourceNotFoundException();
+                        }
+                );
+    }
+
+    protected void deleteAll(Long stationSpaceId, Long scheduleId) {
+        List<StationSpaceScheduleSlotEntity> lists = repository.findAllByStationSpaceIdAndScheduleId(stationSpaceId, scheduleId);
+        repository.deleteAll(lists);
     }
 }

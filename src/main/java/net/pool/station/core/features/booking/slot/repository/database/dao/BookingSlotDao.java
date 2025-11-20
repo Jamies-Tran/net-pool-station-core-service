@@ -5,7 +5,7 @@ import net.pool.station.core.domain.booking.slot.BookingSlotId;
 import java.time.LocalTime;
 
 public interface BookingSlotDao {
-    BookingSlotId getBookingSlotId();
+    BookingSlotDaoId getBookingSlotId();
 
     LocalTime getBegin();
 

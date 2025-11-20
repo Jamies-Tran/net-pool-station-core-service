@@ -8,4 +8,8 @@ public interface StationSpaceScheduleSlotUseCase {
     void save(DomainKey<Long> stationSpaceId,
               DomainKey<Long> scheduleId,
               List<StationSpaceScheduleSlot> slots);
+
+    void delete(DomainKey<Long> stationSpaceId, DomainKey<Long> timeSlotId);
+
+    void deleteAll(DomainKey<Long> stationSpaceId, DomainKey<Long> scheduleId);
 }

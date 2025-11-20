@@ -10,7 +10,7 @@ import java.util.List;
 
 public record Booking(
         Long bookingId,
-        Long accountId,
+        @With Long accountId,
         Long scheduleId,
         Long matchMakingId,
         String bookingCode,
