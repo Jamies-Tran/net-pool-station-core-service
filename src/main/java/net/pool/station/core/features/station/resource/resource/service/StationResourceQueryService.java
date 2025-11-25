@@ -7,6 +7,7 @@ import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceCriteria;
 import net.pool.station.core.features.station.resource.resource.repository.database.StationResourceEntityMapper;
 import net.pool.station.core.features.station.resource.resource.repository.database.StationResourceRepository;
+import net.pool.station.core.features.station.resource.resource.repository.database.dao.StationResourceDaoMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,11 @@ public class StationResourceQueryService {
 
     StationResourceEntityMapper mapper;
 
+    StationResourceDaoMapper daoMapper;
+
     protected Optional<StationResource> findById(Long stationResourceId) {
-        return repository.findByStationResourceIdAndDeletedFalse(stationResourceId)
-                .map(mapper::toDto);
+        return repository.findByStationResourceId(stationResourceId)
+                .map(daoMapper::toDto);
     }
 
     protected Page<StationResource> findAll(StationResourceCriteria criteria, PageRequest pageRequest) {

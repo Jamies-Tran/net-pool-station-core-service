@@ -17,6 +17,7 @@ public record PaymentRequest(
         List<ItemRequest> items,
         String cancelUrl,
         String returnUrl,
+        Integer expiredAt,
         @With String signature
 ) {
     @Builder

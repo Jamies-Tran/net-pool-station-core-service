@@ -10,6 +10,8 @@ import net.pool.station.core.domain.booking.BookingUseCase;
 import net.pool.station.core.features.booking.booking.controller.models.BookingCancelRequest;
 import net.pool.station.core.features.booking.booking.controller.models.BookingResponse;
 import net.pool.station.core.features.booking.booking.controller.models.BookingResponseMapper;
+import net.pool.station.core.features.payment.controller.payment.models.PaymentResponse;
+import net.pool.station.core.features.payment.controller.payment.models.PaymentResponseMapper;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,6 +21,8 @@ public class BookingController implements BookingApi {
     BookingUseCase bookingUseCase;
 
     BookingResponseMapper responseMapper;
+
+    PaymentResponseMapper paymentResponseMapper;
 
     @Override
     public MyValueResponse<BookingResponse> findById(Long bookingId) {
@@ -34,5 +38,21 @@ public class BookingController implements BookingApi {
         bookingUseCase.cancel(DomainKey.of(bookingId), request.cancelReason());
 
         return MyValueResponse.successNoData();
+    }
+
+    @Override
+    public MyValueResponse<?> start(Long bookingId) {
+        bookingUseCase.start(DomainKey.of(bookingId));
+
+        return MyValueResponse.successNoData();
+    }
+
+    @Override
+    public MyValueResponse<PaymentResponse> generatePayment(Long bookingId) {
+        PaymentResponse response = bookingUseCase.generatePayment(DomainKey.of(bookingId))
+                .map(paymentResponseMapper::toModel)
+                .orElseThrow(MyResourceNotFoundException::new);
+
+        return MyValueResponse.success(response);
     }
 }

@@ -13,8 +13,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.enums.EBookingStatus;
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
+import net.pool.station.core.bootstrap.enums.EPaymentType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -30,10 +34,15 @@ public class BookingEntity {
     Long accountId;
     Long scheduleId;
     Long matchMakingId;
+    Long stationResourceId;
     String bookingCode;
     String typeCode;
     String typeName;
     String cancelReason;
+    LocalDateTime startAt;
+    LocalDateTime endAt;
+    String paymentMethodCode;
+    String paymentMethodName;
     String statusCode;
     String statusName;
     Boolean deleted;
@@ -41,8 +50,14 @@ public class BookingEntity {
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            statusCode = EBookingStatus.NEW.getCode();
-            statusName = EBookingStatus.NEW.getName();
+            if (MyObjectUtils.isEquals(EPaymentMethod.BANK_TRANSFER.getCode(), paymentMethodCode)) {
+                statusCode = EBookingStatus.PENDING.getCode();
+                statusName = EBookingStatus.PENDING.getName();
+            } else {
+                statusCode = EBookingStatus.NEW.getCode();
+                statusName = EBookingStatus.NEW.getName();
+            }
+
         }
         if (StringUtils.isEmpty(bookingCode)) {
             bookingCode = "BOOKING_%s".formatted(System.currentTimeMillis());

@@ -7,6 +7,7 @@ public record StationResource(
         Long stationResourceId,
         @With Long areaId,
         @With StationResourceSpec spec,
+        Integer price,
         String resourceCode,
         String resourceName,
         String typeCode,

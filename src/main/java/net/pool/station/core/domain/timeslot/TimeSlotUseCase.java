@@ -15,6 +15,8 @@ public interface TimeSlotUseCase {
 
     Optional<TimeSlot> findById(DomainKey<Long> timeSlotId);
 
+    List<TimeSlot> findAllByIdIn(List<Long> timeSlotIds);
+
     Page<TimeSlot> findAll(TimeSlotCriteria criteria, PageRequest pageRequest);
 
     List<TimeSlot> findAllByScheduleId(DomainKey<Long> scheduleId);

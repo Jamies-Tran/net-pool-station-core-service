@@ -26,6 +26,11 @@ public class BookingQueryService {
                 .map(mapper::toDto);
     }
 
+
+    protected Optional<Long> findStationOwnerWalletId(Long stationResourceId) {
+        return repository.findStationOwnerWalletIdByStationResourceId(stationResourceId);
+    }
+
     protected Page<Booking> findAll(BookingCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);

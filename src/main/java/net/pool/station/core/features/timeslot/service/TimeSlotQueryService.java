@@ -46,4 +46,8 @@ public class TimeSlotQueryService {
 
         return mapper.toDto(repository.findAllByTimeSlotIdIn(timeSlotIds));
     }
+
+    protected List<TimeSlot> findAllByTimeSlotIdIn(List<Long> timeSlotIds) {
+        return mapper.toDto(repository.findAllByTimeSlotIdIn(timeSlotIds));
+    }
 }

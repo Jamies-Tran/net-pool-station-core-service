@@ -1,19 +1,24 @@
 package net.pool.station.core.features.transaction.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.enums.EPaymentStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.booking.BookingUseCase;
 import net.pool.station.core.domain.payment.PaymentWebhook;
 import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionCriteria;
 import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -61,6 +66,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Override
     @Transactional
     public void update(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook) {
+        BookingUseCase bookingUseCase = MySpringContext.getBean(BookingUseCase.class);
         log.info("Received webhook: {}", paymentWebhook);
         if (MyObjectUtils.isEquals(paymentWebhook.code(), "00")) {
             log.info("Processing transaction");
@@ -73,6 +79,9 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     .build();
             Transaction savedTransaction = commandService.update(transactionCode.value(), transaction);
             log.info("Transaction updated: {}", savedTransaction);
+            if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
+                bookingUseCase.processed(new DomainKey<>(savedTransaction.bookingId())  );
+            }
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
                 WalletLedger walletLedger = WalletLedger.builder()
                         .walletId(savedTransaction.walletId())

@@ -1,14 +1,22 @@
 package net.pool.station.core.bootstrap.utils;
 
 import net.pool.station.core.bootstrap.configuration.mapper.MyObjectMapper;
+import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
+import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.spec.KeySpec;
+import java.text.Normalizer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,7 +31,7 @@ public class MyPaymentEncryptionUtils {
     public static String encrypt(String data) {
         try {
             String raw = convertToRawString(data);
-            return new HmacUtils("HmacSHA256", secretKey).hmacHex(raw);
+            return new HmacUtils(HmacAlgorithms.HMAC_SHA_256, secretKey).hmacHex(raw);
         } catch (Exception e) {
             throw new RuntimeException();
         }

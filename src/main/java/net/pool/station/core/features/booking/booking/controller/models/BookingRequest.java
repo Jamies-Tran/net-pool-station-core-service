@@ -4,20 +4,12 @@ import java.util.List;
 
 public record BookingRequest(
         Long scheduleId,
+        Long stationResourceId,
         String typeCode,
         String typeName,
-        List<BookingResourceRequest> bookingResources,
         List<BookingMenuRequest> bookingMenus,
         List<BookingSlotRequest> bookingSlots
 ) {
-    public record BookingResourceRequest(
-            BookingResourceRequestId bookingResourceId
-    ) {
-        public record BookingResourceRequestId(
-                Long stationResourceId
-        ) {}
-    }
-
     public record BookingMenuRequest(
             BookingMenuRequestId bookingMenuId
     ) {

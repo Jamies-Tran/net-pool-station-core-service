@@ -46,6 +46,12 @@ public class TimeSlotUseCaseService implements TimeSlotUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public List<TimeSlot> findAllByIdIn(List<Long> timeSlotIds) {
+        return queryService.findAllByTimeSlotIdIn(timeSlotIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<TimeSlot> findAll(TimeSlotCriteria criteria, PageRequest pageRequest) {
         return queryService.findAll(criteria, pageRequest);
     }

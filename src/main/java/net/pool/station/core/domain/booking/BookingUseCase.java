@@ -1,6 +1,7 @@
 package net.pool.station.core.domain.booking;
 
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.payment.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -13,11 +14,15 @@ public interface BookingUseCase {
 
     Page<Booking> findAll(BookingCriteria criteria, PageRequest pageRequest);
 
+    Optional<Payment> generatePayment(DomainKey<Long> bookingId);
+
     void update(DomainKey<Long> bookingId, Booking booking);
+
+    void processed(DomainKey<Long> bookingId);
 
     void start(DomainKey<Long> bookingId);
 
-    void finish(DomainKey<Long> bookingId);
+    Booking finish(DomainKey<Long> bookingId);
 
     void cancel(DomainKey<Long> bookingId, String cancelReason);
 

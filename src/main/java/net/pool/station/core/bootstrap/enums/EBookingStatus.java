@@ -10,6 +10,7 @@ import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum EBookingStatus implements EnumProperty {
+    PENDING("PENDING", "Chờ thanh toán"),
     NEW("NEW", "Mới"),
     PROCESSING("PROCESSING", "Đang xử lý"),
     COMPLETED("COMPLETED", "Đã hoàn thành"),

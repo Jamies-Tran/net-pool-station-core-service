@@ -38,14 +38,16 @@ public class StationSpaceScheduleSlotsController implements StationSpaceSchedule
 
     @Override
     public MyValueResponse<?> delete(Long stationSpaceId, Long timeSlotId) {
-        stationSpaceScheduleSlotUseCase.delete(DomainKey.of(stationSpaceId), DomainKey.of(timeSlotId));
+        stationSpaceScheduleSlotUseCase
+                .delete(DomainKey.of(stationSpaceId), DomainKey.of(timeSlotId));
 
         return MyValueResponse.successNoData();
     }
 
     @Override
     public MyValueResponse<?> deleteAll(Long stationSpaceId, Long scheduleId) {
-        stationSpaceScheduleSlotUseCase.deleteAll(DomainKey.of(stationSpaceId), DomainKey.of(scheduleId));
+        stationSpaceScheduleSlotUseCase
+                .deleteAll(DomainKey.of(stationSpaceId), DomainKey.of(scheduleId));
 
         return MyValueResponse.successNoData();
     }
