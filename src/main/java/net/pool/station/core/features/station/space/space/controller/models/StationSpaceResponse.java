@@ -11,6 +11,7 @@ public record StationSpaceResponse(
         String spaceCode,
         String spaceName,
         Integer capacity,
+        Boolean allowDirectPayment,
         String statusCode,
         String statusName
 ) {

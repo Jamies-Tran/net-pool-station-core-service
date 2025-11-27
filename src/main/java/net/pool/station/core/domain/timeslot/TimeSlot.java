@@ -1,6 +1,7 @@
 package net.pool.station.core.domain.timeslot;
 
 import lombok.Builder;
+import lombok.With;
 import net.pool.station.core.bootstrap.enums.EPeriod;
 import net.pool.station.core.domain.schedule.Schedule;
 
@@ -16,6 +17,7 @@ public record TimeSlot(
     Long scheduleId,
     LocalTime begin,
     LocalTime end,
+    @With Boolean allowBooking,
     String periodCode,
     String periodName,
     String statusCode,

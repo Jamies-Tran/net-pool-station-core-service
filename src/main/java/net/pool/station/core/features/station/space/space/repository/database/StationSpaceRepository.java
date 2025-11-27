@@ -2,6 +2,7 @@ package net.pool.station.core.features.station.space.space.repository.database;
 
 import net.pool.station.core.domain.station.space.StationSpaceCriteria;
 import net.pool.station.core.domain.station.space.StationSpaceId;
+import net.pool.station.core.features.station.space.space.repository.database.dao.StationSpaceAllowDirectPaymentDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,6 +30,21 @@ public interface StationSpaceRepository extends JpaRepository<StationSpaceEntity
                 AND ss.spaceCode = :spaceCode
         """)
     Boolean existsByStationIdAndSpaceCode(Long spaceId, String spaceCode);
+
+    @Query("""
+        SELECT 
+                ss AS stationSpace,
+                w.balance > 0 AS allowDirectPayment
+        FROM StationSpaceEntity ss
+        INNER JOIN StationEntity s ON ss.stationId = s.stationId
+        INNER JOIN StationAccountEntity sa ON s.stationId = sa.stationAccountId.stationId
+        INNER JOIN AccountEntity a ON sa.stationAccountId.accountId = a.accountId
+        INNER JOIN RoleEntity r ON a.roleId = r.roleId 
+                AND r.roleCode = :#{T(net.pool.station.core.bootstrap.enums.ERole).STATION_OWNER.getCode()}
+        INNER JOIN WalletEntity w ON a.accountId = w.accountId
+        WHERE ss.deleted = FALSE AND ss.stationSpaceId = :stationSpaceId
+        """)
+    Optional<StationSpaceAllowDirectPaymentDao> findByStationSpaceIdWithAllowDirectPayment(Long stationSpaceId);
 
     Optional<StationSpaceEntity> findByStationSpaceIdAndDeletedFalse(Long stationSpaceId);
 

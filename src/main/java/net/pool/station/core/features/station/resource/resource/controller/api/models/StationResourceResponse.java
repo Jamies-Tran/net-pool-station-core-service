@@ -14,6 +14,7 @@ public record StationResourceResponse(
         String resourceName,
         String typeCode,
         String typeName,
+        Boolean allowDirectPayment,
         String statusCode,
         String statusName
 ) {

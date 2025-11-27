@@ -7,6 +7,7 @@ public record TimeSlotResponse(
         Long scheduleId,
         LocalTime begin,
         LocalTime end,
+        Boolean allowBooking,
         String periodCode,
         String periodName,
         String statusCode,

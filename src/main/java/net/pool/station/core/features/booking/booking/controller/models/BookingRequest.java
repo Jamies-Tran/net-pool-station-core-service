@@ -7,6 +7,8 @@ public record BookingRequest(
         Long stationResourceId,
         String typeCode,
         String typeName,
+        String paymentMethodCode,
+        String paymentMethodName,
         List<BookingMenuRequest> bookingMenus,
         List<BookingSlotRequest> bookingSlots
 ) {

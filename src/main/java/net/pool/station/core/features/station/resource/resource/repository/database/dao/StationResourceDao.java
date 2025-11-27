@@ -18,4 +18,6 @@ public interface StationResourceDao {
     String getStatusName();
 
     Integer getPrice();
+
+    Boolean getAllowDirectPayment();
 }

@@ -127,6 +127,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
                 .data();
         Transaction transaction = Transaction.builder()
                 .bookingId(booking.bookingId())
+                .walletId(booking.walletId())
                 .transactionCode(paymentResponse.orderCode())
                 .amount(paymentResponse.amount())
                 .currency(paymentResponse.currency())
@@ -145,8 +146,8 @@ public class PaymentUseCaseService implements PaymentUseCase {
                 .stream()
                 .map(s -> {
                     String time = "%s-%s %s".formatted(
-                            s.begin().format(DateTimeFormatter.ofPattern("hh:mm")),
-                            s.end().format(DateTimeFormatter.ofPattern("hh:mm")),
+                            s.begin().format(DateTimeFormatter.ofPattern("HH:mm")),
+                            s.end().format(DateTimeFormatter.ofPattern("HH:mm")),
                             booking.schedule().date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                     );
                     String name = "%s (%s)".formatted(booking.stationResource().typeName(), time);

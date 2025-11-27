@@ -40,7 +40,7 @@ public class ExpiredBookingJob implements Job {
                 .getLong("bookingId");
         Booking booking = bookingUseCase
                 .finish(new DomainKey<>(bookingId));
-        if (MyObjectUtils.isEquals(EPaymentMethod.DIRECT.getCode(), booking.paymentMethodCode())) {
+        if (MyObjectUtils.isEquals(EPaymentMethod.DIRECT, EPaymentMethod.valueOf(booking.paymentMethodCode()))) {
             WalletLedger walletLedger = WalletLedger.builder()
                     .walletId(booking.walletId())
                     .changeAmount(-booking.totalPrice())

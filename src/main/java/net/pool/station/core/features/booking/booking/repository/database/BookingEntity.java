@@ -50,7 +50,8 @@ public class BookingEntity {
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            if (MyObjectUtils.isEquals(EPaymentMethod.BANK_TRANSFER.getCode(), paymentMethodCode)) {
+            if (MyObjectUtils.isEquals(EPaymentMethod.BANK_TRANSFER,
+                    EPaymentMethod.valueOf(paymentMethodCode))) {
                 statusCode = EBookingStatus.PENDING.getCode();
                 statusName = EBookingStatus.PENDING.getName();
             } else {
@@ -59,7 +60,7 @@ public class BookingEntity {
             }
 
         }
-        if (StringUtils.isEmpty(bookingCode)) {
+        if (!StringUtils.hasText(bookingCode)) {
             bookingCode = "BOOKING_%s".formatted(System.currentTimeMillis());
         }
         deleted = false;

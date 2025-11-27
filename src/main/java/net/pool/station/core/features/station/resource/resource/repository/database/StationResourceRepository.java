@@ -24,12 +24,23 @@ public interface StationResourceRepository extends JpaRepository<StationResource
                 sr.typeName AS typeName,
                 sr.statusCode AS statusCode,
                 sr.statusName AS statusName,
-                a.price AS price
+                a.price AS price,
+                w.balance > 0 AS allowDirectPayment
         FROM StationResourceEntity sr
         INNER JOIN AreaEntity a ON sr.areaId = a.areaId
-        WHERE sr.deleted = FALSE AND sr.stationResourceId = :stationResourceId
+        INNER JOIN StationSpaceEntity ss ON a.stationSpaceId = ss.stationSpaceId
+        INNER JOIN StationEntity s ON ss.stationId = s.stationId
+        INNER JOIN StationAccountEntity sa ON s.stationId = sa.stationAccountId.stationId
+        INNER JOIN AccountEntity ac ON sa.stationAccountId.accountId = ac.accountId
+        INNER JOIN RoleEntity r ON ac.roleId = r.roleId 
+                AND r.roleCode = :#{T(net.pool.station.core.bootstrap.enums.ERole).STATION_OWNER.getCode()}
+        INNER JOIN WalletEntity w ON ac.accountId = w.accountId
+        LEFT JOIN BookingEntity b ON b.stationResourceId = sr.stationResourceId
+        WHERE sr.deleted = FALSE 
+                AND sr.stationResourceId = :stationResourceId
         """)
     Optional<StationResourceDao> findByStationResourceId(Long stationResourceId);
+
 
     Optional<StationResourceEntity> findByStationResourceIdAndDeletedFalse(Long stationResourceId);
 

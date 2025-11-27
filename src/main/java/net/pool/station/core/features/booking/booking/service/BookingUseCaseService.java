@@ -80,6 +80,8 @@ public class BookingUseCaseService implements BookingUseCase {
     public Optional<Booking> findById(DomainKey<Long> bookingId) {
         return queryService.findById(bookingId.value())
                 .map(booking -> {
+                    Long stationOwnerWalletId = queryService.findStationOwnerWalletId(booking.stationResourceId())
+                            .orElse(null);
                     Schedule schedule = scheduleUseCase.findById(DomainKey.of(booking.scheduleId()))
                             .orElse(null);
                     StationResource stationResource = stationResourceUseCase
@@ -91,6 +93,7 @@ public class BookingUseCaseService implements BookingUseCase {
                             .findAllByBookingId(DomainKey.of(booking.bookingId()));
 
                     return booking
+                            .withWalletId(stationOwnerWalletId)
                             .withSchedule(schedule)
                             .withStationResource(stationResource)
                             .withBookingMenus(bookingMenus)

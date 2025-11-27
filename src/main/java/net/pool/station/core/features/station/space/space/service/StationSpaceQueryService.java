@@ -23,8 +23,9 @@ public class StationSpaceQueryService {
     StationSpaceEntityMapper mapper;
 
     protected Optional<StationSpace> findById(Long stationSpaceId) {
-        return repository.findByStationSpaceIdAndDeletedFalse(stationSpaceId)
-                .map(mapper::toDto);
+        return repository.findByStationSpaceIdWithAllowDirectPayment(stationSpaceId)
+                .map(dao -> mapper.toDto(dao.getStationSpace())
+                        .withAllowDirectPayment(dao.getAllowDirectPayment()));
     }
 
     protected Page<StationSpace> findAll(StationSpaceCriteria criteria, Pageable pageable) {
