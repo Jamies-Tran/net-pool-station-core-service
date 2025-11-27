@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EBookingStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
@@ -24,6 +25,7 @@ import net.pool.station.core.domain.schedule.ScheduleUseCase;
 import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
 import net.pool.station.core.features.booking.job.ExpiredBookingJob;
+import net.pool.station.core.features.booking.job.StartBookingJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -38,8 +40,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -137,8 +142,26 @@ public class BookingUseCaseService implements BookingUseCase {
 
     @Override
     @Transactional
+    public void autoStart(DomainKey<Long> bookingId) {
+        Booking booking = queryService.findById(bookingId.value())
+                .orElseThrow(MyResourceNotFoundException::new);
+        if (MyObjectUtils.isEquals(EBookingStatus.PENDING.getCode(), booking.statusCode())) {
+            commandService.updateStatus(booking.bookingId(), "Người dùng chưa thanh toán",
+                    EBookingStatus.CANCELED);
+        } else {
+            commandService.updateStatus(booking.bookingId(), EBookingStatus.PROCESSING);
+        }
+    }
+
+    @Override
+    @Transactional
     public Booking finish(DomainKey<Long> bookingId) {
-        Booking booking = commandService.updateStatus(bookingId.value(), EBookingStatus.COMPLETED);
+        Booking booking = queryService.findById(bookingId.value())
+                .orElseThrow(MyResourceNotFoundException::new);
+        if (MyObjectUtils.isEquals(EBookingStatus.CANCELED.getCode(), booking.statusCode())) {
+            return booking;
+        }
+        Booking completedBooking = commandService.updateStatus(booking.bookingId(), EBookingStatus.COMPLETED);
         Long stationOwnerWalletId = queryService.findStationOwnerWalletId(booking.stationResourceId())
                 .orElse(null);
         Schedule schedule = scheduleUseCase.findById(DomainKey.of(booking.scheduleId()))
@@ -151,7 +174,7 @@ public class BookingUseCaseService implements BookingUseCase {
         List<BookingSlot> bookingSlots = bookingSlotUseCase
                 .findAllByBookingId(DomainKey.of(booking.bookingId()));
 
-        return booking
+        return completedBooking
                 .withWalletId(stationOwnerWalletId)
                 .withSchedule(schedule)
                 .withStationResource(stationResource)
@@ -174,15 +197,26 @@ public class BookingUseCaseService implements BookingUseCase {
 
     private void scheduleBooking(Booking booking) {
         try {
-            JobDetail jobDetail = JobBuilder.newJob(ExpiredBookingJob.class)
+            JobDetail startBookingJob = JobBuilder.newJob(StartBookingJob.class)
+                    .withIdentity("startBookingJob_%s".formatted(booking.bookingId()))
+                    .usingJobData("bookingId", booking.bookingId())
+                    .build();
+            JobDetail expiredBookingJob = JobBuilder.newJob(ExpiredBookingJob.class)
                     .withIdentity("expiredBookingJob_%s".formatted(booking.bookingId()), "booking")
                     .usingJobData("bookingId", booking.bookingId())
                     .build();
-            Trigger trigger = TriggerBuilder.newTrigger()
+            Trigger startBookingTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("startBookingTrigger_%s".formatted(booking.bookingId()), "booking")
+                    .startAt(Timestamp.valueOf(booking.startAt()))
+                    .build();
+            Trigger expiredBookingTrigger = TriggerBuilder.newTrigger()
                     .withIdentity("expiredBookingTrigger_%s".formatted(booking.bookingId()), "booking")
                     .startAt(Timestamp.valueOf((booking.endAt())))
                     .build();
-            scheduler.scheduleJob(jobDetail, trigger);
+            Map<JobDetail, Set<? extends Trigger>> jobAndTriggers = new HashMap<>();
+            jobAndTriggers.put(startBookingJob, Set.of(startBookingTrigger));
+            jobAndTriggers.put(expiredBookingJob, Set.of(expiredBookingTrigger));
+            scheduler.scheduleJobs(jobAndTriggers, true);
         } catch (SchedulerException e) {
             throw new MyResourceNotValid("Vui lòng thử lại sau");
         }

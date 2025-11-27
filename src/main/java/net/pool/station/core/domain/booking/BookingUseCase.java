@@ -22,6 +22,8 @@ public interface BookingUseCase {
 
     void start(DomainKey<Long> bookingId);
 
+    void autoStart(DomainKey<Long> bookingId);
+
     Booking finish(DomainKey<Long> bookingId);
 
     void cancel(DomainKey<Long> bookingId, String cancelReason);

@@ -36,6 +36,9 @@ public record TimeSlot(
 
         while (from.isBefore(to) || from.isEqual(to)) {
             LocalDateTime end = from.plusSeconds(config.interval());
+            if (end.toLocalDate().isAfter(from.toLocalDate())) {
+                end = LocalDateTime.of(from.toLocalDate(), LocalTime.of(23, 59, 59));
+            }
             TimeSlot timeSlot = TimeSlot.builder()
                     .scheduleId(scheduleId)
                     .begin(from.toLocalTime())
@@ -56,6 +59,9 @@ public record TimeSlot(
             LocalDateTime to = LocalDateTime.of(LocalDate.now(), config.to());
             while (from.isBefore(to) || from.isEqual(to)) {
                 LocalDateTime end = from.plusSeconds(config.interval());
+                if (end.toLocalDate().isAfter(from.toLocalDate())) {
+                    end = LocalDateTime.of(from.toLocalDate(), LocalTime.of(23, 59, 59));
+                }
                 TimeSlot timeSlot = TimeSlot.builder()
                         .scheduleId(scheduleId)
                         .begin(from.toLocalTime())
