@@ -31,6 +31,14 @@ spring:
           auth: true
           starttls:
             enable: true
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.threadPool.threadCount: 10
   profiles:
     active: develop
 
@@ -41,6 +49,8 @@ environment:
   dateTime:
     distance: 1
     unit: DAY
+  date:
+    distance: 7
   accessToken:
     secretKey: ftoLRVxHq82BzLq3stXhnOJRo4azrVab
     expired: 900000
@@ -61,3 +71,5 @@ environment:
     checksum-key: 93110692661c057429c7df81b5c3e743831e4d59d1c3113cd2497fd9be8ce107
     returnUrl: http://localhost
     cancelUrl: http://localhost
+  commission:
+    percent: 5
