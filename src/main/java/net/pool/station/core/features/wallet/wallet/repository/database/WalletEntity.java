@@ -32,6 +32,8 @@ public class WalletEntity {
 
     Integer balance;
 
+    Integer contributedCommission;
+
     Boolean directPayment;
 
     String statusCode;
@@ -49,6 +51,10 @@ public class WalletEntity {
 
         if (MyObjectUtils.isEmpty(balance)) {
             balance = 0;
+        }
+
+        if (MyObjectUtils.isEmpty(contributedCommission)) {
+            contributedCommission = 0;
         }
 
         deleted = false;

@@ -34,7 +34,7 @@ public interface StationSpaceRepository extends JpaRepository<StationSpaceEntity
     @Query("""
         SELECT 
                 ss AS stationSpace,
-                w.balance > 0 AS allowDirectPayment
+                w.directPayment AS allowDirectPayment
         FROM StationSpaceEntity ss
         INNER JOIN StationEntity s ON ss.stationId = s.stationId
         INNER JOIN StationAccountEntity sa ON s.stationId = sa.stationAccountId.stationId

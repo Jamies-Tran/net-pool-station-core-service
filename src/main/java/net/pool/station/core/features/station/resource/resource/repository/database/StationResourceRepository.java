@@ -35,7 +35,6 @@ public interface StationResourceRepository extends JpaRepository<StationResource
         INNER JOIN RoleEntity r ON ac.roleId = r.roleId 
                 AND r.roleCode = :#{T(net.pool.station.core.bootstrap.enums.ERole).STATION_OWNER.getCode()}
         INNER JOIN WalletEntity w ON ac.accountId = w.accountId
-        LEFT JOIN BookingEntity b ON b.stationResourceId = sr.stationResourceId
         WHERE sr.deleted = FALSE 
                 AND sr.stationResourceId = :stationResourceId
         """)

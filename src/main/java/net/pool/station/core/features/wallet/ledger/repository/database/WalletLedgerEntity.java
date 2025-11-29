@@ -29,4 +29,6 @@ public class WalletLedgerEntity extends Auditor {
     Integer currentBalance;
     Integer changeAmount;
     Integer newBalance;
+    Integer chargedCommission;
+    Integer newContributedCommission;
 }

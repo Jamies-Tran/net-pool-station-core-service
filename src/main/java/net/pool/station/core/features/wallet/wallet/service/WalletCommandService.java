@@ -44,7 +44,7 @@ public class WalletCommandService {
                 );
     }
 
-    protected void updateBalance(Long walletId, Integer balance) {
+    protected void updateBalance(Long walletId, Integer balance, Integer contributedCommission) {
         repository.findById(walletId)
                 .ifPresentOrElse(
                         foundEntity -> {
@@ -52,6 +52,7 @@ public class WalletCommandService {
                                 throw new MyResourceNotValid();
                             }
                             foundEntity.setBalance(balance);
+                            foundEntity.setContributedCommission(contributedCommission);
                             repository.save(foundEntity);
                         },
                         () -> {

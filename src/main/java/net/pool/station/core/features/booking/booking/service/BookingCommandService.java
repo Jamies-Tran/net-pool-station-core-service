@@ -67,10 +67,6 @@ public class BookingCommandService {
     protected Booking updateStatus(Long bookingId, EBookingStatus status) {
         return repository.findByBookingIdAndDeletedFalse(bookingId)
                 .map(foundEntity -> {
-                    if (MyObjectUtils.isEquals(EBookingStatus.PROCESSING, status)
-                            && foundEntity.getStartAt().isBefore(LocalDateTime.now())) {
-                        throw new MyResourceNotValid("Chứa đến giờ bắt đầu booking");
-                    }
                     foundEntity.setStatusCode(status.getCode());
                     foundEntity.setStatusName(status.getName());
                     return mapper.toDto(repository.save(foundEntity));

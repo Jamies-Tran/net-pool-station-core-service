@@ -25,7 +25,7 @@ public record Booking(
         String statusName,
         LocalDateTime startAt,
         LocalDateTime endAt,
-        Integer totalPrice,
+        @With Integer totalPrice,
         String paymentMethodCode,
         String paymentMethodName,
         @With Schedule schedule,

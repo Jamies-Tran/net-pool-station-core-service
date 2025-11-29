@@ -21,6 +21,8 @@ public record BookingResponse(
         String typeName,
         LocalDateTime startAt,
         LocalDateTime endAt,
+        String paymentMethodCode,
+        String paymentMethodName,
         String statusCode,
         String statusName,
         Schedule schedule,

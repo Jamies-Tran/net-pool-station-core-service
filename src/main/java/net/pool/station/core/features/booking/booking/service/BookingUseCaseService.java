@@ -173,8 +173,14 @@ public class BookingUseCaseService implements BookingUseCase {
                 .findAllByBookingId(DomainKey.of(booking.bookingId()));
         List<BookingSlot> bookingSlots = bookingSlotUseCase
                 .findAllByBookingId(DomainKey.of(booking.bookingId()));
-
+        Integer resourcePrice = Optional.ofNullable(stationResource).map(StationResource::price)
+                .orElse(0) * bookingSlots.size();
+        Integer menuPrice = bookingMenus.stream()
+                .map(BookingMenu::price)
+                .reduce(0, Integer::sum);
+        int totalPrice = resourcePrice + menuPrice;
         return completedBooking
+                .withTotalPrice(totalPrice)
                 .withWalletId(stationOwnerWalletId)
                 .withSchedule(schedule)
                 .withStationResource(stationResource)
@@ -198,7 +204,7 @@ public class BookingUseCaseService implements BookingUseCase {
     private void scheduleBooking(Booking booking) {
         try {
             JobDetail startBookingJob = JobBuilder.newJob(StartBookingJob.class)
-                    .withIdentity("startBookingJob_%s".formatted(booking.bookingId()))
+                    .withIdentity("startBookingJob_%s".formatted(booking.bookingId()), "booking")
                     .usingJobData("bookingId", booking.bookingId())
                     .build();
             JobDetail expiredBookingJob = JobBuilder.newJob(ExpiredBookingJob.class)

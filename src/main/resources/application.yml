@@ -36,7 +36,6 @@ spring:
     jdbc:
       initialize-schema: always
     properties:
-
       org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
       org.quartz.scheduler.instanceId: AUTO
       org.quartz.threadPool.threadCount: 10
@@ -72,3 +71,5 @@ environment:
     checksum-key: 93110692661c057429c7df81b5c3e743831e4d59d1c3113cd2497fd9be8ce107
     returnUrl: http://localhost
     cancelUrl: http://localhost
+  commission:
+    percent: 5

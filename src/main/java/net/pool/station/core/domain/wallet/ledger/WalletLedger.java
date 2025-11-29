@@ -10,6 +10,8 @@ public record WalletLedger(
         Long transactionId,
         @With Integer currentBalance,
         Integer changeAmount,
-        @With Integer newBalance
+        @With Integer newBalance,
+        @With Integer chargedCommission,
+        @With Integer newContributedCommission
 ) {
 }

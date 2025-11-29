@@ -7,6 +7,7 @@ import net.pool.station.core.bootstrap.enums.EWalletStatus;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.wallet.Wallet;
 import net.pool.station.core.domain.wallet.WalletUseCase;
+import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +35,9 @@ public class WalletUseCaseService implements WalletUseCase {
 
     @Override
     @Transactional
-    public void updateBalance(DomainKey<Long> walletId, Integer balance) {
-        commandService.updateBalance(walletId.value(), balance);
+    public void updateBalance(DomainKey<Long> walletId, WalletLedger walletLedger) {
+        commandService.updateBalance(walletId.value(), walletLedger.newBalance(),
+                walletLedger.newContributedCommission());
     }
 
     @Override

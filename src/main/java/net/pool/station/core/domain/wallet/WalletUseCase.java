@@ -1,6 +1,7 @@
 package net.pool.station.core.domain.wallet;
 
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 
 import java.util.Optional;
 
@@ -9,7 +10,7 @@ public interface WalletUseCase {
 
     Optional<Wallet> findByAccountId(DomainKey<Long> accountId);
 
-    void updateBalance(DomainKey<Long> walletId, Integer balance);
+    void updateBalance(DomainKey<Long> walletId, WalletLedger walletLedger);
 
     void enable(DomainKey<Long> accountId);
 

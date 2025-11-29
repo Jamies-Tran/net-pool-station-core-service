@@ -1,6 +1,7 @@
 package net.pool.station.core.features.wallet.ledger.repository.database;
 
 import net.pool.station.core.domain.wallet.ledger.WalletLedgerCriteria;
+import net.pool.station.core.features.wallet.ledger.repository.database.dao.CurrentBalanceAndCommissionDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,11 +11,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WalletLedgerRepository extends JpaRepository<WalletLedgerEntity, Long> {
     @Query("""
-        SELECT w.balance
+        SELECT 
+                w.balance AS currentBalance,
+                w.contributedCommission AS currentContributedCommission
         FROM WalletEntity w
         WHERE w.walletId = :walletId
         """)
-    Integer findCurrentBalanceByWalletId(Long walletId);
+    CurrentBalanceAndCommissionDao findCurrentBalanceByWalletId(Long walletId);
 
     @Query("""
         SELECT wl

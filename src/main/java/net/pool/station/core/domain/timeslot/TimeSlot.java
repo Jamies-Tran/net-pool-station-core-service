@@ -38,6 +38,13 @@ public record TimeSlot(
             LocalDateTime end = from.plusSeconds(config.interval());
             if (end.toLocalDate().isAfter(from.toLocalDate())) {
                 end = LocalDateTime.of(from.toLocalDate(), LocalTime.of(23, 59, 59));
+                TimeSlot timeSlot = TimeSlot.builder()
+                        .scheduleId(scheduleId)
+                        .begin(from.toLocalTime())
+                        .end(end.toLocalTime())
+                        .build();
+                timeSlots.add(timeSlot);
+                break;
             }
             TimeSlot timeSlot = TimeSlot.builder()
                     .scheduleId(scheduleId)
@@ -61,6 +68,13 @@ public record TimeSlot(
                 LocalDateTime end = from.plusSeconds(config.interval());
                 if (end.toLocalDate().isAfter(from.toLocalDate())) {
                     end = LocalDateTime.of(from.toLocalDate(), LocalTime.of(23, 59, 59));
+                    TimeSlot timeSlot = TimeSlot.builder()
+                            .scheduleId(scheduleId)
+                            .begin(from.toLocalTime())
+                            .end(end.toLocalTime())
+                            .build();
+                    timeSlots.add(timeSlot);
+                    break;
                 }
                 TimeSlot timeSlot = TimeSlot.builder()
                         .scheduleId(scheduleId)

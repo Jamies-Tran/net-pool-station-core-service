@@ -18,6 +18,7 @@ import net.pool.station.core.domain.transaction.TransactionCriteria;
 import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,10 @@ public class TransactionUseCaseService implements TransactionUseCase {
     TransactionQueryService queryService;
 
     WalletLedgerUseCase walletLedgerUseCase;
+
+    @NonFinal
+    @Value("${environment.commission.percent}")
+    Integer commission;
 
     @Override
     @Transactional
@@ -68,6 +73,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
     public void update(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook) {
         BookingUseCase bookingUseCase = MySpringContext.getBean(BookingUseCase.class);
         log.info("Received webhook: {}", paymentWebhook);
+        Integer chargeCommission = 0;
         if (MyObjectUtils.isEquals(paymentWebhook.code(), "00")) {
             log.info("Processing transaction");
             Transaction transaction = Transaction.builder()
@@ -80,6 +86,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
             Transaction savedTransaction = commandService.update(transactionCode.value(), transaction);
             log.info("Transaction updated: {}", savedTransaction);
             if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
+                chargeCommission = paymentWebhook.amount() * commission/100;
                 bookingUseCase.processed(new DomainKey<>(savedTransaction.bookingId())  );
             }
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
@@ -87,6 +94,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                         .walletId(savedTransaction.walletId())
                         .transactionId(savedTransaction.transactionId())
                         .changeAmount(paymentWebhook.amount())
+                        .chargedCommission(chargeCommission)
                         .build();
                 walletLedgerUseCase.save(walletLedger);
                 log.info("Transaction completed");
