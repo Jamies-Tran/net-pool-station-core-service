@@ -58,4 +58,13 @@ public class MyObjectMapper {
             throw new RuntimeException(e);
         }
     }
+
+    public static <T> T convertToObject(Map<String, Object> data, TypeReference<T> typeReference) {
+        try {
+            return objectMapper.convertValue(data, typeReference);
+        } catch (Exception e) {
+            log.error("[{}-convertObjectFromString] có lỗi xảy ra: {} ", MyObjectMapper.class.getSimpleName(), e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
 }

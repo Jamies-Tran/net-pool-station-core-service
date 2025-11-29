@@ -25,6 +25,8 @@ public record Account(
     public record Station(
             String stationId,
             String stationCode,
-            String stationName
+            String stationName,
+            String statusCode,
+            String statusName
     ) {}
 }

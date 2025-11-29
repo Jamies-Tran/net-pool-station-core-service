@@ -8,7 +8,12 @@ public record SpaceRequest(
         String typeCode,
         @NotNull(message = "Tên loại space không được bỏ trống")
         String typeName,
+        MetadataRequest metadata,
         String statusCode,
         String statusName
 ) {
+        public record MetadataRequest(
+                String icon,
+                String bgColor
+        ) {}
 }

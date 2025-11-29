@@ -6,4 +6,8 @@ public interface StationDao {
     String getStationCode();
 
     String getStationName();
+
+    String getStatusCode();
+
+    String getStatusName();
 }

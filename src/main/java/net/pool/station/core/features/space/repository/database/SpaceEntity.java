@@ -16,7 +16,13 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 import net.pool.station.core.bootstrap.enums.ESpaceStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.sql.JDBCType;
+import java.sql.SQLType;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -38,6 +44,10 @@ public class SpaceEntity extends Auditor {
     String statusCode;
 
     String statusName;
+
+    @JdbcTypeCode(value = SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    Map<String, Object> metadata;
 
     Boolean deleted;
 

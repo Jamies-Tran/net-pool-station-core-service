@@ -79,14 +79,16 @@ public class SpaceCommandService {
                     && repository.existsByTypeName(space.typeName())) {
                 throw new MyResourceDuplicateException("Tên space không được trùng");
             }
+        } else {
+            if (repository.existsByTypeCode(space.typeCode())) {
+                throw new MyResourceDuplicateException("Mã space không được trùng");
+            }
+
+            if (repository.existsByTypeName(space.typeName())) {
+                throw new MyResourceDuplicateException("Tên space không được trùng");
+            }
         }
 
-        if (repository.existsByTypeCode(space.typeCode())) {
-            throw new MyResourceDuplicateException("Mã space không được trùng");
-        }
 
-        if (repository.existsByTypeName(space.typeName())) {
-            throw new MyResourceDuplicateException("Tên space không được trùng");
-        }
     }
 }

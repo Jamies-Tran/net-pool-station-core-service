@@ -22,6 +22,8 @@ public record AccountResponse(
     public record StationResponse (
             String stationId,
             String stationCode,
-            String stationName
+            String stationName,
+            String statusCode,
+            String statusName
     ) {}
 }

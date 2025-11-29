@@ -87,7 +87,9 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
         SELECT 
                 s.stationId AS stationId,
                 s.stationCode AS stationCode,
-                s.stationName AS stationName
+                s.stationName AS stationName,
+                s.statusCode AS statusCode,
+                s.statusName AS statusName
         FROM AccountEntity a
         INNER JOIN StationAccountEntity sa ON a.accountId = sa.stationAccountId.accountId
         INNER JOIN StationEntity s ON sa.stationAccountId.stationId = s.stationId
