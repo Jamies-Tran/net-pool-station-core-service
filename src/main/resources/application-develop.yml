@@ -31,6 +31,14 @@ spring:
           auth: ${MAIL_PROPERTIES_SMTP_AUTH}
           starttls:
             enable: ${MAIL_PROPERTIES_SMTP_STARTTLS_ENABLE}
+  quartz:
+    job-store-type: ${QUARTZ_JOB_STORE_TYPE}
+    jdbc:
+      initialize-schema: ${QUARTZ_JDBC_INITIALIZE_SCHEMA}
+    properties:
+      org.quartz.jobStore.driverDelegateClass: ${QUARTZ_PROPERTIES_ORG_QUARTZ_JOBSTORE_DRIVERDELEGATECLASS}
+      org.quartz.scheduler.instanceId: ${QUARTZ_PROPERTIES_ORG_QUARTZ_SCHEDULER_INSTANCEID}
+      org.quartz.threadPool.threadCount: ${QUARTZ_PROPERTIES_ORG_QUARTZ_THREADPOOL_THREADCOUNT}
 
 environment:
   dateTime:
@@ -58,3 +66,5 @@ environment:
     checksum-key: ${API_CHECKSUM_KEY}
     returnUrl: ${RETURN_URL}
     cancelUrl: ${CANCEL_URL}
+  commission:
+    percent: ${COMMISSION_PERCENT}
