@@ -7,5 +7,7 @@ import java.util.List;
 public interface BookingSlotUseCase {
     void save(DomainKey<Long> bookingId, List<BookingSlot> bookingSlots);
 
+    void update(DomainKey<Long> bookingId, List<BookingSlot> bookingSlots);
+
     List<BookingSlot> findAllByBookingId(DomainKey<Long> bookingId);
 }

@@ -30,7 +30,13 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
     void deleteAllByScheduleId(Long scheduleId);
 
     @Query("""
-        SELECT DISTINCT COALESCE(t1.timeSlotId, t2.timeSlotId) AS timeSlotId
+        SELECT DISTINCT 
+                COALESCE(t1.timeSlotId, t2.timeSlotId) AS timeSlotId,
+                CASE 
+                    WHEN bs IS NOT NULL AND COALESCE(t1.timeSlotId, t2.timeSlotId) = bs.bookingSlotId.timeSlotId THEN FALSE 
+                    WHEN bs IS NULL AND COALESCE(t1.end, t2.end) < CURRENT_TIME THEN FALSE
+                    ELSE TRUE 
+                END AS allowBooking      
         FROM StationResourceEntity sr
         INNER JOIN AreaEntity a ON a.areaId = sr.areaId
         INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId = a.stationSpaceId
@@ -43,21 +49,21 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
         LEFT JOIN BookingSlotEntity bs ON bs.bookingSlotId.timeSlotId = COALESCE(t1.timeSlotId, t2.timeSlotId)
         WHERE sr.stationResourceId = :stationResourceId
         """)
-    List<Long> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId);
+    List<TimeSlotAllowBookingDao> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId);
 
-    @Query("""
-        SELECT
-                ts AS timeSlot,
-                CASE 
-                    WHEN bs IS NOT NULL AND ts.timeSlotId = bs.bookingSlotId.timeSlotId THEN FALSE 
-                    WHEN bs IS NULL AND ts.end < CURRENT_TIME THEN FALSE
-                    ELSE TRUE 
-                END AS allowBooking
-        FROM TimeSlotEntity ts
-        LEFT JOIN BookingSlotEntity bs ON ts.timeSlotId = bs.bookingSlotId.timeSlotId
-        WHERE ts.timeSlotId IN :timeSlotIds
-        """)
-    List<TimeSlotAllowBookingDao> findAllByTimeSlotIdIn(List<Long> timeSlotIds);
+//    @Query("""
+//        SELECT
+//                ts AS timeSlot,
+//                CASE
+//                    WHEN bs IS NOT NULL AND ts.timeSlotId = bs.bookingSlotId.timeSlotId THEN FALSE
+//                    WHEN bs IS NULL AND ts.end < CURRENT_TIME THEN FALSE
+//                    ELSE TRUE
+//                END AS allowBooking
+//        FROM BookingSlotEntity bs
+//        LEFT JOIN TimeSlotEntity ts ON ts.timeSlotId = bs.bookingSlotId.timeSlotId
+//        WHERE ts.timeSlotId IN :timeSlotIds
+//        """)
+//    List<TimeSlotAllowBookingDao> findAllByTimeSlotIdIn(List<Long> timeSlotIds);
 
     List<TimeSlotEntity> findListByTimeSlotIdIn(List<Long> timeSlotIds);
 }

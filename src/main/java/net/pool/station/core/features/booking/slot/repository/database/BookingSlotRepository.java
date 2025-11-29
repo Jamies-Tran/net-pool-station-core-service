@@ -21,4 +21,11 @@ public interface BookingSlotRepository extends JpaRepository<BookingSlotEntity, 
         WHERE bs.bookingSlotId.bookingId = :bookingId
         """)
     List<BookingSlotDao> findAllByBookingId(Long bookingId);
+
+    @Query("""
+        SELECT bs
+        FROM BookingSlotEntity bs
+        WHERE bs.bookingSlotId.bookingId = :bookingId
+        """)
+    List<BookingSlotEntity> findListByBookingId(Long bookingId);
 }

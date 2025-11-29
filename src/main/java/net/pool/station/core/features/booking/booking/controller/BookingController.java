@@ -8,6 +8,8 @@ import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.BookingUseCase;
 import net.pool.station.core.features.booking.booking.controller.models.BookingCancelRequest;
+import net.pool.station.core.features.booking.booking.controller.models.BookingRequest;
+import net.pool.station.core.features.booking.booking.controller.models.BookingRequestMapper;
 import net.pool.station.core.features.booking.booking.controller.models.BookingResponse;
 import net.pool.station.core.features.booking.booking.controller.models.BookingResponseMapper;
 import net.pool.station.core.features.payment.controller.payment.models.PaymentResponse;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingController implements BookingApi {
     BookingUseCase bookingUseCase;
+
+    BookingRequestMapper requestMapper;
 
     BookingResponseMapper responseMapper;
 
@@ -34,15 +38,15 @@ public class BookingController implements BookingApi {
     }
 
     @Override
-    public MyValueResponse<?> cancel(Long bookingId, BookingCancelRequest request) {
-        bookingUseCase.cancel(DomainKey.of(bookingId), request.cancelReason());
+    public MyValueResponse<?> update(Long bookingId, BookingRequest request) {
+        bookingUseCase.update(DomainKey.of(bookingId), requestMapper.toDto(request));
 
         return MyValueResponse.successNoData();
     }
 
     @Override
-    public MyValueResponse<?> start(Long bookingId) {
-        bookingUseCase.start(DomainKey.of(bookingId));
+    public MyValueResponse<?> cancel(Long bookingId, BookingCancelRequest request) {
+        bookingUseCase.cancel(DomainKey.of(bookingId), request.cancelReason());
 
         return MyValueResponse.successNoData();
     }

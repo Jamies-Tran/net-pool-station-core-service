@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.booking.menu.BookingMenu;
 import net.pool.station.core.domain.booking.menu.BookingMenuId;
+import net.pool.station.core.features.booking.menu.repository.database.BookingMenuEntity;
 import net.pool.station.core.features.booking.menu.repository.database.BookingMenuEntityMapper;
 import net.pool.station.core.features.booking.menu.repository.database.BookingMenuRepository;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,21 @@ public class BookingMenuCommandService {
                 })
                 .toList();
         repository.saveAll(mapper.toEntity(bookingMenus));
+    }
+
+    protected void update(Long bookingId, List<BookingMenu> bookingMenus) {
+        deleteAll(bookingId);
+        bookingMenus = bookingMenus.stream()
+                .map(bookingMenu -> {
+                    BookingMenuId bookingMenuId = bookingMenu.bookingMenuId().withBookingId(bookingId);
+                    return bookingMenu.withBookingMenuId(bookingMenuId);
+                })
+                .toList();
+        repository.saveAll(mapper.toEntity(bookingMenus));
+    }
+
+    private void deleteAll(Long bookingId) {
+        List<BookingMenuEntity> bookingMenus = repository.findListByBookingId(bookingId);
+        repository.deleteAll(bookingMenus);
     }
 }

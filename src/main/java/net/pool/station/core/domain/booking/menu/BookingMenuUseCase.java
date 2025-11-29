@@ -7,5 +7,7 @@ import java.util.List;
 public interface BookingMenuUseCase {
     void save(DomainKey<Long> bookingId, List<BookingMenu> bookingMenus);
 
+    void update(DomainKey<Long> bookingId, List<BookingMenu> bookingMenus);
+
     List<BookingMenu> findAllByBookingId(DomainKey<Long> bookingId);
 }

@@ -26,6 +26,12 @@ public class BookingMenuUseCaseService implements BookingMenuUseCase {
     }
 
     @Override
+    @Transactional
+    public void update(DomainKey<Long> bookingId, List<BookingMenu> bookingMenus) {
+        commandService.update(bookingId.value(), bookingMenus);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<BookingMenu> findAllByBookingId(DomainKey<Long> bookingId) {
         return queryService.findAllByBookingId(bookingId.value());

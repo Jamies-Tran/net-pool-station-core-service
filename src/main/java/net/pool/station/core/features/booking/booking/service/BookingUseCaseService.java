@@ -116,15 +116,17 @@ public class BookingUseCaseService implements BookingUseCase {
     @Transactional
     public Optional<Payment> generatePayment(DomainKey<Long> bookingId) {
         Optional<Booking> booking = findById(bookingId);
-
         return booking.map(paymentUseCase::createFromBooking);
     }
 
     @Override
     @Transactional
     public void update(DomainKey<Long> bookingId, Booking booking) {
-        commandService.update(bookingId.value(), booking);
-        updateScheduleBooking(booking);
+        Booking updateBooking = commandService.update(bookingId.value(), booking);
+        bookingMenuUseCase.update(DomainKey.of(bookingId.value()), booking.bookingMenus());
+        bookingSlotUseCase.update(DomainKey.of(bookingId.value()), booking.bookingSlots());
+
+        updateScheduleBooking(updateBooking);
     }
 
     @Override
@@ -230,13 +232,20 @@ public class BookingUseCaseService implements BookingUseCase {
 
     private void updateScheduleBooking(Booking booking) {
         try {
-            TriggerKey triggerKey = new TriggerKey("expiredBookingJob_%s".formatted(booking.bookingId()),
+            TriggerKey startTriggerKey = new TriggerKey("startBookingTrigger_%s".formatted(booking.bookingId()),
                     "booking");
-            Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(triggerKey)
+            TriggerKey expiredTriggerKey = new TriggerKey("expiredBookingJob_%s".formatted(booking.bookingId()),
+                    "booking");
+            Trigger startTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity(startTriggerKey)
+                    .startAt(Timestamp.valueOf(booking.startAt()))
+                    .build();
+            Trigger expiredTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity(expiredTriggerKey)
                     .startAt(Timestamp.valueOf((booking.endAt())))
                     .build();
-            scheduler.rescheduleJob(triggerKey, trigger);
+            scheduler.rescheduleJob(startTriggerKey, startTrigger);
+            scheduler.rescheduleJob(expiredTriggerKey, expiredTrigger);
         } catch (SchedulerException e) {
             throw new MyResourceNotValid("Vui lòng thử lại sau");
         }

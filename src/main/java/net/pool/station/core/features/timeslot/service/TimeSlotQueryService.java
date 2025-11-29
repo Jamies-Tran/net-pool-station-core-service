@@ -18,7 +18,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,12 +46,14 @@ public class TimeSlotQueryService {
     }
 
     protected List<TimeSlot> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId) {
-        List<Long> timeSlotIds = repository.findAllByScheduleIdAndStationResourceId(scheduleId, stationResourceId);
+        Map<Long, Boolean> timeSlotId = repository
+                .findAllByScheduleIdAndStationResourceId(scheduleId, stationResourceId).stream()
+                .collect(Collectors.toMap(TimeSlotAllowBookingDao::getTimeSlotId, TimeSlotAllowBookingDao::getAllowBooking));
 
-        return repository.findAllByTimeSlotIdIn(timeSlotIds)
+        return repository.findAllById(timeSlotId.keySet())
                 .stream()
                 .map(dao -> mapper
-                        .toDto(dao.getTimeSlot()).withAllowBooking(dao.getAllowBooking()))
+                        .toDto(dao).withAllowBooking(timeSlotId.computeIfAbsent(dao.getTimeSlotId(), a -> false)))
                 .toList();
     }
 

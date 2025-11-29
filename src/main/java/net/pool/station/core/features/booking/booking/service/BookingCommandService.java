@@ -50,18 +50,31 @@ public class BookingCommandService {
         return mapper.toDto(repository.save(saveBooking));
     }
 
-    protected void update(Long bookingId, Booking booking) {
-        repository.findByBookingIdAndDeletedFalse(bookingId)
-                .ifPresentOrElse(
+    protected Booking update(Long bookingId, Booking booking) {
+        return repository.findByBookingIdAndDeletedFalse(bookingId)
+                .map(
                         foundEntity -> {
                             validateChange(foundEntity);
+                            LocalDate bookingDate = repository.findBookingDateByScheduleId(booking.scheduleId())
+                                    .orElseThrow(() -> new MyResourceNotFoundException("Không tìm thấy lịch hoạt động"));
+                            List<Long> timeSlotIds = booking.bookingSlots().stream()
+                                    .map(b -> b.bookingSlotId().timeSlotId())
+                                    .toList();
+                            List<TimeSlotDao> timeSlotDao = repository.findTimeSlotByIdIn(timeSlotIds);
+                            LocalTime begin = timeSlotDao.stream()
+                                    .map(TimeSlotDao::getBegin)
+                                    .min(Comparator.naturalOrder())
+                                    .orElseThrow(() -> new MyResourceNotFoundException("Không tìm thấy thời gian bắt đầu"));
+                            LocalTime end = timeSlotDao.stream()
+                                    .map(TimeSlotDao::getEnd)
+                                    .max(Comparator.naturalOrder())
+                                    .orElseThrow(() -> new MyResourceNotFoundException("Không tìm thấy thời gian kết thúc"));
                             mapper.update(foundEntity, booking);
-                            repository.save(foundEntity);
-                        },
-                        () -> {
-                            throw new MyResourceNotFoundException();
+                            foundEntity.setStartAt(LocalDateTime.of(bookingDate, begin));
+                            foundEntity.setEndAt(LocalDateTime.of(bookingDate, end));
+                            return mapper.toDto(repository.save(foundEntity));
                         }
-                );
+                ).orElseThrow(MyResourceNotFoundException::new);
     }
 
     protected Booking updateStatus(Long bookingId, EBookingStatus status) {

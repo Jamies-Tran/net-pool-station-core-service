@@ -22,4 +22,12 @@ public interface BookingMenuRepository extends JpaRepository<BookingMenuEntity, 
         WHERE bm.bookingMenuId.bookingId = :bookingId
         """)
     List<BookingMenuDao> findAllByBookingId(Long bookingId);
+
+
+    @Query("""
+        SELECT bm
+        FROM BookingMenuEntity bm
+        WHERE bm.bookingMenuId.bookingId = :bookingId
+        """)
+    List<BookingMenuEntity> findListByBookingId(Long bookingId);
 }

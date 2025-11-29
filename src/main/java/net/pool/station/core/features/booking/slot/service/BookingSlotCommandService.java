@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.booking.slot.BookingSlot;
 import net.pool.station.core.domain.booking.slot.BookingSlotId;
+import net.pool.station.core.features.booking.slot.repository.database.BookingSlotEntity;
 import net.pool.station.core.features.booking.slot.repository.database.BookingSlotEntityMapper;
 import net.pool.station.core.features.booking.slot.repository.database.BookingSlotRepository;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,22 @@ public class BookingSlotCommandService {
                 })
                 .toList();
         repository.saveAll(mapper.toEntity(bookingSlots));
+    }
+
+    protected void update(Long bookingId, List<BookingSlot> bookingSlots) {
+        deleteAll(bookingId);
+        bookingSlots = bookingSlots.stream()
+                .map(bookingSlot -> {
+                    BookingSlotId bookingSlotId = bookingSlot.bookingSlotId().withBookingId(bookingId);
+
+                    return bookingSlot.withBookingSlotId(bookingSlotId);
+                })
+                .toList();
+        repository.saveAll(mapper.toEntity(bookingSlots));
+    }
+
+    private void deleteAll(Long bookingId) {
+        List<BookingSlotEntity> bookingSlots = repository.findListByBookingId(bookingId);
+        repository.deleteAll(bookingSlots);
     }
 }

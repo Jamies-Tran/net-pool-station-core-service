@@ -5,5 +5,7 @@ import net.pool.station.core.features.timeslot.repository.database.TimeSlotEntit
 public interface TimeSlotAllowBookingDao {
     TimeSlotEntity getTimeSlot();
 
+    Long getTimeSlotId();
+
     Boolean getAllowBooking();
 }

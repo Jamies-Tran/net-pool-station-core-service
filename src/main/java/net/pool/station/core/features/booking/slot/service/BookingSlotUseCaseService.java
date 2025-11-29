@@ -26,6 +26,12 @@ public class BookingSlotUseCaseService implements BookingSlotUseCase {
     }
 
     @Override
+    @Transactional
+    public void update(DomainKey<Long> bookingId, List<BookingSlot> bookingSlots) {
+        commandService.update(bookingId.value(), bookingSlots);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<BookingSlot> findAllByBookingId(DomainKey<Long> bookingId) {
         return queryService.findAllByBookingId(bookingId.value());
