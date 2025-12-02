@@ -4,10 +4,8 @@ import net.pool.station.core.features.station.space.space.repository.database.St
 
 import java.util.Map;
 
-public interface StationSpaceAllowDirectPaymentDao {
+public interface StationSpaceDao {
     StationSpaceEntity getStationSpace();
-
-    Boolean getAllowDirectPayment();
 
     Map<String, Object> getMetadata();
 }

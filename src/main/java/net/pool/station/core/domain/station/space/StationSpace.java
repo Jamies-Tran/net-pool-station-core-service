@@ -2,6 +2,8 @@ package net.pool.station.core.domain.station.space;
 
 import lombok.With;
 
+import java.util.Map;
+
 public record StationSpace(
         Long stationSpaceId,
         Long stationId,
@@ -12,6 +14,7 @@ public record StationSpace(
         @With Boolean allowDirectPayment,
         String statusCode,
         String statusName,
-        Boolean deleted
+        Boolean deleted,
+        @With Map<String, Object> metadata
 ) {
 }

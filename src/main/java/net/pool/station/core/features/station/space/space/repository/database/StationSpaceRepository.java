@@ -3,6 +3,7 @@ package net.pool.station.core.features.station.space.space.repository.database;
 import net.pool.station.core.domain.station.space.StationSpaceCriteria;
 import net.pool.station.core.domain.station.space.StationSpaceId;
 import net.pool.station.core.features.station.space.space.repository.database.dao.StationSpaceAllowDirectPaymentDao;
+import net.pool.station.core.features.station.space.space.repository.database.dao.StationSpaceDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,8 +35,10 @@ public interface StationSpaceRepository extends JpaRepository<StationSpaceEntity
     @Query("""
         SELECT 
                 ss AS stationSpace,
-                w.directPayment AS allowDirectPayment
+                w.directPayment AS allowDirectPayment,
+                sp.metadata AS metadata
         FROM StationSpaceEntity ss
+        INNER JOIN SpaceEntity sp ON ss.spaceId = sp.spaceId
         INNER JOIN StationEntity s ON ss.stationId = s.stationId
         INNER JOIN StationAccountEntity sa ON s.stationId = sa.stationAccountId.stationId
         INNER JOIN AccountEntity a ON sa.stationAccountId.accountId = a.accountId
@@ -49,7 +52,9 @@ public interface StationSpaceRepository extends JpaRepository<StationSpaceEntity
     Optional<StationSpaceEntity> findByStationSpaceIdAndDeletedFalse(Long stationSpaceId);
 
     @Query("""
-        SELECT ss
+        SELECT 
+                ss AS stationSpace,
+                s.metadata AS metadata
         FROM StationSpaceEntity ss
         INNER JOIN SpaceEntity s ON ss.spaceId = s.spaceId
         WHERE ss.deleted = FALSE
@@ -63,5 +68,5 @@ public interface StationSpaceRepository extends JpaRepository<StationSpaceEntity
                 AND (:#{#criteria.statusCodes().empty} = TRUE
                         OR s.statusCode IN :#{#criteria.statusCodes()})
         """)
-    Page<StationSpaceEntity> findAll(StationSpaceCriteria criteria, Pageable pageable);
+    Page<StationSpaceDao> findAll(StationSpaceCriteria criteria, Pageable pageable);
 }

@@ -25,11 +25,13 @@ public class StationSpaceQueryService {
     protected Optional<StationSpace> findById(Long stationSpaceId) {
         return repository.findByStationSpaceIdWithAllowDirectPayment(stationSpaceId)
                 .map(dao -> mapper.toDto(dao.getStationSpace())
-                        .withAllowDirectPayment(dao.getAllowDirectPayment()));
+                        .withAllowDirectPayment(dao.getAllowDirectPayment())
+                        .withMetadata(dao.getMetadata()));
     }
 
     protected Page<StationSpace> findAll(StationSpaceCriteria criteria, Pageable pageable) {
         return repository.findAll(criteria, pageable)
-                .map(mapper::toDto);
+                .map(dao -> mapper.toDto(dao.getStationSpace())
+                        .withMetadata(dao.getMetadata()));
     }
 }
