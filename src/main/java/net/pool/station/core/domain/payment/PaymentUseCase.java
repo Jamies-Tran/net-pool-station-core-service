@@ -7,4 +7,6 @@ public interface PaymentUseCase {
     Payment create(Payment payment);
 
     Payment createFromBooking(Booking booking);
+
+    void walletPayment(Booking booking);
 }

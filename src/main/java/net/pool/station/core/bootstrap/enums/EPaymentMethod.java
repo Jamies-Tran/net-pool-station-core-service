@@ -12,7 +12,8 @@ import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum EPaymentMethod implements EnumProperty {
     DIRECT("DIRECT", "Thanh toán trực tiếp"),
-    BANK_TRANSFER("BANK_TRANSFER", "Chuyển khoản ngân hàng");
+    BANK_TRANSFER("BANK_TRANSFER", "Chuyển khoản ngân hàng"),
+    WALLET("WALLET", "Ví hệ thống");
 
     String code;
     String name;

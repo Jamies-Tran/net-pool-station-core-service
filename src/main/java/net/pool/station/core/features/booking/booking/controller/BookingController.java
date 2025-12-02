@@ -59,4 +59,11 @@ public class BookingController implements BookingApi {
 
         return MyValueResponse.success(response);
     }
+
+    @Override
+    public MyValueResponse<?> walletPayment(Long bookingId) {
+        bookingUseCase.walletPayment(DomainKey.of(bookingId));
+
+        return MyValueResponse.successNoData();
+    }
 }

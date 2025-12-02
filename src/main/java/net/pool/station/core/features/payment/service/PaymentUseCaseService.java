@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.configuration.mapper.MyObjectMapper;
 import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.enums.EPaymentType;
@@ -13,6 +14,7 @@ import net.pool.station.core.bootstrap.rest.response.PayOsResponse;
 import net.pool.station.core.bootstrap.utils.MyPaymentEncryptionUtils;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
+import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
@@ -24,6 +26,8 @@ import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.domain.wallet.Wallet;
 import net.pool.station.core.domain.wallet.WalletUseCase;
+import net.pool.station.core.domain.wallet.ledger.WalletLedger;
+import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
 import net.pool.station.core.features.payment.repository.feign.PaymentPlaceHolder;
 import net.pool.station.core.features.payment.repository.feign.models.PaymentRequest;
 import net.pool.station.core.features.payment.repository.feign.models.PaymentResponse;
@@ -110,6 +114,9 @@ public class PaymentUseCaseService implements PaymentUseCase {
     public Payment createFromBooking(Booking booking) {
         Account account = accountUseCase.findById(new DomainKey<>(booking.accountId()))
                 .orElseThrow(MyResourceNotFoundException::new);
+        if (MyObjectUtils.isNotEquals(EPaymentMethod.BANK_TRANSFER.getCode(), booking.paymentMethodCode())) {
+            throw new MyResourceNotValid("Booking không thanh toán bằng chuyển khoản.");
+        }
         PaymentRequest paymentRequest = PaymentRequest.builder()
                 .orderCode(System.currentTimeMillis())
                 .amount(booking.totalPrice())
@@ -139,6 +146,37 @@ public class PaymentUseCaseService implements PaymentUseCase {
         transactionUseCase.save(transaction);
 
         return mapper.toDto(paymentResponse);
+    }
+
+    @Override
+    public void walletPayment(Booking booking) {
+        WalletLedgerUseCase walletLedgerUseCase = MySpringContext.getBean(WalletLedgerUseCase.class);
+        if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), booking.paymentMethodCode())) {
+            throw new MyResourceNotValid("Booking không thanh toán bằng ví hệ thống.");
+        }
+        Wallet wallet = walletUseCase.findByAccountId(DomainKey.of(booking.accountId()))
+                .orElseThrow(MyResourceNotFoundException::new);
+        if (wallet.balance() < booking.totalPrice()) {
+            throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục booking."
+                    .formatted(booking.totalPrice() - wallet.balance()));
+        }
+        Transaction transaction = Transaction.builder()
+                .bookingId(booking.bookingId())
+                .walletId(booking.walletId())
+                .amount(booking.totalPrice())
+                .paymentMethodCode(booking.paymentMethodCode())
+                .paymentMethodName(booking.paymentMethodName())
+                .paymentTypeCode(EPaymentType.BOOKING_PAYMENT.getCode())
+                .paymentTypeName(EPaymentType.BOOKING_PAYMENT.getName())
+                .build();
+        Transaction savedTransaction = transactionUseCase.save(transaction);
+        WalletLedger walletLedger = WalletLedger.builder()
+                .walletId(wallet.walletId())
+                .transactionId(savedTransaction.transactionId())
+                .changeAmount(-booking.totalPrice())
+                .chargedCommission(0)
+                .build();
+        walletLedgerUseCase.save(walletLedger);
     }
 
     private List<PaymentRequest.ItemRequest> fromBooking(Booking booking) {

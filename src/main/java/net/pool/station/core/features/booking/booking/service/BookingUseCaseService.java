@@ -121,6 +121,13 @@ public class BookingUseCaseService implements BookingUseCase {
 
     @Override
     @Transactional
+    public void walletPayment(DomainKey<Long> bookingId) {
+        Booking booking = findById(bookingId).orElseThrow(MyResourceNotFoundException::new);
+        paymentUseCase.walletPayment(booking);
+    }
+
+    @Override
+    @Transactional
     public void update(DomainKey<Long> bookingId, Booking booking) {
         Booking updateBooking = commandService.update(bookingId.value(), booking);
         bookingMenuUseCase.update(DomainKey.of(bookingId.value()), booking.bookingMenus());

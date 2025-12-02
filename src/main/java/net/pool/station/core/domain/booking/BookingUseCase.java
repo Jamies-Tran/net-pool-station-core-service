@@ -16,6 +16,8 @@ public interface BookingUseCase {
 
     Optional<Payment> generatePayment(DomainKey<Long> bookingId);
 
+    void walletPayment(DomainKey<Long> bookingId);
+
     void update(DomainKey<Long> bookingId, Booking booking);
 
     void processed(DomainKey<Long> bookingId);
