@@ -1,6 +1,9 @@
 package net.pool.station.core.features.station.resource.specs.controller.models.cs;
 
-public record ConsoleSpecRequest(
+import lombok.Builder;
+
+@Builder
+public record ConsoleSpecResponse(
         String csConsoleModel,
 
         String csTvModel,

@@ -11,6 +11,7 @@ import net.pool.station.core.features.station.station.controller.models.StationR
 import net.pool.station.core.features.station.station.controller.models.StationResponseMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -32,12 +33,20 @@ public class StationsPubController implements StationsPubApi {
             String district,
             Double distance,
             String gameName,
-            String pcGpuModel,
-            String pcGpuSerial,
             String pcCpu,
-            String btTypeCode,
-            Double csScreenSize,
-            String csResolution,
+            String pcRam,
+            String pcGpu,
+            String pcMonitor,
+            String pcKeyboard,
+            String pcMouse,
+            String pcHeadphone,
+            String btTableDetail,
+            String btCueDetail,
+            String btBallDetail,
+            String csConsoleModel,
+            String csTvModel,
+            String csControllerType,
+            Integer csControllerCount,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize)
     {
@@ -48,12 +57,20 @@ public class StationsPubController implements StationsPubApi {
                 district,
                 distance,
                 gameName,
-                pcGpuModel,
-                pcGpuSerial,
                 pcCpu,
-                btTypeCode,
-                csScreenSize,
-                csResolution,
+                pcRam,
+                pcGpu,
+                pcMonitor,
+                pcKeyboard,
+                pcMouse,
+                pcHeadphone,
+                btTableDetail,
+                btCueDetail,
+                btBallDetail,
+                csConsoleModel,
+                csTvModel,
+                csControllerType,
+                csControllerCount,
                 statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<StationResponse> responses = stationUseCase.findAll(criteria, pageRequest)

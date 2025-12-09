@@ -91,6 +91,10 @@ public class MyObjectUtils {
             return (T) Optional.ofNullable(value).orElse((T) Double.valueOf(0));
         }
 
+        if (clazz.getType() == Integer.class) {
+            return (T) Optional.ofNullable(value).orElse((T) Integer.valueOf(0));
+        }
+
         return value;
     }
 

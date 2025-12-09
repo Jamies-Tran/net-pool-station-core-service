@@ -1,7 +1,10 @@
 package net.pool.station.core.domain.station.resource.specs;
 
+import lombok.Builder;
 import lombok.With;
+import net.pool.station.core.bootstrap.enums.ESpecType;
 
+@Builder
 public record StationResourceSpec(
         Long stationResourceSpecId,
 
@@ -12,33 +15,29 @@ public record StationResourceSpec(
 
         String pcRam,
 
-        String pcGpuModel,
+        String pcGpu,
 
-        String pcGpuSerial,
+        String pcMonitor,
 
-        String pcGpuCapacity,
+        String pcKeyboard,
 
-        String pcStorageName,
+        String pcMouse,
 
-        String pcStorageVRam,
+        String pcHeadphone,
 
-        String btTypeCode,
+        String btTableDetail,
 
-        String btTypeName,
+        String btCueDetail,
 
-        String btSurfaceTypeCode,
+        String btBallDetail,
 
-        String btSurfaceTypeName,
+        String csConsoleModel,
 
-        String btClothTypeCode,
+        String csTvModel,
 
-        String btClothTypeName,
+        String csControllerType,
 
-        Double csScreenSize,
-
-        String csResolution,
-
-        String csRefreshRate,
+        Integer csControllerCount,
 
         @With
         String typeCode,
@@ -46,4 +45,22 @@ public record StationResourceSpec(
         @With
         String typeName
 ) {
+        public static StationResourceSpec.StationResourceSpecBuilder pcBuilder(Long stationResourceId) {
+                return StationResourceSpec.builder()
+                        .stationResourceId(stationResourceId)
+                        .typeCode(ESpecType.PC.getCode())
+                        .typeName(ESpecType.PC.getName());
+        }
+
+        public static StationResourceSpec.StationResourceSpecBuilder btBuilder(Long stationResourceId) {
+                return StationResourceSpec.builder()
+                        .typeCode(ESpecType.Billiard_TABLE.getCode())
+                        .typeName(ESpecType.Billiard_TABLE.getName());
+        }
+
+        public static StationResourceSpec.StationResourceSpecBuilder csBuilder(Long stationResourceId) {
+                return StationResourceSpec.builder()
+                        .typeCode(ESpecType.CONSOLE.getCode())
+                        .typeName(ESpecType.CONSOLE.getName());
+        }
 }

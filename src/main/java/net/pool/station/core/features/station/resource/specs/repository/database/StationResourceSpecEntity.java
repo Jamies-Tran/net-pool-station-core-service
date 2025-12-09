@@ -34,34 +34,29 @@ public class StationResourceSpecEntity extends Auditor {
 
     String pcRam;
 
-    String pcGpuModel;
+    String pcGpu;
 
-    String pcGpuSerial;
+    String pcMonitor;
 
-    String pcGpuCapacity;
+    String pcKeyboard;
 
-    String pcStorageName;
+    String pcMouse;
 
-    @Column(name = "pc_storage_vram")
-    String pcStorageVRam;
+    String pcHeadphone;
 
-    String btTypeCode;
+    String btTableDetail;
 
-    String btTypeName;
+    String btCueDetail;
 
-    String btSurfaceTypeCode;
+    String btBallDetail;
 
-    String btSurfaceTypeName;
+    String csConsoleModel;
 
-    String btClothTypeCode;
+    String csTvModel;
 
-    String btClothTypeName;
+    String csControllerType;
 
-    Double csScreenSize;
-
-    String csResolution;
-
-    String csRefreshRate;
+    Integer csControllerCount;
 
     String typeCode;
 

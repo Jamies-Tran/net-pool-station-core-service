@@ -21,12 +21,20 @@ public record StationCriteria(
         String commune,
         String district,
         String gameName,
-        String pcGpuModel,
-        String pcGpuSerial,
         String pcCpu,
-        String btTypeCode,
-        Double csScreenSize,
-        String csResolution,
+        String pcRam,
+        String pcGpu,
+        String pcMonitor,
+        String pcKeyboard,
+        String pcMouse,
+        String pcHeadphone,
+        String btTableDetail,
+        String btCueDetail,
+        String btBallDetail,
+        String csConsoleModel,
+        String csTvModel,
+        String csControllerType,
+        Integer csControllerCount,
         List<LocalDateTime> timeRange,
         List<String> statusCodes,
         List<Double> distances
@@ -38,11 +46,20 @@ public record StationCriteria(
         district = MyObjectUtils.defaultValue(district, new TypeReference<>() {});
         statusCodes = authorizeStatusCodes(statusCodes);
         gameName = MyObjectUtils.defaultValue(gameName, new TypeReference<>() {});
-        pcGpuModel = MyObjectUtils.defaultValue(pcGpuModel, new TypeReference<>() {});
-        pcGpuSerial = MyObjectUtils.defaultValue(pcGpuSerial, new TypeReference<>() {});
-        btTypeCode = MyObjectUtils.defaultValue(btTypeCode, new TypeReference<>() {});
-        csScreenSize = MyObjectUtils.defaultValue(csScreenSize, new TypeReference<>() {});
-        csResolution = MyObjectUtils.defaultValue(csResolution, new TypeReference<>() {});
+        pcCpu = MyObjectUtils.defaultValue(pcCpu, new TypeReference<>() {});
+        pcRam = MyObjectUtils.defaultValue(pcRam, new TypeReference<>() {});
+        pcGpu = MyObjectUtils.defaultValue(pcGpu, new TypeReference<>() {});
+        pcMonitor = MyObjectUtils.defaultValue(pcMonitor, new TypeReference<>() {});
+        pcKeyboard = MyObjectUtils.defaultValue(pcKeyboard, new TypeReference<>() {});
+        pcMouse = MyObjectUtils.defaultValue(pcMouse, new TypeReference<>() {});
+        pcHeadphone = MyObjectUtils.defaultValue(pcHeadphone, new TypeReference<>() {});
+        btTableDetail = MyObjectUtils.defaultValue(btTableDetail, new TypeReference<>() {});
+        btCueDetail = MyObjectUtils.defaultValue(btCueDetail, new TypeReference<>() {});
+        btBallDetail = MyObjectUtils.defaultValue(btBallDetail, new TypeReference<>() {});
+        csConsoleModel = MyObjectUtils.defaultValue(csConsoleModel, new TypeReference<>() {});
+        csTvModel = MyObjectUtils.defaultValue(csTvModel, new TypeReference<>() {});
+        csControllerType = MyObjectUtils.defaultValue(csControllerType, new TypeReference<>() {});
+        csControllerCount = MyObjectUtils.defaultValue(csControllerCount, new TypeReference<>() {});
         distances = MyObjectUtils.defaultValue(distances, new TypeReference<>() {});
     }
 
@@ -66,12 +83,20 @@ public record StationCriteria(
                                      String district,
                                      Double distance,
                                      String gameName,
-                                     String pcGpuModel,
-                                     String pcGpuSerial,
                                      String pcCpu,
-                                     String btTypeCode,
-                                     Double csScreenSize,
-                                     String csResolution,
+                                     String pcRam,
+                                     String pcGpu,
+                                     String pcMonitor,
+                                     String pcKeyboard,
+                                     String pcMouse,
+                                     String pcHeadphone,
+                                     String btTableDetail,
+                                     String btCueDetail,
+                                     String btBallDetail,
+                                     String csConsoleModel,
+                                     String csTvModel,
+                                     String csControllerType,
+                                     Integer csControllerCount,
                                      List<String> statusCodes) {
         List<Double> distances = new ArrayList<>();
         if (MyObjectUtils.isNotEmpty(distance)) {
@@ -84,12 +109,20 @@ public record StationCriteria(
                 .commune(commune)
                 .district(district)
                 .gameName(gameName)
-                .pcGpuModel(pcGpuModel)
-                .pcGpuSerial(pcGpuSerial)
                 .pcCpu(pcCpu)
-                .btTypeCode(btTypeCode)
-                .csScreenSize(csScreenSize)
-                .csResolution(csResolution)
+                .pcRam(pcRam)
+                .pcGpu(pcGpu)
+                .pcMonitor(pcMonitor)
+                .pcKeyboard(pcKeyboard)
+                .pcMouse(pcMouse)
+                .pcHeadphone(pcHeadphone)
+                .btTableDetail(btTableDetail)
+                .btCueDetail(btCueDetail)
+                .btBallDetail(btBallDetail)
+                .csConsoleModel(csConsoleModel)
+                .csTvModel(csTvModel)
+                .csControllerType(csControllerType)
+                .csControllerCount(csControllerCount)
                 .statusCodes(statusCodes)
                 .distances(distances)
                 .build();

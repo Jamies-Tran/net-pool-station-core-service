@@ -51,16 +51,36 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
                         OR g.gameName ILIKE %:#{#criteria.gameName()}%)
                 AND (:#{#criteria.pcCpu().empty} = TRUE
                         OR srs.pcCpu = :#{#criteria.pcCpu()})
-                AND (:#{#criteria.pcGpuModel().empty} = TRUE
-                        OR srs.pcGpuModel = :#{#criteria.pcGpuModel()})
-                AND (:#{#criteria.pcGpuSerial().empty} = TRUE
-                        OR srs.pcGpuSerial = :#{#criteria.pcGpuSerial()})
-                AND (:#{#criteria.btTypeCode().empty} = TRUE
-                        OR srs.btTypeCode = :#{#criteria.btTypeCode()})
-                AND (:#{#criteria.csResolution().empty} = TRUE
-                        OR srs.csResolution = :#{#criteria.csResolution()})
-                AND (:#{#criteria.csScreenSize()} = 0.0
-                        OR srs.csScreenSize = :#{#criteria.csScreenSize()})
+                AND (:#{#criteria.pcCpu().empty} = TRUE
+                        OR srs.pcCpu LIKE %:#{#criteria.pcCpu()}%)
+                AND (:#{#criteria.pcRam().empty} = TRUE
+                        OR srs.pcRam LIKE %:#{#criteria.pcRam()}%)
+                AND (:#{#criteria.pcGpu().empty} = TRUE
+                        OR srs.pcGpu LIKE %:#{#criteria.pcGpu()}%)
+                AND (:#{#criteria.pcMonitor().empty} = TRUE
+                        OR srs.pcMonitor LIKE %:#{#criteria.pcMonitor()}%)
+                AND (:#{#criteria.pcMonitor().empty} = TRUE
+                        OR srs.pcMonitor LIKE %:#{#criteria.pcMonitor()}%)
+                AND (:#{#criteria.pcKeyboard().empty} = TRUE
+                        OR srs.pcKeyboard LIKE %:#{#criteria.pcKeyboard()}%)
+                AND (:#{#criteria.pcMouse().empty} = TRUE
+                        OR srs.pcMouse LIKE %:#{#criteria.pcMouse()}%)
+                AND (:#{#criteria.pcHeadphone().empty} = TRUE
+                        OR srs.pcHeadphone LIKE %:#{#criteria.pcHeadphone()}%)
+                AND (:#{#criteria.btTableDetail().empty} = TRUE
+                        OR srs.btTableDetail LIKE %:#{#criteria.btTableDetail()}%)
+                AND (:#{#criteria.btCueDetail().empty} = TRUE
+                        OR srs.btCueDetail LIKE %:#{#criteria.btCueDetail()}%)
+                AND (:#{#criteria.btBallDetail().empty} = TRUE
+                        OR srs.btBallDetail LIKE %:#{#criteria.btBallDetail()}%)
+                AND (:#{#criteria.csConsoleModel().empty} = TRUE
+                        OR srs.csConsoleModel LIKE %:#{#criteria.csConsoleModel()}%)
+                AND (:#{#criteria.csTvModel().empty} = TRUE
+                        OR srs.csTvModel LIKE %:#{#criteria.csTvModel()}%)
+                AND (:#{#criteria.csControllerType().empty} = TRUE
+                        OR srs.csControllerType LIKE %:#{#criteria.csControllerType()}%)
+                AND (:#{#criteria.csControllerCount()} = 0
+                        OR srs.csControllerCount = :#{#criteria.csControllerCount()})
         """)
     Page<StationEntity> findAll(StationCriteria criteria, Pageable pageable);
 

@@ -32,23 +32,47 @@ public interface StationsPubApi {
             @RequestParam(required = false, value = "gameName", defaultValue = "")
             String gameName,
 
-            @RequestParam(required = false, value = "pcGpuModel", defaultValue = "")
-            String pcGpuModel,
-
-            @RequestParam(required = false, value = "pcGpuSerial", defaultValue = "")
-            String pcGpuSerial,
-
             @RequestParam(required = false, value = "pcCpu", defaultValue = "")
             String pcCpu,
 
-            @RequestParam(required = false, value = "btTypeCode", defaultValue = "")
-            String btTypeCode,
+            @RequestParam(required = false, value = "pcRam", defaultValue = "")
+            String pcRam,
 
-            @RequestParam(required = false, value = "csScreenSize", defaultValue = "")
-            Double csScreenSize,
+            @RequestParam(required = false, value = "pcGpu", defaultValue = "")
+            String pcGpu,
 
-            @RequestParam(required = false, value = "csResolution", defaultValue = "")
-            String csResolution,
+            @RequestParam(required = false, value = "pcMonitor", defaultValue = "")
+            String pcMonitor,
+
+            @RequestParam(required = false, value = "pcKeyboard", defaultValue = "")
+            String pcKeyboard,
+
+            @RequestParam(required = false, value = "pcMouse", defaultValue = "")
+            String pcMouse,
+
+            @RequestParam(required = false, value = "pcHeadphone", defaultValue = "")
+            String pcHeadphone,
+
+            @RequestParam(required = false, value = "btTableDetail", defaultValue = "")
+            String btTableDetail,
+
+            @RequestParam(required = false, value = "btCueDetail", defaultValue = "")
+            String btCueDetail,
+
+            @RequestParam(required = false, value = "btBallDetail", defaultValue = "")
+            String btBallDetail,
+
+            @RequestParam(required = false, value = "csConsoleModel", defaultValue = "")
+            String csConsoleModel,
+
+            @RequestParam(required = false, value = "csTvModel", defaultValue = "")
+            String csTvModel,
+
+            @RequestParam(required = false, value = "csControllerType", defaultValue = "")
+            String csControllerType,
+
+            @RequestParam(required = false, value = "csControllerCount", defaultValue = "")
+            Integer csControllerCount,
 
             @RequestParam(required = false, value = "statusCodes", defaultValue = "")
             List<String> statusCodes,

@@ -8,11 +8,8 @@ import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.domain.station.resource.specs.StationResourceSpec;
 import net.pool.station.core.domain.station.resource.specs.StationResourceSpecUseCase;
 import net.pool.station.core.features.station.resource.specs.controller.models.bt.BilliardTableSpecRequest;
-import net.pool.station.core.features.station.resource.specs.controller.models.bt.BilliardTableSpecRequestMapper;
 import net.pool.station.core.features.station.resource.specs.controller.models.cs.ConsoleSpecRequest;
-import net.pool.station.core.features.station.resource.specs.controller.models.cs.ConsoleSpecRequestMapper;
-import net.pool.station.core.features.station.resource.specs.controller.models.pc.PCSpecsRequest;
-import net.pool.station.core.features.station.resource.specs.controller.models.pc.PCSpecsRequestMapper;
+import net.pool.station.core.features.station.resource.specs.controller.models.pc.PcSpecRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,18 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class StationResourceSpecsController implements StationResourceSpecApi {
     StationResourceSpecUseCase stationResourceSpecUseCase;
 
-    PCSpecsRequestMapper pcRequestMapper;
-
-    BilliardTableSpecRequestMapper btSpecRequestMapper;
-
-    ConsoleSpecRequestMapper csSpecRequestMapper;
-
     @Override
-    public MyValueResponse<?> saveForPc(Long stationResourceId, PCSpecsRequest request) {
-        StationResourceSpec spec = pcRequestMapper.toDto(request);
-        spec = spec.withStationResourceId(stationResourceId)
-                .withTypeCode(ESpecType.PC.getCode())
-                .withTypeName(ESpecType.PC.getName());
+    public MyValueResponse<?> saveForPc(Long stationResourceId, PcSpecRequest request) {
+        StationResourceSpec spec = StationResourceSpec.pcBuilder(stationResourceId)
+                .pcCpu(request.pcCpu())
+                .pcRam(request.pcRam())
+                .pcGpu(request.pcGpu())
+                .pcMonitor(request.pcMonitor())
+                .pcKeyboard(request.pcKeyboard())
+                .pcMouse(request.pcMouse())
+                .pcHeadphone(request.pcHeadphone())
+                .build();
         stationResourceSpecUseCase.save(spec);
 
         return MyValueResponse.successNoData();
@@ -40,10 +36,11 @@ public class StationResourceSpecsController implements StationResourceSpecApi {
 
     @Override
     public MyValueResponse<?> saveForBilliardTable(Long stationResourceId, BilliardTableSpecRequest request) {
-        StationResourceSpec spec = btSpecRequestMapper.toDto(request);
-        spec = spec.withStationResourceId(stationResourceId)
-                .withTypeCode(ESpecType.Billiard_TABLE.getCode())
-                .withTypeName(ESpecType.Billiard_TABLE.getName());
+        StationResourceSpec spec = StationResourceSpec.btBuilder(stationResourceId)
+                .btTableDetail(request.btTableDetail())
+                .btCueDetail(request.btCueDetail())
+                .btBallDetail(request.btBallDetail())
+                .build();
         stationResourceSpecUseCase.save(spec);
 
         return MyValueResponse.successNoData();
@@ -51,10 +48,12 @@ public class StationResourceSpecsController implements StationResourceSpecApi {
 
     @Override
     public MyValueResponse<?> saveForConsole(Long stationResourceId, ConsoleSpecRequest request) {
-        StationResourceSpec spec = csSpecRequestMapper.toDto(request);
-        spec = spec.withStationResourceId(stationResourceId)
-                .withTypeCode(ESpecType.CONSOLE.getCode())
-                .withTypeName(ESpecType.CONSOLE.getName());
+        StationResourceSpec spec = StationResourceSpec.csBuilder(stationResourceId)
+                .csConsoleModel(request.csConsoleModel())
+                .csTvModel(request.csTvModel())
+                .csControllerType(request.csControllerType())
+                .csControllerCount(request.csControllerCount())
+                .build();
         stationResourceSpecUseCase.save(spec);
 
         return MyValueResponse.successNoData();
