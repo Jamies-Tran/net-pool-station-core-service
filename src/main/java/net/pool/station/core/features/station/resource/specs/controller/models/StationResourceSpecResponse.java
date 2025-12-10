@@ -8,6 +8,8 @@ import net.pool.station.core.features.station.resource.specs.controller.models.b
 import net.pool.station.core.features.station.resource.specs.controller.models.cs.ConsoleSpecResponse;
 import net.pool.station.core.features.station.resource.specs.controller.models.pc.PcSpecResponse;
 
+import java.util.List;
+
 @Builder
 public record StationResourceSpecResponse(
         Long stationResourceId,
@@ -55,5 +57,15 @@ public record StationResourceSpecResponse(
                             .build())
                     .build();
         };
+    }
+
+    public static List<StationResourceSpecResponse> of(List<StationResourceSpec> specs) {
+        if (MyObjectUtils.isEmpty(specs)) {
+            return List.of();
+        }
+
+        return specs.stream()
+                .map(StationResourceSpecResponse::of)
+                .toList();
     }
 }

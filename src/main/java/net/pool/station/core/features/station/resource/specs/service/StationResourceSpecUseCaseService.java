@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.resource.specs.StationResourceSpec;
+import net.pool.station.core.domain.station.resource.specs.StationResourceSpecCriteria;
 import net.pool.station.core.domain.station.resource.specs.StationResourceSpecUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,6 +31,12 @@ public class StationResourceSpecUseCaseService implements StationResourceSpecUse
     @Transactional(readOnly = true)
     public Optional<StationResourceSpec> findByStationResourceId(DomainKey<Long> stationResourceId) {
         return queryService.findByStationResourceId(stationResourceId.value());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StationResourceSpec> findAll(StationResourceSpecCriteria criteria) {
+        return queryService.findAll(criteria);
     }
 
     @Override
