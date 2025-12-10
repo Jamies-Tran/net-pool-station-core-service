@@ -8,48 +8,60 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @RequestMapping("/v1/pub/station-resource/specs")
 public interface StationResourceSpecsPubApi {
-    @GetMapping
-    MyListResponse<StationResourceSpecResponse> findAll(
-            @RequestParam(required = false, value = "pcCpu", defaultValue = "")
-            String pcCpu,
 
-            @RequestParam(required = false, value = "pcRam", defaultValue = "")
-            String pcRam,
+    @GetMapping("/pc/cpu")
+    MyListResponse<String> findAllPcCpu(
+            @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "pcGpu", defaultValue = "")
-            String pcGpu,
+    @GetMapping("/pc/ram")
+    MyListResponse<String> findAllPcRam(
+            @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "pcMonitor", defaultValue = "")
-            String pcMonitor,
+    @GetMapping("/pc/gpu")
+    MyListResponse<String> findAllPcGpu(
+            @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "pcKeyboard", defaultValue = "")
-            String pcKeyboard,
+    @GetMapping("/pc/monitor")
+    MyListResponse<String> findAllPcMonitor(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "pcMouse", defaultValue = "")
-            String pcMouse,
+    @GetMapping("/pc/keyboard")
+    MyListResponse<String> findAllPcKeyboard(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "pcHeadphone", defaultValue = "")
-            String pcHeadphone,
+    @GetMapping("/pc/mouse")
+    MyListResponse<String> findAllPcMouse(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "btTableDetail", defaultValue = "")
-            String btTableDetail,
+    @GetMapping("/pc/headphone")
+    MyListResponse<String> findAllPcHeadphone(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "btCueDetail", defaultValue = "")
-            String btCueDetail,
+    @GetMapping("/billiard/table-detail")
+    MyListResponse<String> findAllBtTableDetail(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "btBallDetail", defaultValue = "")
-            String btBallDetail,
+    @GetMapping("/billiard/cue-detail")
+    MyListResponse<String> findAllBtCueDetail(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "csConsoleModel", defaultValue = "")
-            String csConsoleModel,
+    @GetMapping("/billiard/ball-detail")
+    MyListResponse<String> findAllBtBallDetail(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "csTvModel", defaultValue = "")
-            String csTvModel,
+    @GetMapping("/console/model")
+    MyListResponse<String> findAllCsConsoleModel(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "csControllerType", defaultValue = "")
-            String csControllerType,
+    @GetMapping("/console/tv-model")
+    MyListResponse<String> findAllCsTvModel(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 
-            @RequestParam(required = false, value = "csControllerCount", defaultValue = "")
-            Integer csControllerCount
-    );
+    @GetMapping("/console/controller-type")
+    MyListResponse<String> findAllControllerType(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
+
+    @GetMapping("/console/controller-count")
+    MyListResponse<String> findAllCsControllerCount(
+                @RequestParam(required = false, value = "search", defaultValue = "") String search);
 }

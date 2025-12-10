@@ -2,6 +2,7 @@ package net.pool.station.core.domain.station.resource.specs;
 
 import lombok.Builder;
 import lombok.With;
+import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.enums.ESpecType;
 
 @Builder
@@ -48,19 +49,20 @@ public record StationResourceSpec(
         public static StationResourceSpec.StationResourceSpecBuilder pcBuilder(Long stationResourceId) {
                 return StationResourceSpec.builder()
                         .stationResourceId(stationResourceId)
-                        .typeCode(ESpecType.PC.getCode())
-                        .typeName(ESpecType.PC.getName());
+                        .typeCode(EResourceType.PC.getCode())
+                        .typeName(EResourceType.PC.getName());
         }
 
         public static StationResourceSpec.StationResourceSpecBuilder btBuilder(Long stationResourceId) {
                 return StationResourceSpec.builder()
-                        .typeCode(ESpecType.Billiard_TABLE.getCode())
-                        .typeName(ESpecType.Billiard_TABLE.getName());
+                        .stationResourceId(stationResourceId)
+                        .typeCode(EResourceType.BILLIARD_TABLE.getCode())
+                        .typeName(EResourceType.BILLIARD_TABLE.getName());
         }
 
         public static StationResourceSpec.StationResourceSpecBuilder csBuilder(Long stationResourceId) {
                 return StationResourceSpec.builder()
-                        .typeCode(ESpecType.CONSOLE.getCode())
-                        .typeName(ESpecType.CONSOLE.getName());
+                        .typeCode(EResourceType.CONSOLE.getCode())
+                        .typeName(EResourceType.CONSOLE.getName());
         }
 }

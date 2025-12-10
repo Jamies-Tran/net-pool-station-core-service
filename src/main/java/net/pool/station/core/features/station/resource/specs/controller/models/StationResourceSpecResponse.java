@@ -1,6 +1,7 @@
 package net.pool.station.core.features.station.resource.specs.controller.models;
 
 import lombok.Builder;
+import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.enums.ESpecType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.station.resource.specs.StationResourceSpec;
@@ -29,7 +30,7 @@ public record StationResourceSpecResponse(
                 .typeCode(spec.typeCode())
                 .typeName(spec.typeName());
 
-        return switch (ESpecType.valueOf(spec.typeCode())) {
+        return switch (EResourceType.valueOf(spec.typeCode())) {
             case PC -> builder
                     .pc(PcSpecResponse.builder()
                             .pcCpu(spec.pcCpu())
@@ -41,7 +42,7 @@ public record StationResourceSpecResponse(
                             .pcHeadphone(spec.pcHeadphone())
                             .build())
                     .build();
-            case Billiard_TABLE -> builder
+            case BILLIARD_TABLE -> builder
                     .billiardTable(BilliardTableSpecResponse.builder()
                             .btTableDetail(spec.btTableDetail())
                             .btCueDetail(spec.btCueDetail())

@@ -10,7 +10,7 @@ public interface StationResourceSpecUseCase {
 
     Optional<StationResourceSpec> findByStationResourceId(DomainKey<Long> stationResourceId);
 
-    List<StationResourceSpec> findAll(StationResourceSpecCriteria criteria);
+    List<String> findAll(StationResourceSpecCriteria criteria);
 
     void delete(DomainKey<Long> stationResourceSpecId);
 }

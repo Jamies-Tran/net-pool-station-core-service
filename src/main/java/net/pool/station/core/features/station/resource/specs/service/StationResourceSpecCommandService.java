@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.ESpecType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.station.resource.specs.StationResourceSpec;
@@ -20,6 +21,11 @@ public class StationResourceSpecCommandService {
     StationResourceSpecEntityMapper mapper;
 
     protected void save(StationResourceSpec stationResourceSpec) {
+        String resourceTypeCode = repository.findStationResourceTypeById(stationResourceSpec
+                .stationResourceId());
+        if (MyObjectUtils.isNotEquals(resourceTypeCode, stationResourceSpec.typeCode())) {
+            throw new MyResourceNotValid("Cấu hình không hợp lệ");
+        }
         repository.findByStationResourceIdAndDeletedFalse(stationResourceSpec.stationResourceId())
                         .ifPresentOrElse(
                                 foundEntity -> {

@@ -19,7 +19,8 @@ public record StationResourceSpecCriteria(
         String csConsoleModel,
         String csTvModel,
         String csControllerType,
-        Integer csControllerCount
+        Integer csControllerCount,
+        String typeCode
 ) {
     public StationResourceSpecCriteria {
         pcCpu = MyObjectUtils.defaultValue(pcCpu, new TypeReference<>() {});

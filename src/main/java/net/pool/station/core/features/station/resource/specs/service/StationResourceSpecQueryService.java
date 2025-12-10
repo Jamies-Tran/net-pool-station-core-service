@@ -11,9 +11,12 @@ import net.pool.station.core.features.station.resource.specs.repository.database
 import net.pool.station.core.features.station.resource.specs.repository.database.dao.StationResourceSpecDao;
 import net.pool.station.core.features.station.resource.specs.repository.database.dao.StationResourceSpecDaoMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +33,7 @@ public class StationResourceSpecQueryService {
                 .map(mapper::toDto);
     }
 
-    protected List<StationResourceSpec> findAll(StationResourceSpecCriteria criteria) {
-        List<StationResourceSpecDao> specs = repository.findAll(criteria);
-
-        return daoMapper.toDto(specs);
+    protected List<String> findAll(StationResourceSpecCriteria criteria) {
+        return repository.findAll(criteria).stream().filter(StringUtils::hasText).toList();
     }
 }
