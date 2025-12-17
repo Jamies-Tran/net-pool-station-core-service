@@ -4,7 +4,10 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
+import net.pool.station.core.domain.fcm.info.FcmInfo;
+import net.pool.station.core.domain.fcm.info.FcmInfoUseCase;
 import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.login.info.LoginInfoUseCase;
@@ -23,15 +26,21 @@ public class LoginInfoUseCaseService implements LoginInfoUseCase {
 
     LoginInfoQueryService queryService;
 
+    FcmInfoUseCase fcmInfoUseCase;
+
     LoggingFactory<LoginLog> loggingService;
 
     @Override
     @Transactional
     public LoginInfo saveOrUpdate(
             @NonNull String email,
-            @NonNull String password
+            @NonNull String password,
+            FcmInfo fcmInfo
     ) {
         LoginInfo savedLoginInfo = commandService.saveOrUpdate(email, password);
+        if (MyObjectUtils.isNotEmpty(fcmInfo)) {
+            fcmInfoUseCase.save(fcmInfo.withAccountId(savedLoginInfo.accountId()));
+        }
         loggingService.log(LoginLog.createLogin(savedLoginInfo.accountId()));
 
         return savedLoginInfo;

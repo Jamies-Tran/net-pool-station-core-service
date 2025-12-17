@@ -3,6 +3,7 @@ package net.pool.station.core.domain.login.info;
 import lombok.Builder;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.account.Account;
+import net.pool.station.core.domain.fcm.info.FcmInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,7 @@ public record LoginInfo(
         String accessToken,
         LocalDateTime accessExpiredAt,
         String refreshToken,
+        FcmInfo fcmInfo,
         LocalDateTime refreshExpiredAt
 ) {
     public static LoginInfo currentLoginInfoEmpty() {

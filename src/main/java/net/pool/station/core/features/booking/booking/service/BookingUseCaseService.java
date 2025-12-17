@@ -9,7 +9,10 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.enums.EBookingStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
+import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.account.Account;
+import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingCriteria;
 import net.pool.station.core.domain.booking.BookingUseCase;
@@ -17,7 +20,11 @@ import net.pool.station.core.domain.booking.menu.BookingMenu;
 import net.pool.station.core.domain.booking.menu.BookingMenuUseCase;
 import net.pool.station.core.domain.booking.slot.BookingSlot;
 import net.pool.station.core.domain.booking.slot.BookingSlotUseCase;
+import net.pool.station.core.domain.fcm.info.FcmInfo;
+import net.pool.station.core.domain.fcm.info.FcmInfoUseCase;
 import net.pool.station.core.domain.login.info.LoginInfo;
+import net.pool.station.core.domain.notification.NotificationUseCase;
+import net.pool.station.core.domain.notification.NotifyMessage;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
@@ -66,6 +73,12 @@ public class BookingUseCaseService implements BookingUseCase {
 
     PaymentUseCase paymentUseCase;
 
+    NotificationUseCase notificationUseCase;
+
+    FcmInfoUseCase fcmInfoUseCase;
+
+    AccountUseCase accountUseCase;
+
     @Override
     @Transactional
     public void save(Booking booking) {
@@ -75,9 +88,17 @@ public class BookingUseCaseService implements BookingUseCase {
         DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
         bookingMenuUseCase.save(bookingId, booking.bookingMenus());
         bookingSlotUseCase.save(bookingId, booking.bookingSlots());
+        notificationUseCase.pushNotification(NotifyMessage.of(fcmInfos(savedBooking), savedBooking));
         if (MyObjectUtils.isEquals(EBookingStatus.NEW.getCode(), savedBooking.statusCode())) {
             scheduleBooking(savedBooking);
         }
+    }
+
+    private List<FcmInfo> fcmInfos(Booking booking) {
+        List<Account> stationAdmins = accountUseCase
+                .findAllStationAdminByStationResourceId(new DomainKey<>(booking.stationResourceId()));
+
+        return fcmInfoUseCase.findAllByAccountIdIn(stationAdmins.stream().map(Account::accountId).toList());
     }
 
     @Override

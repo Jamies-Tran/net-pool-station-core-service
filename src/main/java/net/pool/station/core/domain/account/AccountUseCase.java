@@ -22,6 +22,8 @@ public interface AccountUseCase {
 
     List<Account> findAllByIdIn(List<Long> accountIds);
 
+    List<Account> findAllStationAdminByStationResourceId(DomainKey<Long> stationResourceId);
+
     void update(DomainKey<Long> accountId, Account account);
 
     void enable(DomainKey<Long> accountId);

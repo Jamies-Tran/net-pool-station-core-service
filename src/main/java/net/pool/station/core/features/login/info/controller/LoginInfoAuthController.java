@@ -24,7 +24,8 @@ public class LoginInfoAuthController implements LoginInfoAuthApi {
 
     @Override
     public MyValueResponse<LoginInfoResponse> login(LoginInfoRequest request) {
-        LoginInfo login = useCase.saveOrUpdate(request.email(), request.password());
+        LoginInfo loginInfo = requestMapper.toDto(request);
+        LoginInfo login = useCase.saveOrUpdate(request.email(), request.password(), loginInfo.fcmInfo());
 
         return MyValueResponse.success(responseMapper.toModel(login));
     }
