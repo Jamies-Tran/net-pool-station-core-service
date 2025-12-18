@@ -88,9 +88,9 @@ public class BookingUseCaseService implements BookingUseCase {
         DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
         bookingMenuUseCase.save(bookingId, booking.bookingMenus());
         bookingSlotUseCase.save(bookingId, booking.bookingSlots());
-        notificationUseCase.pushNotification(NotifyMessage.of(fcmInfos(savedBooking), savedBooking));
         if (MyObjectUtils.isEquals(EBookingStatus.NEW.getCode(), savedBooking.statusCode())) {
             scheduleBooking(savedBooking);
+            notificationUseCase.pushNotification(NotifyMessage.of(fcmInfos(savedBooking), savedBooking));
         }
     }
 
