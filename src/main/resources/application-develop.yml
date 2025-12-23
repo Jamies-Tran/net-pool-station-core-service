@@ -57,6 +57,7 @@ environment:
     reverseGeo: ${REVERSE_GEO}
     detail: ${ADDRESS_DETAIL}
     place: ${PLACE}
+    placeDetail: ${PLACE_DETAIL}
   aes:
     secretKey: ${AES_SECRET}
   payOs:
