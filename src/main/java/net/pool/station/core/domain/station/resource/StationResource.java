@@ -14,7 +14,10 @@ public record StationResource(
         String typeName,
         Boolean allowDirectPayment,
         String statusCode,
-        String statusName
+        String statusName,
+        String rowCode,
+        String rowName,
+        Integer displayOrder
 ) {
     public record AreaId(
             Long areaId

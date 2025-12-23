@@ -20,6 +20,8 @@ public record StationCriteria(
         String province,
         String commune,
         String district,
+        Double latitude,
+        Double longitude,
         String gameName,
         String pcCpu,
         String pcRam,
@@ -36,8 +38,7 @@ public record StationCriteria(
         String csControllerType,
         Integer csControllerCount,
         List<LocalDateTime> timeRange,
-        List<String> statusCodes,
-        List<Double> distances
+        List<String> statusCodes
 ) {
     public StationCriteria {
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
@@ -60,7 +61,8 @@ public record StationCriteria(
         csTvModel = MyObjectUtils.defaultValue(csTvModel, new TypeReference<>() {});
         csControllerType = MyObjectUtils.defaultValue(csControllerType, new TypeReference<>() {});
         csControllerCount = MyObjectUtils.defaultValue(csControllerCount, new TypeReference<>() {});
-        distances = MyObjectUtils.defaultValue(distances, new TypeReference<>() {});
+        latitude = MyObjectUtils.defaultValue(latitude, new TypeReference<>() {});
+        longitude = MyObjectUtils.defaultValue(longitude, new TypeReference<>() {});
     }
 
     private List<String> authorizeStatusCodes(List<String> statusCodes) {
@@ -81,7 +83,8 @@ public record StationCriteria(
                                      String province,
                                      String commune,
                                      String district,
-                                     Double distance,
+                                     Double latitude,
+                                     Double longitude,
                                      String gameName,
                                      String pcCpu,
                                      String pcRam,
@@ -98,11 +101,6 @@ public record StationCriteria(
                                      String csControllerType,
                                      Integer csControllerCount,
                                      List<String> statusCodes) {
-        List<Double> distances = new ArrayList<>();
-        if (MyObjectUtils.isNotEmpty(distance)) {
-            distances.addAll(List.of(0.0, distance));
-        }
-
         return StationCriteria.builder()
                 .search(search)
                 .province(province)
@@ -124,7 +122,8 @@ public record StationCriteria(
                 .csControllerType(csControllerType)
                 .csControllerCount(csControllerCount)
                 .statusCodes(statusCodes)
-                .distances(distances)
+                .latitude(latitude)
+                .longitude(longitude)
                 .build();
     }
 }

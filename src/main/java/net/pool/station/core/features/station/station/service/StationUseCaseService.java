@@ -12,6 +12,8 @@ import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.login.info.LoginInfo;
+import net.pool.station.core.domain.map.place.PlaceUseCase;
+import net.pool.station.core.domain.map.place.detail.PlaceDetail;
 import net.pool.station.core.domain.station.Station;
 import net.pool.station.core.domain.station.StationCriteria;
 import net.pool.station.core.domain.station.StationUseCase;
@@ -40,10 +42,16 @@ public class StationUseCaseService implements StationUseCase {
 
     StationAccountUseCase stationAccountUseCase;
 
+    PlaceUseCase placeUseCase;
+
     @Override
     @Transactional
     public void save(Station station) {
-        Long savedId = commandService.save(station);
+        PlaceDetail.Result placeDetail = placeDetail(station.placeId());
+        PlaceDetail.Result.Geometry.Location location = placeDetail.geometry().location();
+        Long savedId = commandService.save(station
+                .withLatitude(location.latitude())
+                .withLongitude(location.longitude()));
         LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
                 .orElseThrow(MyAuthenticationException::new);
         if (MyObjectUtils.isNotEquals(loginInfo.roleCode(), ERole.STATION_OWNER.getCode())) {
@@ -54,6 +62,11 @@ public class StationUseCaseService implements StationUseCase {
                 .stationAccountId(StationAccountId.of(savedId, loginInfo.accountId()))
                 .build());
         loggingService.log(StationLog.createSave(savedId));
+    }
+
+    PlaceDetail.Result placeDetail(String placeId) {
+        return placeUseCase.findDetailByPlaceId(placeId)
+                .orElse(PlaceDetail.defaultPlaceDetail().result());
     }
 
     @Override
@@ -71,7 +84,11 @@ public class StationUseCaseService implements StationUseCase {
     @Override
     @Transactional
     public void update(DomainKey<Long> stationId, Station station) {
-        commandService.update(stationId.value(), station);
+        PlaceDetail.Result placeDetail = placeDetail(station.placeId());
+        PlaceDetail.Result.Geometry.Location location = placeDetail.geometry().location();
+        commandService.update(stationId.value(), station
+                .withLatitude(location.latitude())
+                .withLongitude(location.longitude()));
 
         loggingService.log(StationLog.createUpdate(stationId.value()));
     }

@@ -15,6 +15,9 @@ public record StationResourceResponse(
         String typeCode,
         String typeName,
         Boolean allowDirectPayment,
+        String rowCode,
+        String rowName,
+        Integer displayOrder,
         String statusCode,
         String statusName
 ) {

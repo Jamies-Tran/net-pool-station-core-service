@@ -1,7 +1,6 @@
-package net.pool.station.core.features.map.place.repository.feign;
+package net.pool.station.core.features.map.place.repository.feign.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.pool.station.core.domain.map.place.Place;
 
 import java.util.List;
 

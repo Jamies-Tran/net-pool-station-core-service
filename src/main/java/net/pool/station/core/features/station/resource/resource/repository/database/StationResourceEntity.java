@@ -38,6 +38,12 @@ public class StationResourceEntity extends Auditor {
 
     String typeName;
 
+    String rowCode;
+
+    String rowName;
+
+    Integer displayOrder;
+
     String statusCode;
 
     String statusName;

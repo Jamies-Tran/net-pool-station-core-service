@@ -1,12 +1,16 @@
 package net.pool.station.core.features.station.station.repository.database;
 
 import net.pool.station.core.domain.station.StationCriteria;
+import net.pool.station.core.features.station.station.repository.database.dao.StationDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,7 +32,7 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
     Boolean existsByStationName(String stationName);
 
     @Query("""
-        SELECT s
+        SELECT DISTINCT s.stationId AS stationId
         FROM StationEntity s
         LEFT JOIN StationSpaceEntity ss ON ss.stationId = s.stationId
         LEFT JOIN GameEntity g ON g.stationSpaceId = ss.stationSpaceId
@@ -82,7 +86,29 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
                 AND (:#{#criteria.csControllerCount()} = 0
                         OR srs.csControllerCount = :#{#criteria.csControllerCount()})
         """)
-    Page<StationEntity> findAll(StationCriteria criteria, Pageable pageable);
+    Page<StationDao> findAll(StationCriteria criteria, Pageable pageable);
+
+    @Query(value = """
+        SELECT 
+            s AS station,
+            CASE 
+                    WHEN :latitude > 0.0 AND :longitude > 0.0 
+                            THEN FUNCTION(
+                                     'ST_DISTANCE_SPHERE',
+                                     FUNCTION('POINT', s.longitude, s.latitude),
+                                     FUNCTION('POINT', :longitude, :latitude)
+                                   ) 
+                    ELSE 0.0
+                END AS distance
+                
+        FROM StationEntity s
+        WHERE s.stationId IN :stationIds
+        """
+    )
+    List<StationDao> findAllByStationIdIn(List<Long> stationIds,
+                                          Double latitude,
+                                          Double longitude,
+                                          Sort sort);
 
     @Query("""
         SELECT DISTINCT s.province

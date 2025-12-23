@@ -1,6 +1,7 @@
 package net.pool.station.core.features.station.station.controller.models;
 
 import lombok.Builder;
+import lombok.With;
 import net.pool.station.core.domain.media.Media;
 import net.pool.station.core.domain.station.Station;
 
@@ -16,6 +17,9 @@ public record StationResponse(
         String province,
         String commune,
         String district,
+        Double latitude,
+        Double longitude,
+        Double distance,
         String hotline,
         List<Media> media,
         Station.Metadata metadata,

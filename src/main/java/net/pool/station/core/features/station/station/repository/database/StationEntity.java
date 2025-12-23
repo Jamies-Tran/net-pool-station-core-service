@@ -64,6 +64,10 @@ public class StationEntity extends Auditor {
     @Column(columnDefinition = "json")
     Station.Metadata metadata;
 
+    Double latitude;
+
+    Double longitude;
+
     Boolean deleted;
 
     String statusCode;

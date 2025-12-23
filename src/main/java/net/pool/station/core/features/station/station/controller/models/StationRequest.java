@@ -11,6 +11,7 @@ public record StationRequest(
         String province,
         String commune,
         String district,
+        String placeId,
         String hotline,
         List<Media> media
 ) {

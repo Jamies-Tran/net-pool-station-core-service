@@ -1,4 +1,4 @@
-package net.pool.station.core.features.map.place.repository.feign;
+package net.pool.station.core.features.map.place.repository.feign.models;
 
 import net.pool.station.core.bootstrap.configuration.mapper.MapStructConfig;
 import net.pool.station.core.bootstrap.configuration.mapper.ModelMapper;

@@ -26,8 +26,11 @@ public interface StationsPubApi {
             @RequestParam(required = false, value = "district", defaultValue = "")
             String district,
 
-            @RequestParam(required = false, value = "distance", defaultValue = "")
-            Double distance,
+            @RequestParam(required = false, value = "latitude", defaultValue = "0.0")
+            Double latitude,
+
+            @RequestParam(required = false, value = "longitude", defaultValue = "0.0")
+            Double longitude,
 
             @RequestParam(required = false, value = "gameName", defaultValue = "")
             String gameName,
@@ -77,7 +80,7 @@ public interface StationsPubApi {
             @RequestParam(required = false, value = "statusCodes", defaultValue = "")
             List<String> statusCodes,
 
-            @RequestParam(required = false, value = "sorter", defaultValue = "createdAt_desc")
+            @RequestParam(required = false, value = "sorter", defaultValue = "distance_asc")
             String sorter,
 
             @RequestParam(required = false, value = "current", defaultValue = "0")

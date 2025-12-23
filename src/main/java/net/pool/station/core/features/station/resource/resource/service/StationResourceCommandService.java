@@ -22,9 +22,9 @@ public class StationResourceCommandService {
 
     StationResourceEntityMapper mapper;
 
-    protected void save(StationResource stationResource) {
+    protected StationResource save(StationResource stationResource) {
         validate(stationResource, null);
-        repository.save(mapper.toEntity(stationResource));
+        return mapper.toDto(repository.save(mapper.toEntity(stationResource)));
     }
 
     protected void save(Long areaId, StationResource stationResource) {

@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.configuration.mapper.MyObjectMapper;
 import net.pool.station.core.bootstrap.enums.EResourceStatus;
 import net.pool.station.core.bootstrap.utils.MyAesEncryptionUtils;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.station.resource.Row;
 import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceCriteria;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
@@ -18,7 +21,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +41,34 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     @Override
     @Transactional
     public void save(StationResource stationResource) {
-        commandService.save(stationResource);
+        StationResource savedResource = commandService.save(stationResource);
+        if (MyObjectUtils.isNotEmpty(stationResource.spec())) {
+            stationResourceSpecUseCase.save(stationResource.spec()
+                    .withStationResourceId(savedResource.stationResourceId()));
+        }
+    }
+
+    @Override
+    @Transactional
+    public void save(DomainKey<Long> areaId, List<StationResource> stationResources) {
+        List<String> resourceNames = stationResources.stream()
+                .map(StationResource::resourceName)
+                .toList();
+        List<String> resourceCodes = stationResources.stream()
+                .map(StationResource::resourceCode)
+                .toList();
+        Set<String> resourceNameSet = new HashSet<>(resourceNames);
+        Set<String> resourceCodeSet = new HashSet<>(resourceCodes);
+        if (MyObjectUtils.isNotEquals(resourceNameSet.size(), resourceNames.size())) {
+            throw new MyResourceNotValid("Tên tài nguyên không được trùng");
+        }
+        if (MyObjectUtils.isNotEquals(resourceCodeSet.size(), resourceCodes.size())) {
+            throw new MyResourceNotValid("Mã tài nguyên không được trùng");
+        }
+
+        stationResources.forEach(sr -> {
+            this.save(sr.withAreaId(areaId.value()));
+        });
     }
 
     @Override
@@ -49,6 +84,16 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     @Transactional(readOnly = true)
     public Page<StationResource> findAll(StationResourceCriteria criteria, PageRequest pageRequest) {
         return queryService.findAll(criteria, pageRequest);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Row, List<StationResource>> findAllMapByRow(StationResourceCriteria criteria, PageRequest pageRequest) {
+        return queryService.findAll(criteria, pageRequest).stream()
+                .collect(Collectors.groupingBy(s -> Row.builder()
+                        .rowCode(s.rowCode())
+                        .rowName(s.rowName())
+                        .build()));
     }
 
     @Override
