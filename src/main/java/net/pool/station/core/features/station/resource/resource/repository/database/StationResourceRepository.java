@@ -8,11 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface StationResourceRepository extends JpaRepository<StationResourceEntity, Long> {
     Boolean existsByAreaIdAndResourceCodeAndDeletedFalse(Long stationId, String resourceCode);
+
+    List<StationResourceEntity> findAllByAreaId(Long areaId);
 
     @Query("""
         SELECT
@@ -51,7 +54,8 @@ public interface StationResourceRepository extends JpaRepository<StationResource
                 OR s.areaId = :#{#criteria.areaId()})
               AND (:#{#criteria.search().empty} = TRUE
                       OR (s.resourceName ILIKE %:#{#criteria.search()}%
-                              OR s.resourceCode = :#{#criteria.search()}))
+                              OR s.resourceCode = :#{#criteria.search()}
+                              OR s.rowName ILIKE %:#{#criteria.search()}%))
               AND (:#{#criteria.typeCodes().empty} = TRUE
                       OR s.typeCode IN :#{#criteria.typeCodes()})
               AND (:#{#criteria.statusCodes().empty} = TRUE

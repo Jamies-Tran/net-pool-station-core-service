@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,24 +52,9 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     @Override
     @Transactional
     public void save(DomainKey<Long> areaId, List<StationResource> stationResources) {
-        List<String> resourceNames = stationResources.stream()
-                .map(StationResource::resourceName)
-                .toList();
-        List<String> resourceCodes = stationResources.stream()
-                .map(StationResource::resourceCode)
-                .toList();
-        Set<String> resourceNameSet = new HashSet<>(resourceNames);
-        Set<String> resourceCodeSet = new HashSet<>(resourceCodes);
-        if (MyObjectUtils.isNotEquals(resourceNameSet.size(), resourceNames.size())) {
-            throw new MyResourceNotValid("Tên tài nguyên không được trùng");
-        }
-        if (MyObjectUtils.isNotEquals(resourceCodeSet.size(), resourceCodes.size())) {
-            throw new MyResourceNotValid("Mã tài nguyên không được trùng");
-        }
 
-        stationResources.forEach(sr -> {
-            this.save(sr.withAreaId(areaId.value()));
-        });
+
+        commandService.saveAll(areaId.value(), stationResources);
     }
 
     @Override
@@ -93,7 +79,10 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
                 .collect(Collectors.groupingBy(s -> Row.builder()
                         .rowCode(s.rowCode())
                         .rowName(s.rowName())
-                        .build()));
+                        .build(), Collectors.collectingAndThen(Collectors.toList(), values -> {
+                            values.sort(Comparator.comparing(StationResource::displayOrder));
+                            return values;
+                        })));
     }
 
     @Override
