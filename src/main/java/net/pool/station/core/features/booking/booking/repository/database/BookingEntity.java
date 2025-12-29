@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 import net.pool.station.core.bootstrap.enums.EBookingStatus;
 import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.enums.EPaymentType;
@@ -27,7 +28,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "bookings")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingEntity {
+public class BookingEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long bookingId;

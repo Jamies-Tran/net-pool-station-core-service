@@ -20,6 +20,8 @@ import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.login.info.LoginInfo;
+import net.pool.station.core.domain.match.making.MatchMaking;
+import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.transaction.Transaction;
@@ -36,7 +38,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -61,6 +67,10 @@ public class PaymentUseCaseService implements PaymentUseCase {
     @NonFinal
     @Value("${environment.payOs.returnUrl}")
     String returnUrl;
+
+    @NonFinal
+    @Value("${environment.deposit.percent:30}")
+    Integer deposit;
 
     @Override
     @Transactional
@@ -149,6 +159,59 @@ public class PaymentUseCaseService implements PaymentUseCase {
     }
 
     @Override
+    @Transactional
+    public Payment createFromMatchMaking(MatchMaking matchMaking) {
+        Account account = accountUseCase.findById(new DomainKey<>(Long.valueOf(matchMaking.createdBy())))
+                .orElseThrow(MyResourceNotFoundException::new);
+        if (MyObjectUtils.isNotEquals(EPaymentMethod.BANK_TRANSFER.getCode(),
+                matchMaking.paymentMethodCode())) {
+            throw new MyResourceNotValid("Sếp trận không thanh toán bằng chuyển khoản.");
+        }
+        PaymentRequest paymentRequest = PaymentRequest.builder()
+                .orderCode(System.currentTimeMillis())
+                .amount(calculateDeposit(matchMaking))
+                .description("Match making")
+                .buyerName(account.username())
+                .buyerEmail(account.email())
+                .buyerPhone(account.phone())
+                .items(fromMatchMaking(matchMaking))
+                .cancelUrl(cancelUrl)
+                .returnUrl(returnUrl)
+                .build();
+        paymentRequest = paymentRequest.withSignature(MyPaymentEncryptionUtils
+                .encrypt(MyObjectMapper.convertFromObjectToString(paymentRequest.generateRawSignature())));
+        PaymentResponse paymentResponse = paymentPlaceHolder.requestPayment(paymentRequest)
+                .data();
+        Transaction transaction = Transaction.builder()
+                .matchMakingId(matchMaking.matchMakingId())
+                .walletId(matchMaking.walletId())
+                .transactionCode(paymentResponse.orderCode())
+                .amount(paymentResponse.amount())
+                .currency(paymentResponse.currency())
+                .paymentMethodCode(matchMaking.paymentMethodCode())
+                .paymentMethodName(matchMaking.paymentMethodName())
+                .paymentTypeCode(EPaymentType.MATCH_MAKING_DEPOSIT.getCode())
+                .paymentTypeName(EPaymentType.MATCH_MAKING_DEPOSIT.getName())
+                .build();
+        transactionUseCase.save(transaction);
+
+        return mapper.toDto(paymentResponse);
+    }
+
+    private Integer calculateDeposit(MatchMaking matchMaking) {
+        int totalDeposit = matchMaking.totalPrice() * deposit / 100;
+        int numberOfHoldingDay = matchMaking.numberOfHoldingDay();
+        if (numberOfHoldingDay > 1 && numberOfHoldingDay <= 3) {
+            return (int) (totalDeposit * 1.3);
+        }
+        if (numberOfHoldingDay > 3 && numberOfHoldingDay <= 7) {
+            return (int) (totalDeposit * 1.7);
+        }
+
+        return (int) (totalDeposit * 1.0);
+    }
+
+    @Override
     public void walletPayment(Booking booking) {
         WalletLedgerUseCase walletLedgerUseCase = MySpringContext.getBean(WalletLedgerUseCase.class);
         if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), booking.paymentMethodCode())) {
@@ -212,6 +275,35 @@ public class PaymentUseCaseService implements PaymentUseCase {
         return Stream.concat(fromResources.stream(), fromMenus.stream())
                 .toList();
     }
+
+    private List<PaymentRequest.ItemRequest> fromMatchMaking(MatchMaking matchMaking) {
+
+        return matchMaking.resources()
+                .stream()
+                .map(s -> {
+                    LocalTime begin = matchMaking.slots().stream()
+                            .map(MatchMakingSlot::begin)
+                            .min(Comparator.naturalOrder())
+                            .orElseThrow(MyResourceNotFoundException::new);
+                    LocalTime end = matchMaking.slots().stream()
+                            .map(MatchMakingSlot::end)
+                            .max(Comparator.naturalOrder())
+                            .orElseThrow(MyResourceNotFoundException::new);
+                    String beginStr = LocalDateTime.of(matchMaking.startAt(), begin)
+                            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                    String endStr = LocalDateTime.of(matchMaking.startAt(), end)
+                            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                    String name = "%s (%s - %s)".formatted(s.typeName(), beginStr, endStr);
+                    return PaymentRequest.ItemRequest.builder()
+                            .name(name)
+                            .price(s.price())
+                            .quantity(1)
+                            .unit("Resource")
+                            .build();
+                })
+                .toList();
+    }
+
 
 
     private PaymentResponse validResponse(PayOsResponse<PaymentResponse> response) {

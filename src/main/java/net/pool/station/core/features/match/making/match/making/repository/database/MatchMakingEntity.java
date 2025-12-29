@@ -1,5 +1,6 @@
-package net.pool.station.core.features.transaction.repository.database;
+package net.pool.station.core.features.match.making.match.making.repository.database;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,10 +14,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
-import net.pool.station.core.bootstrap.enums.EPaymentStatus;
-import net.pool.station.core.bootstrap.enums.EPaymentType;
+import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.domain.match.making.MatchMaking;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -24,31 +29,34 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "transactions")
+@Table(name = "match_making")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TransactionEntity extends Auditor {
+public class MatchMakingEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long transactionId;
-    Long bookingId;
     Long matchMakingId;
-    Long walletId;
-    String transactionCode;
-    Integer amount;
-    String currency;
-    String paymentTypeCode;
-    String paymentTypeName;
+    Long stationId;
+    Long gameId;
+    String matchMakingCode;
+    Integer numberOfHoldingDay;
+    Integer limitParticipant;
+    LocalDate startAt;
+    LocalDate expiredAt;
+    String typeCode;
+    String typeName;
     String paymentMethodCode;
     String paymentMethodName;
-    LocalDateTime paymentCompleteAt;
     String statusCode;
     String statusName;
+    Boolean deleted;
 
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            statusCode = EPaymentStatus.PENDING.getCode();
-            statusName = EPaymentStatus.PENDING.getName();
+            statusCode = EMatchMakingStatus.DRAFT.getCode();
+            statusName = EMatchMakingStatus.DRAFT.getName();
         }
+
+        deleted = false;
     }
 }

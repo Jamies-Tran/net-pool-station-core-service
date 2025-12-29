@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Builder
 public record Transaction(
         Long transactionId,
+        Long matchMakingId,
         Long bookingId,
         Long walletId,
         String transactionCode,

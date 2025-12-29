@@ -8,12 +8,14 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.login.info.LoginInfo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
 public record StationResourceCriteria(
         String search,
         Long areaId,
+        List<LocalDateTime> timeRange,
         List<String> typeCodes,
         List<String> statusCodes
 ) {

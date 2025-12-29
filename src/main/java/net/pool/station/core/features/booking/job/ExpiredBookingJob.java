@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
-@Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExpiredBookingJob implements Job {

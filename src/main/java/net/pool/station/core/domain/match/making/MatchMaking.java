@@ -1,0 +1,77 @@
+package net.pool.station.core.domain.match.making;
+
+import lombok.Builder;
+import lombok.With;
+import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
+import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+
+public record MatchMaking(
+        Long matchMakingId,
+        Long stationId,
+        Long gameId,
+        @With Long walletId,
+        String matchMakingCode,
+        Integer numberOfHoldingDay,
+        Integer limitParticipant,
+        LocalDate startAt,
+        LocalDate expiredAt,
+        String typeCode,
+        String typeName,
+        String paymentMethodCode,
+        String paymentMethodName,
+        String statusCode,
+        String statusName,
+        Integer totalPrice,
+        String createdBy,
+        @With List<MatchMakingSlot> slots,
+        @With List<MatchMakingResource> resources
+) {
+    public MatchMaking {
+        if (MyObjectUtils.isEmpty(matchMakingCode)) {
+            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"));
+            String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
+            String random = RandomStringUtils.randomAlphanumeric(6);
+            matchMakingCode = "MATCH_%s_%s_%s".formatted(date, time, random);
+        }
+
+        if (!CollectionUtils.isEmpty(slots) && !CollectionUtils.isEmpty(resources)) {
+            totalPrice = resources.stream()
+                    .mapToInt(r -> Optional.ofNullable(r.price()).orElse(0)
+                            * slots.size())
+                    .sum();
+        }
+
+        expiredAt = startAt.plusDays(numberOfHoldingDay);
+    }
+
+    @Builder
+    public record Metadata(
+            List<Resource> resourceList,
+            List<TimeSlot> timeSlotList
+    ) {
+        public static Metadata ofDefault() {
+            return Metadata.builder()
+                    .resourceList(List.of())
+                    .timeSlotList(List.of())
+                    .build();
+        }
+
+        public record Resource(
+                Long resourceId
+        ) {}
+
+        public record TimeSlot(
+                Long timeSlotId
+        ) {}
+    }
+}

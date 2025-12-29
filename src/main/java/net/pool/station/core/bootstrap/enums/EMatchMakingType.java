@@ -9,10 +9,10 @@ import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
 @Getter
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum EPaymentType implements EnumProperty {
-    BOOKING_PAYMENT("BOOKING_PAYMENT", "Thanh toán booking"),
-    MATCH_MAKING_DEPOSIT("MATCH_MAKING_DEPOSIT", "Đặt cọc ghép trận"),
-    WALLET_PAYMENT("WALLET_PAYMENT", "Thanh toán wallet"),;
+public enum EMatchMakingType implements EnumProperty {
+    WAITING("WAITING", "Chờ booking"),
+    BOOK("BOOK", "Book"),;
+
 
     String code;
     String name;

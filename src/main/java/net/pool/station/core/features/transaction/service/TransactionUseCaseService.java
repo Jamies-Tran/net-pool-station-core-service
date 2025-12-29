@@ -12,6 +12,7 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.BookingUseCase;
+import net.pool.station.core.domain.match.making.MatchMakingUseCase;
 import net.pool.station.core.domain.payment.PaymentWebhook;
 import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionCriteria;
@@ -72,8 +73,9 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Transactional
     public void update(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook) {
         BookingUseCase bookingUseCase = MySpringContext.getBean(BookingUseCase.class);
+        MatchMakingUseCase matchMakingUseCase = MySpringContext.getBean(MatchMakingUseCase.class);
         log.info("Received webhook: {}", paymentWebhook);
-        Integer chargeCommission = 0;
+        int chargeCommission = 0;
         if (MyObjectUtils.isEquals(paymentWebhook.code(), "00")) {
             log.info("Processing transaction");
             Transaction transaction = Transaction.builder()
@@ -85,11 +87,15 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     .build();
             Transaction savedTransaction = commandService.update(transactionCode.value(), transaction);
             log.info("Transaction updated: {}", savedTransaction);
-            if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
-                chargeCommission = paymentWebhook.amount() * commission/100;
-                bookingUseCase.processed(new DomainKey<>(savedTransaction.bookingId())  );
-            }
+
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
+                if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
+                    chargeCommission = paymentWebhook.amount() * commission / 100;
+                    bookingUseCase.processed(new DomainKey<>(savedTransaction.bookingId())  );
+                }
+                if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())) {
+                    matchMakingUseCase.start(new DomainKey<>(savedTransaction.matchMakingId()));
+                }
                 WalletLedger walletLedger = WalletLedger.builder()
                         .walletId(savedTransaction.walletId())
                         .transactionId(savedTransaction.transactionId())
