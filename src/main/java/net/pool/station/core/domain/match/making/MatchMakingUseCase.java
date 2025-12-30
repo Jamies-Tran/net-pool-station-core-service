@@ -12,6 +12,8 @@ public interface MatchMakingUseCase {
 
     void update(DomainKey<Long> matchMakingId, MatchMaking matchMaking);
 
+    void process(DomainKey<Long> matchMakingId);
+
     void start(DomainKey<Long> matchMakingId);
 
     void cancel(DomainKey<Long> matchMakingId);

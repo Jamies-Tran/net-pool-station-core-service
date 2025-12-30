@@ -48,4 +48,11 @@ public class CategoryUseCaseService implements CategoryUseCase {
                 })
                 .toList();
     }
+
+    @Override
+    public <T extends Enum<?> & EnumTypeProperty> List<Category> findAllType(String search, Class<T> clazz) {
+        return Stream.of(clazz.getEnumConstants())
+                .map(Category::ofType)
+                .toList();
+    }
 }

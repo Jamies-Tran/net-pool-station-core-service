@@ -7,6 +7,7 @@ import net.pool.station.core.bootstrap.enums.EAccountStatus;
 import net.pool.station.core.bootstrap.enums.EGameGenre;
 import net.pool.station.core.bootstrap.enums.EGameStatus;
 import net.pool.station.core.bootstrap.enums.ELogType;
+import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.rest.response.MyListResponse;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.category.CategoryUseCase;
@@ -60,6 +61,14 @@ public class CategoryPubController implements CategoryPubApi {
     public MyListResponse<CategoryResponse> findGameStatusCategory(String search) {
         List<CategoryResponse> responses = responseMapper
                 .toModel(useCase.findAll(search, EGameStatus.class));
+
+        return MyListResponse.success(responses);
+    }
+
+    @Override
+    public MyListResponse<CategoryResponse> findResourceTypeCategory(String search) {
+        List<CategoryResponse> responses = responseMapper
+                .toModel(useCase.findAllType(search, EResourceType.class));
 
         return MyListResponse.success(responses);
     }

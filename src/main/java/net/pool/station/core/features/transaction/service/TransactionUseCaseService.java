@@ -94,7 +94,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     bookingUseCase.processed(new DomainKey<>(savedTransaction.bookingId())  );
                 }
                 if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())) {
-                    matchMakingUseCase.start(new DomainKey<>(savedTransaction.matchMakingId()));
+                    matchMakingUseCase.process(new DomainKey<>(savedTransaction.matchMakingId()));
                 }
                 WalletLedger walletLedger = WalletLedger.builder()
                         .walletId(savedTransaction.walletId())

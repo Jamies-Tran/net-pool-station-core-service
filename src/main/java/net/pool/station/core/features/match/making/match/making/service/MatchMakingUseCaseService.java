@@ -16,9 +16,12 @@ import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResourceUseCase;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlotUseCase;
+import net.pool.station.core.domain.match.participant.MatchParticipant;
+import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.wallet.WalletUseCase;
+import net.pool.station.core.features.match.making.job.ExpiredMatchMakingJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -49,6 +52,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     MatchMakingResourceUseCase resourceUseCase;
 
+    MatchParticipantUseCase matchParticipantUseCase;
+
     PaymentUseCase paymentUseCase;
 
     Scheduler scheduler;
@@ -67,7 +72,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     private void setupSchedule(MatchMaking matchMaking) {
         try {
-            JobDetail endMatchMakingDetail = JobBuilder.newJob()
+            JobDetail endMatchMakingDetail = JobBuilder.newJob(ExpiredMatchMakingJob.class)
                     .withIdentity("endMatchMaking_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
                     .usingJobData("matchMakingId", matchMaking.matchMakingId())
                     .build();
@@ -88,6 +93,16 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Transactional
     public void update(DomainKey<Long> matchMakingId, MatchMaking matchMaking) {
         commandService.update(matchMakingId.value(), matchMaking);
+    }
+
+    @Override
+    @Transactional
+    public void process(DomainKey<Long> matchMakingId) {
+        MatchMaking matchMaking = commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING);
+        List<MatchParticipant> matchParticipantEmptyList = MatchParticipant
+                .ofEmptyList(matchMaking.limitParticipant());
+
+        matchParticipantUseCase.save(DomainKey.of(matchMaking.matchMakingId()), matchParticipantEmptyList);
     }
 
     @Override

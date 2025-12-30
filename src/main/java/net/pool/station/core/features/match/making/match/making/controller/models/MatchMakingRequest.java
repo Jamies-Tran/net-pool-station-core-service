@@ -8,10 +8,12 @@ import java.util.List;
 
 public record MatchMakingRequest(
         Long stationId,
+        Long gameId,
         @Min(value = 1, message = "Số ngày giữ chỗ phải ít nhất là 1 ngày.")
         Integer numberOfHoldingDay,
-        Integer limitParticipant,
         LocalDate startAt,
+        String resourceTypeCode,
+        String resourceTypeName,
         String typeCode,
         String typeName,
         String paymentMethodCode,

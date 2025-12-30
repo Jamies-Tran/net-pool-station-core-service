@@ -49,18 +49,18 @@ public class MatchMakingCommandService {
         repository.save(foundMatchMaking);
     }
 
-    protected void updateStatus(Long matchMakingId, EMatchMakingStatus status) {
-        repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
-                .ifPresentOrElse(
+    protected MatchMaking updateStatus(Long matchMakingId, EMatchMakingStatus status) {
+        return repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
+                .map(
                         foundMatchMaking -> {
                             validateUpdateStatus(foundMatchMaking.getStatusCode(), status);
                             foundMatchMaking.setStatusCode(status.getCode());
                             foundMatchMaking.setStatusName(status.getName());
 
-                            repository.save(foundMatchMaking);
-                        },
-                        MyResourceNotFoundException::new
-                );
+                            return mapper.toDto(repository.save(foundMatchMaking));
+                        }
+                )
+                .orElseThrow(MyResourceNotFoundException::new);
     }
 
     protected void handleExpiredJob(Long matchMakingId) {
@@ -90,6 +90,11 @@ public class MatchMakingCommandService {
 
     private void validateUpdateStatus(String statusCode, EMatchMakingStatus status) {
         switch (status) {
+            case PENDING -> {
+                if (MyObjectUtils.isNotEquals(statusCode, EMatchMakingStatus.DRAFT.getCode())) {
+                    throw new MyResourceNotValid();
+                }
+            }
             case STARTED, CANCEL -> {
                 if (MyObjectUtils.isNotEquals(statusCode, EMatchMakingStatus.PENDING.getCode())) {
                     throw new MyResourceNotValid();

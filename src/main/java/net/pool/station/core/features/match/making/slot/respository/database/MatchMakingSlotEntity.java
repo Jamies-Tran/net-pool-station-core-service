@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(name = "match_making_slots")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MatchMakingSlotEntity {
+public class MatchMakingSlotEntity extends Auditor {
     @EmbeddedId
     MatchMakingSlotEntityId id;
 }

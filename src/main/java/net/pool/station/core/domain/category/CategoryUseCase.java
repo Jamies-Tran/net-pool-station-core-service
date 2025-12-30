@@ -14,4 +14,6 @@ public interface CategoryUseCase {
             String type,
             Class<T> clazz
     );
+
+    <T extends Enum<?> & EnumTypeProperty> List<Category> findAllType(String search, Class<T> clazz);
 }

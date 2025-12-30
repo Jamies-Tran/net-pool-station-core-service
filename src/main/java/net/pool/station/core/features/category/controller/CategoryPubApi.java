@@ -37,4 +37,10 @@ public interface CategoryPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search
     );
+
+    @GetMapping("/resource-type")
+    MyListResponse<CategoryResponse> findResourceTypeCategory(
+            @RequestParam(required = false, value = "search", defaultValue = "")
+            String search
+    );
 }

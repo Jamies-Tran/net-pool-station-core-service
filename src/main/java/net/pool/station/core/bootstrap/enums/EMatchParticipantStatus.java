@@ -5,17 +5,14 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
-import net.pool.station.core.bootstrap.configuration.enums.EnumTypeProperty;
 
 @Getter
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum EResourceType implements EnumTypeProperty {
-    PC("PC", "PC (Máy bàn)",  "1"),
-    BILLIARD_TABLE("BILLIARD_TABLE", "Bàn bida", "4"),
-    CONSOLE("GAMING_CONSOLE", "Máy chơi game console", "2");
+public enum EMatchParticipantStatus implements EnumProperty {
+    EMPTY("EMPTY", "Còn trống"),
+    FILLED("FILLED", "Đang có player"),;
 
     String code;
     String name;
-    String type;
 }

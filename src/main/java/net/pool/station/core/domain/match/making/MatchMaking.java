@@ -3,6 +3,7 @@ package net.pool.station.core.domain.match.making;
 import lombok.Builder;
 import lombok.With;
 import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
+import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
@@ -25,6 +26,8 @@ public record MatchMaking(
         Integer limitParticipant,
         LocalDate startAt,
         LocalDate expiredAt,
+        String resourceTypeCode,
+        String resourceTypeName,
         String typeCode,
         String typeName,
         String paymentMethodCode,
@@ -49,6 +52,11 @@ public record MatchMaking(
                     .mapToInt(r -> Optional.ofNullable(r.price()).orElse(0)
                             * slots.size())
                     .sum();
+        }
+
+        if (MyObjectUtils.isNotEmpty(resources)) {
+            limitParticipant = Integer.parseInt(EResourceType.valueOf(resourceTypeCode).getType())
+                    * resources.size();
         }
 
         expiredAt = startAt.plusDays(numberOfHoldingDay);

@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record CategoryResponse(
         String code,
-        String name
+        String name,
+        String type
 ) {
 }
