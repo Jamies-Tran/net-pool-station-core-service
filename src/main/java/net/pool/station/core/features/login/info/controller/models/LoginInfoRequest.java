@@ -8,8 +8,8 @@ public record LoginInfoRequest(
         @Pattern(message = "Email không hợp lệ",
                 regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
         String email,
-
         @NotNull(message = "Vui lòng nhập mật khẩu")
-        String password
+        String password,
+        FcmInfoRequest fcmInfo
 ) {
 }

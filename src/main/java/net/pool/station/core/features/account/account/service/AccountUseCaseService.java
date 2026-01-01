@@ -102,6 +102,12 @@ public class AccountUseCaseService implements AccountUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Account> findAllStationAdminByStationResourceId(DomainKey<Long> stationResourceId) {
+        return queryService.findAllStationAdminByStationResourceId(stationResourceId.value());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<Account> findAll(AccountCriteria criteria, PageRequest pageRequest) {
         return queryService.findAll(criteria, pageRequest);
     }

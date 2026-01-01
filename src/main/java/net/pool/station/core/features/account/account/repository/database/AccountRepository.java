@@ -96,4 +96,18 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
         WHERE a.accountId = :accountId
         """)
     List<StationDao> findAllStationByAccountId(Long accountId);
+
+    @Query("""
+        SELECT DISTINCT a
+        FROM AccountEntity a
+        INNER JOIN RoleEntity r ON a.roleId = r.roleId 
+                AND r.roleCode = :#{T(net.pool.station.core.bootstrap.enums.ERole).STATION_ADMIN.getCode()}
+        INNER JOIN StationAccountEntity sa ON sa.stationAccountId.accountId = a.accountId
+        INNER JOIN StationEntity s ON sa.stationAccountId.stationId = s.stationId
+        INNER JOIN StationSpaceEntity ss ON ss.stationId = s.stationId
+        INNER JOIN AreaEntity ar ON ar.stationSpaceId = ss.stationSpaceId
+        INNER JOIN StationResourceEntity sr ON sr.areaId = ar.areaId
+        WHERE sr.stationResourceId = :stationResourceId
+        """)
+    List<AccountEntity> findAllStationAdminByStationResourceId(Long stationResourceId);
 }
