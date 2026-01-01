@@ -11,6 +11,7 @@ public record ScheduleResponse(
         LocalDate date,
         String statusCode,
         String statusName,
+        Boolean allowUpdate,
         List<TimeSlotResponse> timeSlots
 ) {
 }

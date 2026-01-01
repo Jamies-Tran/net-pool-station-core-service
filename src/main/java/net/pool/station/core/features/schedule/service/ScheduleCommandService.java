@@ -81,6 +81,10 @@ public class ScheduleCommandService {
     }
 
     private void validate(Schedule schedule, ScheduleEntity exists) {
+        if (repository.existsInBookingOrMatchMaking(exists.getScheduleId())) {
+            throw new MyResourceNotValid("Lịch hoạt động không thể cập nhật.");
+        }
+
         if (MyObjectUtils.isNotEquals(schedule.date(), exists.getDate())) {
             validate(schedule);
         }

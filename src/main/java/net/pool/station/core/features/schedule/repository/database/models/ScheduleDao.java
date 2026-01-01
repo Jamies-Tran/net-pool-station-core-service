@@ -12,4 +12,6 @@ public interface ScheduleDao {
     String getStatusCode();
 
     String getStatusName();
+
+    Boolean getAllowUpdate();
 }

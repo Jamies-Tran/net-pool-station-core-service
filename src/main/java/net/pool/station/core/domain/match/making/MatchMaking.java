@@ -20,12 +20,13 @@ public record MatchMaking(
         Long matchMakingId,
         Long stationId,
         Long gameId,
+        Long scheduleId,
         @With Long walletId,
         String matchMakingCode,
         Integer numberOfHoldingDay,
         Integer limitParticipant,
         LocalDate startAt,
-        LocalDate expiredAt,
+        @With LocalDate expiredAt,
         String resourceTypeCode,
         String resourceTypeName,
         String typeCode,
@@ -58,8 +59,6 @@ public record MatchMaking(
             limitParticipant = Integer.parseInt(EResourceType.valueOf(resourceTypeCode).getType())
                     * resources.size();
         }
-
-        expiredAt = startAt.plusDays(numberOfHoldingDay);
     }
 
     @Builder

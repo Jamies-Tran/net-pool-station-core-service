@@ -17,7 +17,8 @@ public record Schedule(
         String statusCode,
         String statusName,
         @With List<TimeSlot> timeSlots,
-        TimeSlotConfig timeSlotConfig
+        TimeSlotConfig timeSlotConfig,
+        @With Boolean allowUpdate
 ) {
     @Builder
     public record TimeSlotConfig(

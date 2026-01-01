@@ -20,6 +20,8 @@ import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
+import net.pool.station.core.domain.schedule.Schedule;
+import net.pool.station.core.domain.schedule.ScheduleUseCase;
 import net.pool.station.core.domain.wallet.WalletUseCase;
 import net.pool.station.core.features.match.making.job.ExpiredMatchMakingJob;
 import org.quartz.JobBuilder;
@@ -56,11 +58,16 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     PaymentUseCase paymentUseCase;
 
+    ScheduleUseCase scheduleUseCase;
+
     Scheduler scheduler;
 
     @Override
     @Transactional
     public Long save(MatchMaking matchMaking) {
+        Schedule schedule = scheduleUseCase.findById(DomainKey.of(matchMaking.scheduleId()))
+                .orElseThrow(MyResourceNotFoundException::new);
+        matchMaking = matchMaking.withExpiredAt(schedule.date().plusDays(matchMaking.numberOfHoldingDay()));
         MatchMaking savedMatchMaking = commandService.save(matchMaking);
         Long matchMakingId = savedMatchMaking.matchMakingId();
         slotUseCase.save(DomainKey.of(matchMakingId), matchMaking.slots());

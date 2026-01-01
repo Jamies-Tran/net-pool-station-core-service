@@ -4,6 +4,7 @@ import net.pool.station.core.domain.schedule.ScheduleCriteria;
 import net.pool.station.core.features.schedule.repository.database.models.ScheduleDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,26 @@ import java.util.Optional;
 @Repository
 public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> {
     Boolean existsByDateAndStationId(LocalDate date, Long stationId);
+
+    @Query("""
+        SELECT COUNT(s) > 0
+        FROM ScheduleEntity s
+        INNER JOIN BookingEntity b ON s.scheduleId = b.scheduleId AND b.deleted = FALSE
+        INNER JOIN MatchMakingEntity m ON s.scheduleId = m.scheduleId AND m.deleted = FALSE
+        """)
+    Boolean existsInBookingOrMatchMaking(Long scheduleId);
+
+    @Query("""
+        SELECT
+                (COUNT(b) = 0 AND COUNT(m) = 0) AS allowUpdate,
+                s.scheduleId AS scheduleId
+        FROM ScheduleEntity s
+        LEFT JOIN BookingEntity b ON s.scheduleId = b.scheduleId AND b.deleted = FALSE
+        LEFT JOIN MatchMakingEntity m ON s.scheduleId = m.scheduleId AND m.deleted = FALSE
+        WHERE s.scheduleId IN :scheduleIds
+        GROUP BY s.scheduleId
+        """)
+    List<ScheduleDao> findAllWithAllowUpdateIn(List<Long> scheduleIds);
 
     Optional<ScheduleEntity> findByScheduleIdAndDeletedFalse(Long scheduleId);
 
@@ -34,38 +55,34 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
     Page<ScheduleEntity> findAllByStation(ScheduleCriteria criteria, Pageable pageable);
 
     @Query("""
-        SELECT DISTINCT COALESCE(sc2.scheduleId, sc1.scheduleId) AS scheduleId
-        FROM ScheduleEntity sc1
-        INNER JOIN StationEntity st ON sc1.stationId = st.stationId
+        SELECT DISTINCT sc.scheduleId AS scheduleId
+        FROM ScheduleEntity sc
+        INNER JOIN StationEntity st ON sc.stationId = st.stationId
         INNER JOIN StationSpaceEntity sp ON st.stationId = sp.stationId
-        LEFT JOIN StationSpaceScheduleEntity sss ON sp.stationSpaceId = sss.stationSpaceId AND sss.deleted = FALSE
-        LEFT JOIN ScheduleEntity sc2 ON sss.scheduleId = sc2.scheduleId
         INNER JOIN AreaEntity a ON a.stationSpaceId = sp.stationSpaceId
         INNER JOIN StationResourceEntity sr ON sr.areaId = a.areaId
         WHERE sr.stationResourceId = :#{#criteria.stationResourceId()}
-            AND (COALESCE(sc2.date, sc1.date) BETWEEN :#{#criteria.startFrom()}
+            AND (sc.date BETWEEN :#{#criteria.startFrom()}
                 AND :#{#criteria.endTo()})
             AND (:#{#criteria.statusCodes().empty} = TRUE
-                    OR COALESCE(sc2.statusCode, sc1.statusCode) IN :#{#criteria.statusCodes()} )
+                    OR sc.statusCode IN :#{#criteria.statusCodes()} )
         """)
     Page<Long> findAllByStationResource(ScheduleCriteria criteria, Pageable pageable);
 
     @Query("""
-        SELECT DISTINCT COALESCE(sc2.scheduleId, sc1.scheduleId) AS scheduleId
-        FROM ScheduleEntity sc1
-        INNER JOIN StationEntity st ON sc1.stationId = st.stationId
+        SELECT DISTINCT sc.scheduleId AS scheduleId
+        FROM ScheduleEntity sc
+        INNER JOIN StationEntity st ON sc.stationId = st.stationId
         INNER JOIN StationSpaceEntity sp ON st.stationId = sp.stationId
-        LEFT JOIN StationSpaceScheduleEntity sss ON sp.stationSpaceId = sss.stationSpaceId AND sss.deleted = FALSE
-        LEFT JOIN ScheduleEntity sc2 ON sss.scheduleId = sc2.scheduleId
         WHERE sp.stationSpaceId = :#{#criteria.stationSpaceId()}
-            AND (COALESCE(sc2.date, sc1.date) BETWEEN :#{#criteria.startFrom()}
+            AND (sc.date BETWEEN :#{#criteria.startFrom()}
                 AND :#{#criteria.endTo()})
             AND (:#{#criteria.statusCodes().empty} = TRUE
-                    OR COALESCE(sc2.statusCode, sc1.statusCode) IN :#{#criteria.statusCodes()} )
+                    OR sc.statusCode IN :#{#criteria.statusCodes()} )
         """)
     Page<Long> findAllByStationSpace(ScheduleCriteria criteria, Pageable pageable);
 
-    List<ScheduleEntity> findAllByScheduleIdIn(List<Long> scheduleIds);
+    List<ScheduleEntity> findAllByScheduleIdIn(List<Long> scheduleIds, Sort sort);
 
 
 }

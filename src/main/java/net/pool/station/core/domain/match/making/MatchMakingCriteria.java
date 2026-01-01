@@ -2,16 +2,11 @@ package net.pool.station.core.domain.match.making;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Builder;
-import net.pool.station.core.bootstrap.enums.ERole;
-import net.pool.station.core.bootstrap.utils.MyDateTimeUtils;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
-import net.pool.station.core.bootstrap.utils.MyRequestContext;
-import net.pool.station.core.domain.login.info.LoginInfo;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Builder

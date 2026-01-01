@@ -37,10 +37,10 @@ public class MatchMakingEntity extends Auditor {
     Long matchMakingId;
     Long stationId;
     Long gameId;
+    Long scheduleId;
     String matchMakingCode;
     Integer numberOfHoldingDay;
     Integer limitParticipant;
-    LocalDate startAt;
     LocalDate expiredAt;
     String resourceTypeCode;
     String resourceTypeName;

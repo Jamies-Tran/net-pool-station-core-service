@@ -16,11 +16,12 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
     @Query("""
         SELECT m
         FROM MatchMakingEntity m
+        INNER JOIN ScheduleEntity s ON m.scheduleId = s.scheduleId
         WHERE m.deleted = FALSE
             AND (:#{#criteria.search().empty} = TRUE
                     OR m.matchMakingCode ILIKE %:#{#criteria.search()}%)
             AND (:#{#criteria.timeRangeStartAt().empty} = TRUE
-                    OR m.startAt BETWEEN :#{#criteria.timeRangeStartAt().get(0)} 
+                    OR s.date BETWEEN :#{#criteria.timeRangeStartAt().get(0)} 
                             AND :#{#criteria.timeRangeStartAt().get(1)})
             AND (:#{#criteria.statusCodes().empty} = TRUE
                     OR m.statusCode IN :#{#criteria.statusCodes()})

@@ -30,40 +30,29 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
     void deleteAllByScheduleId(Long scheduleId);
 
     @Query("""
-        SELECT DISTINCT 
-                COALESCE(t1.timeSlotId, t2.timeSlotId) AS timeSlotId,
+        SELECT DISTINCT
+                t.timeSlotId AS timeSlotId,
                 CASE 
-                    WHEN bs IS NOT NULL AND COALESCE(t1.timeSlotId, t2.timeSlotId) = bs.bookingSlotId.timeSlotId THEN FALSE 
-                    WHEN bs IS NULL AND COALESCE(t1.end, t2.end) < CURRENT_TIME THEN FALSE
+                    WHEN (b IS NOT NULL AND b.statusCode IN ('PENDING', 'NEW', 'PROCESSING') 
+                            AND bs IS NOT NULL AND t.timeSlotId = bs.bookingSlotId.timeSlotId) OR
+                         (m IS NOT NULL AND m.statusCode IN ('PENDING', 'STARTED', 'DRAFT') 
+                                 AND ms IS NOT NULL AND t.timeSlotId = ms.id.timeSlotId) THEN FALSE 
+                    WHEN (bs IS NULL AND sc.date <= CURRENT_DATE AND t.end < CURRENT_TIME) THEN FALSE
                     ELSE TRUE 
                 END AS allowBooking      
         FROM StationResourceEntity sr
         INNER JOIN AreaEntity a ON a.areaId = sr.areaId
         INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId = a.stationSpaceId
-        LEFT JOIN StationSpaceScheduleEntity sss ON sss.stationSpaceId = ss.stationSpaceId AND sss.scheduleId = :scheduleId
-        LEFT JOIN StationSpaceScheduleSlotEntity ssst ON ssst.stationSpaceScheduleId = sss.stationSpaceScheduleId
-        LEFT JOIN TimeSlotEntity t1 ON ssst.timeSlotId = t1.timeSlotId
         LEFT JOIN StationEntity s ON ss.stationId = s.stationId
-        LEFT JOIN ScheduleEntity sc ON sc.stationId = s.stationId AND sc.scheduleId = :scheduleId
-        LEFT JOIN TimeSlotEntity t2 ON sc.scheduleId = t2.scheduleId
-        LEFT JOIN BookingSlotEntity bs ON bs.bookingSlotId.timeSlotId = COALESCE(t1.timeSlotId, t2.timeSlotId)
+        LEFT JOIN ScheduleEntity sc ON sc.stationId = s.stationId AND sc.scheduleId = :scheduleId AND sc.deleted = FALSE
+        LEFT JOIN BookingEntity b ON sc.scheduleId = b.scheduleId AND sc.deleted = FALSE 
+        LEFT JOIN TimeSlotEntity t ON sc.scheduleId = t.scheduleId
+        LEFT JOIN BookingSlotEntity bs ON bs.bookingSlotId.timeSlotId = t.timeSlotId
+        LEFT JOIN MatchMakingEntity m ON m.scheduleId = sc.scheduleId AND m.deleted = FALSE
+        LEFT JOIN MatchMakingSlotEntity ms ON m.matchMakingId = ms.id.matchMakingId
         WHERE sr.stationResourceId = :stationResourceId
         """)
     List<TimeSlotAllowBookingDao> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId);
-
-//    @Query("""
-//        SELECT
-//                ts AS timeSlot,
-//                CASE
-//                    WHEN bs IS NOT NULL AND ts.timeSlotId = bs.bookingSlotId.timeSlotId THEN FALSE
-//                    WHEN bs IS NULL AND ts.end < CURRENT_TIME THEN FALSE
-//                    ELSE TRUE
-//                END AS allowBooking
-//        FROM BookingSlotEntity bs
-//        LEFT JOIN TimeSlotEntity ts ON ts.timeSlotId = bs.bookingSlotId.timeSlotId
-//        WHERE ts.timeSlotId IN :timeSlotIds
-//        """)
-//    List<TimeSlotAllowBookingDao> findAllByTimeSlotIdIn(List<Long> timeSlotIds);
 
     List<TimeSlotEntity> findListByTimeSlotIdIn(List<Long> timeSlotIds);
 }
