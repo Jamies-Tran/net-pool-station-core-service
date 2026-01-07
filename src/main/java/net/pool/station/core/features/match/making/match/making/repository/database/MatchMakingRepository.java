@@ -1,12 +1,14 @@
 package net.pool.station.core.features.match.making.match.making.repository.database;
 
 import net.pool.station.core.domain.match.making.MatchMakingCriteria;
+import net.pool.station.core.features.match.making.match.making.repository.database.dao.MatchMakingDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,19 +16,35 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
     Optional<MatchMakingEntity> findByMatchMakingIdAndDeletedFalse(Long matchMakingId);
 
     @Query("""
-        SELECT m
+        SELECT 
+                m AS matchMaking,
+                mp.accountId = :accountId AS allowJoin
         FROM MatchMakingEntity m
+        LEFT JOIN MatchParticipantEntity mp ON m.matchMakingId = mp.matchMakingId AND mp.accountId IS NOT NULL
+        WHERE m.matchMakingId = :matchMakingId
+                AND m.deleted = FALSE
+        """)
+    Optional<MatchMakingDao> findByMatchMakingIdAndDeletedFalse(Long matchMakingId, Long accountId);
+
+    @Query("""
+        SELECT DISTINCT
+                m.matchMakingId AS matchMakingId,
+                mp.accountId = :accountId AS allowJoin
+        FROM MatchMakingEntity m
+        INNER JOIN MatchParticipantEntity mp ON m.matchMakingId = mp.matchMakingId AND mp.accountId IS NOT NULL
         INNER JOIN ScheduleEntity s ON m.scheduleId = s.scheduleId
         WHERE m.deleted = FALSE
             AND (:#{#criteria.search().empty} = TRUE
                     OR m.matchMakingCode ILIKE %:#{#criteria.search()}%)
             AND (:#{#criteria.timeRangeStartAt().empty} = TRUE
-                    OR s.date BETWEEN :#{#criteria.timeRangeStartAt().get(0)} 
+                    OR s.date BETWEEN :#{#criteria.timeRangeStartAt().get(0)}
                             AND :#{#criteria.timeRangeStartAt().get(1)})
             AND (:#{#criteria.statusCodes().empty} = TRUE
                     OR m.statusCode IN :#{#criteria.statusCodes()})
         """)
-    Page<MatchMakingEntity> findAll(MatchMakingCriteria criteria, Pageable pageable);
+    Page<MatchMakingDao> findAll(MatchMakingCriteria criteria, Long accountId, Pageable pageable);
+
+    Page<MatchMakingEntity> findAllByMatchMakingIdIn(List<Long> matchMakingIds, Pageable pageable);
 
     @Query("""
         SELECT DISTINCT w.walletId

@@ -1,4 +1,4 @@
-package net.pool.station.core.features.notification;
+package net.pool.station.core.features.notification.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import lombok.AccessLevel;
@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.domain.notification.NotificationUseCase;
-import net.pool.station.core.domain.notification.NotifyMessage;
+import net.pool.station.core.domain.notification.Notification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,14 +17,19 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class NotificationUseCaseService implements NotificationUseCase {
+    NotificationCommandService commandService;
+
     @Override
-    public void pushNotification(List<NotifyMessage> notifyMessages) {
-        notifyMessages.forEach(notifyMessage -> {
+    @Transactional
+    public void pushNotification(List<Notification> notifications) {
+        notifications.forEach(notification -> {
             try {
-                FirebaseMessaging.getInstance().send(notifyMessage.firebaseMessage());
+                FirebaseMessaging.getInstance().send(notification.firebaseMessage());
             } catch (Exception e) {
                 log.error("[NotificationUseCaseService.pushNotification(...)] error: {}", e.getMessage());
             }
         });
+
+        commandService.saveAll(notifications);
     }
 }

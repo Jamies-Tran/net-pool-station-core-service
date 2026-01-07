@@ -7,6 +7,7 @@ import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
+import net.pool.station.core.domain.match.participant.MatchParticipant;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -25,7 +26,7 @@ public record MatchMaking(
         String matchMakingCode,
         Integer numberOfHoldingDay,
         Integer limitParticipant,
-        LocalDate startAt,
+        @With LocalDate startAt,
         @With LocalDate expiredAt,
         String resourceTypeCode,
         String resourceTypeName,
@@ -37,8 +38,10 @@ public record MatchMaking(
         String statusName,
         Integer totalPrice,
         String createdBy,
+        @With Boolean allowJoin,
         @With List<MatchMakingSlot> slots,
-        @With List<MatchMakingResource> resources
+        @With List<MatchMakingResource> resources,
+        @With List<MatchParticipant> participants
 ) {
     public MatchMaking {
         if (MyObjectUtils.isEmpty(matchMakingCode)) {
@@ -59,26 +62,5 @@ public record MatchMaking(
             limitParticipant = Integer.parseInt(EResourceType.valueOf(resourceTypeCode).getType())
                     * resources.size();
         }
-    }
-
-    @Builder
-    public record Metadata(
-            List<Resource> resourceList,
-            List<TimeSlot> timeSlotList
-    ) {
-        public static Metadata ofDefault() {
-            return Metadata.builder()
-                    .resourceList(List.of())
-                    .timeSlotList(List.of())
-                    .build();
-        }
-
-        public record Resource(
-                Long resourceId
-        ) {}
-
-        public record TimeSlot(
-                Long timeSlotId
-        ) {}
     }
 }

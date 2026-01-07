@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 public record BookingCriteria(
         String search,
-        Long accountId,
+        String accountId,
         List<LocalDate> dateRange,
         List<String> typeCodes,
         List<String> statusCodes
@@ -25,7 +25,7 @@ public record BookingCriteria(
                 .orElse(LoginInfo.currentLoginInfoEmpty());
         if (!currentLoginInfo.isLoginEmpty()
                 && MyObjectUtils.isEquals(ERole.PLAYER.getCode(), currentLoginInfo.roleCode())) {
-           accountId = currentLoginInfo.accountId();
+           accountId = currentLoginInfo.accountId().toString();
         } else {
             accountId = MyObjectUtils.defaultValue(accountId, new TypeReference<>() {});
         }
@@ -37,7 +37,7 @@ public record BookingCriteria(
 
     public static BookingCriteria of(
             String search,
-            Long accountId,
+            String accountId,
             List<LocalDate> dateRange,
             List<String> typeCodes,
             List<String> statusCodes

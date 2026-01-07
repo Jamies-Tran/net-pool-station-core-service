@@ -29,4 +29,6 @@ public interface MatchMakingUseCase {
     Page<MatchMaking> findAll(MatchMakingCriteria criteria, PageRequest pageRequest);
 
     Optional<Payment> generatePayment(DomainKey<Long> matchMakingId);
+
+    void walletPayment(DomainKey<Long> matchMakingId);
 }

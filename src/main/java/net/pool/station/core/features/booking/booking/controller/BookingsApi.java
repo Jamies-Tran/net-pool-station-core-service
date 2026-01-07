@@ -28,7 +28,7 @@ public interface BookingsApi {
             String search,
 
             @RequestParam(required = false, value = "accountId", defaultValue = "")
-            Long accountId,
+            String accountId,
 
             @RequestParam(required = false, value = "dateRange", defaultValue = "")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

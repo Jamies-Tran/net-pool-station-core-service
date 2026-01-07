@@ -32,7 +32,6 @@ public class BookingEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long bookingId;
-    Long accountId;
     Long scheduleId;
     Long matchMakingId;
     Long stationResourceId;

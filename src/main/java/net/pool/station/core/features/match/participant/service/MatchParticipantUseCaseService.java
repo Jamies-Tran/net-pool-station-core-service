@@ -3,13 +3,23 @@ package net.pool.station.core.features.match.participant.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.account.Account;
+import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
+import net.pool.station.core.domain.match.participant.MatchParticipantCriteria;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +27,56 @@ import java.util.List;
 public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
     MatchParticipantCommandService commandService;
 
+    MatchParticipantQueryService queryService;
+
+    AccountUseCase accountUseCase;
+
     @Override
     @Transactional
     public void save(DomainKey<Long> matchMakingId, List<MatchParticipant> matchParticipants) {
         commandService.save(matchMakingId.value(), matchParticipants);
+    }
+
+    @Override
+    @Transactional
+    public void fillEmptyParticipant(DomainKey<Long> matchMakingId, Long accountId) {
+        commandService.update(matchMakingId.value(), accountId);
+    }
+
+    @Override
+    @Transactional
+    public void emptyFilledParticipant(DomainKey<Long> matchParticipantId) {
+        commandService.empty(matchParticipantId.value());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchParticipant> findAllByMatchMakingId(DomainKey<Long> matchMakingId) {
+        List<MatchParticipant> participants = queryService.findAllByMatchMakingId(matchMakingId.value());
+        List<Long> accountId = participants.stream().map(MatchParticipant::accountId).toList();
+        Map<Long, Account> accountMap = accountMap(accountId);
+        return participants.stream()
+                .map(p -> {
+                    Account account = accountMap.computeIfAbsent(p.accountId(), k -> null);
+                    return p.withAccount(account);
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<MatchParticipant> findAll(MatchParticipantCriteria criteria, PageRequest pageRequest) {
+        Page<MatchParticipant> participants = queryService.findAll(criteria, pageRequest);
+        List<Long> accountIds = participants.stream().map(MatchParticipant::accountId).toList();
+        Map<Long, Account> accountMap = accountMap(accountIds);
+
+        return participants.map(p -> p
+                .withAccount(accountMap.computeIfAbsent(p.accountId(), k -> null)));
+    }
+
+    private Map<Long, Account> accountMap(List<Long> accountIds) {
+        return accountUseCase.findAllByIdIn(accountIds)
+                .stream()
+                .collect(Collectors.toMap(Account::accountId, Function.identity()));
     }
 }

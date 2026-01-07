@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class MatchMakingsController implements MatchMakingsApi {
     @Override
     public MyPageResponse<MatchMakingResponse> findAll(
             String search,
-            List<LocalDateTime> timeRangeStartAt,
+            List<LocalDate> timeRangeStartAt,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize
     ) {

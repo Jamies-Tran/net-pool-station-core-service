@@ -24,7 +24,7 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
             AND (:#{#criteria.dateRange().empty} = TRUE
                     OR sc.date BETWEEN :#{#criteria.startFrom()} AND :#{#criteria.endTo()})
             AND (:#{#criteria.accountId()} = 0
-                    OR b.accountId = :#{#criteria.accountId()})
+                    OR b.createdBy = :#{#criteria.accountId()})
             AND (:#{#criteria.typeCodes().empty} = TRUE
                     OR b.typeCode IN :#{#criteria.typeCodes()})
             AND (:#{#criteria.statusCodes().empty} = TRUE

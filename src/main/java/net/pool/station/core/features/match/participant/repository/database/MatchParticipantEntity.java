@@ -27,6 +27,8 @@ public class MatchParticipantEntity extends Auditor {
     Long matchParticipantId;
     Long matchMakingId;
     Long accountId;
+    String typeCode;
+    String typeName;
     String statusCode;
     String statusName;
 }

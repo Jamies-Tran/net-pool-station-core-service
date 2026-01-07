@@ -39,7 +39,7 @@ public class BookingsController implements BookingsApi {
     @Override
     public MyPageResponse<BookingResponse> findAll(
             String search,
-            Long accountId,
+            String accountId,
             List<LocalDate> dateRange,
             List<String> typeCodes,
             List<String> statusCodes,

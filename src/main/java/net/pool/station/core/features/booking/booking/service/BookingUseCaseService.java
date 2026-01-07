@@ -3,13 +3,10 @@ package net.pool.station.core.features.booking.booking.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EBookingStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
-import net.pool.station.core.bootstrap.utils.MyRequestContext;
-import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
@@ -22,9 +19,8 @@ import net.pool.station.core.domain.booking.slot.BookingSlot;
 import net.pool.station.core.domain.booking.slot.BookingSlotUseCase;
 import net.pool.station.core.domain.fcm.info.FcmInfo;
 import net.pool.station.core.domain.fcm.info.FcmInfoUseCase;
-import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.notification.NotificationUseCase;
-import net.pool.station.core.domain.notification.NotifyMessage;
+import net.pool.station.core.domain.notification.Notification;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
@@ -82,15 +78,13 @@ public class BookingUseCaseService implements BookingUseCase {
     @Override
     @Transactional
     public void save(Booking booking) {
-        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
-                .orElseThrow(MyAuthenticationException::new);
-        Booking savedBooking = commandService.save(booking.withAccountId(loginInfo.accountId()));
+        Booking savedBooking = commandService.save(booking);
         DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
         bookingMenuUseCase.save(bookingId, booking.bookingMenus());
         bookingSlotUseCase.save(bookingId, booking.bookingSlots());
         if (MyObjectUtils.isEquals(EBookingStatus.NEW.getCode(), savedBooking.statusCode())) {
             scheduleBooking(savedBooking);
-            notificationUseCase.pushNotification(NotifyMessage.of(fcmInfos(savedBooking), savedBooking));
+            notificationUseCase.pushNotification(Notification.ofBooking(fcmInfos(savedBooking), savedBooking));
         }
     }
 
@@ -144,7 +138,7 @@ public class BookingUseCaseService implements BookingUseCase {
     @Transactional
     public void walletPayment(DomainKey<Long> bookingId) {
         Booking booking = findById(bookingId).orElseThrow(MyResourceNotFoundException::new);
-        paymentUseCase.walletPayment(booking);
+        paymentUseCase.walletPaymentForBooking(booking);
     }
 
     @Override
@@ -162,6 +156,7 @@ public class BookingUseCaseService implements BookingUseCase {
     public void processed(DomainKey<Long> bookingId) {
         Booking booking = commandService.updateStatus(bookingId.value(), EBookingStatus.NEW);
         scheduleBooking(booking);
+        notificationUseCase.pushNotification(Notification.ofBooking(fcmInfos(booking), booking));
     }
 
     @Override

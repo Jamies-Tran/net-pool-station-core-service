@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Builder;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 @Builder
 public record MatchMakingCriteria(
         String search,
-        List<LocalDateTime> timeRangeStartAt,
+        List<LocalDate> timeRangeStartAt,
         List<String> statusCodes
 ) {
     public MatchMakingCriteria {
@@ -21,16 +22,16 @@ public record MatchMakingCriteria(
         statusCodes = MyObjectUtils.defaultValue(statusCodes, new TypeReference<>() {});
     }
 
-    private List<LocalDateTime> defaultTimeRangeCustom(List<LocalDateTime> timeRangeStartAt) {
+    private List<LocalDate> defaultTimeRangeCustom(List<LocalDate> timeRangeStartAt) {
         if (timeRangeStartAt.size() == 1) {
-            LocalDateTime start = timeRangeStartAt.getFirst();
-            LocalDateTime end = start.plusDays(1);
+            LocalDate start = timeRangeStartAt.getFirst();
+            LocalDate end = start.plusDays(1);
             return List.of(start, end);
         }
 
         if (timeRangeStartAt.isEmpty()) {
-            LocalDateTime end = LocalDateTime.now();
-            LocalDateTime start = end.minusDays(1);
+            LocalDate end = LocalDate.now();
+            LocalDate start = end.minusDays(1);
             return List.of(start, end);
         }
 

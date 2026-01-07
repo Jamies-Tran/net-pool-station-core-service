@@ -14,7 +14,6 @@ import net.pool.station.core.bootstrap.rest.response.PayOsResponse;
 import net.pool.station.core.bootstrap.utils.MyPaymentEncryptionUtils;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
-import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
@@ -28,8 +27,6 @@ import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.domain.wallet.Wallet;
 import net.pool.station.core.domain.wallet.WalletUseCase;
-import net.pool.station.core.domain.wallet.ledger.WalletLedger;
-import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
 import net.pool.station.core.features.payment.repository.feign.PaymentPlaceHolder;
 import net.pool.station.core.features.payment.repository.feign.models.PaymentRequest;
 import net.pool.station.core.features.payment.repository.feign.models.PaymentResponse;
@@ -38,7 +35,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -122,7 +118,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
     @Override
     @Transactional
     public Payment createFromBooking(Booking booking) {
-        Account account = accountUseCase.findById(new DomainKey<>(booking.accountId()))
+        Account account = accountUseCase.findById(new DomainKey<>(Long.valueOf(booking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
         if (MyObjectUtils.isNotEquals(EPaymentMethod.BANK_TRANSFER.getCode(), booking.paymentMethodCode())) {
             throw new MyResourceNotValid("Booking không thanh toán bằng chuyển khoản.");
@@ -212,34 +208,16 @@ public class PaymentUseCaseService implements PaymentUseCase {
     }
 
     @Override
-    public void walletPayment(Booking booking) {
-        WalletLedgerUseCase walletLedgerUseCase = MySpringContext.getBean(WalletLedgerUseCase.class);
-        if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), booking.paymentMethodCode())) {
-            throw new MyResourceNotValid("Booking không thanh toán bằng ví hệ thống.");
-        }
-        Wallet wallet = walletUseCase.findByAccountId(DomainKey.of(booking.accountId()))
-                .orElseThrow(MyResourceNotFoundException::new);
-        if (wallet.balance() < booking.totalPrice()) {
-            throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục booking."
-                    .formatted(booking.totalPrice() - wallet.balance()));
-        }
-        Transaction transaction = Transaction.builder()
-                .bookingId(booking.bookingId())
-                .walletId(booking.walletId())
-                .amount(booking.totalPrice())
-                .paymentMethodCode(booking.paymentMethodCode())
-                .paymentMethodName(booking.paymentMethodName())
-                .paymentTypeCode(EPaymentType.BOOKING_PAYMENT.getCode())
-                .paymentTypeName(EPaymentType.BOOKING_PAYMENT.getName())
-                .build();
-        Transaction savedTransaction = transactionUseCase.save(transaction);
-        WalletLedger walletLedger = WalletLedger.builder()
-                .walletId(wallet.walletId())
-                .transactionId(savedTransaction.transactionId())
-                .changeAmount(-booking.totalPrice())
-                .chargedCommission(0)
-                .build();
-        walletLedgerUseCase.save(walletLedger);
+    @Transactional
+    public void walletPaymentForBooking(Booking booking) {
+        transactionUseCase.handlePaymentWallet(booking);
+
+    }
+
+    @Override
+    @Transactional
+    public void walletPaymentForMatchMaking(MatchMaking matchMaking) {
+        transactionUseCase.handlePaymentWallet(matchMaking);
     }
 
     private List<PaymentRequest.ItemRequest> fromBooking(Booking booking) {

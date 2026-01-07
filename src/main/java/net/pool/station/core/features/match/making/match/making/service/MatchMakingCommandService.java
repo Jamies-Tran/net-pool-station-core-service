@@ -33,12 +33,13 @@ public class MatchMakingCommandService {
         return mapper.toDto(savedMatchMaking);
     }
 
-    protected void update(Long matchMakingId, MatchMaking matchMaking) {
+    protected MatchMaking update(Long matchMakingId, MatchMaking matchMaking) {
         MatchMakingEntity foundMatchMaking = repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
                 .orElseThrow(MyResourceNotFoundException::new);
         mapper.update(foundMatchMaking, matchMaking);
+        MatchMakingEntity savedMatchMaking = repository.save(foundMatchMaking);
 
-        repository.save(foundMatchMaking);
+        return mapper.toDto(savedMatchMaking);
     }
 
     protected void delete(Long matchMakingId) {
@@ -69,7 +70,7 @@ public class MatchMakingCommandService {
                         foundMatchMaking -> {
                             if (LocalDate.now().isAfter(foundMatchMaking.getExpiredAt())) {
                                 switch (EMatchMakingStatus.valueOf(foundMatchMaking.getStatusCode())) {
-                                    case PENDING -> {
+                                    case PENDING, DRAFT -> {
                                         foundMatchMaking.setStatusCode(EMatchMakingStatus.CANCEL.getCode());
                                         foundMatchMaking.setStatusName(EMatchMakingStatus.CANCEL.getName());
                                         repository.save(foundMatchMaking);

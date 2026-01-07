@@ -79,4 +79,11 @@ public class MatchMakingController implements MatchMakingApi {
 
         return MyValueResponse.success(paymentResponseMapper.toModel(payment));
     }
+
+    @Override
+    public MyValueResponse<?> walletPayment(Long matchMakingId) {
+        matchMakingUseCase.walletPayment(DomainKey.of(matchMakingId));
+
+        return MyValueResponse.successNoData();
+    }
 }

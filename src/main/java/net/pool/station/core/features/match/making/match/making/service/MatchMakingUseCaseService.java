@@ -9,6 +9,7 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.match.making.MatchMaking;
 import net.pool.station.core.domain.match.making.MatchMakingCriteria;
 import net.pool.station.core.domain.match.making.MatchMakingUseCase;
@@ -18,6 +19,7 @@ import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlotUseCase;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
+import net.pool.station.core.domain.notification.NotificationUseCase;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
@@ -29,6 +31,7 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -62,6 +65,10 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     Scheduler scheduler;
 
+    NotificationUseCase notificationUseCase;
+
+    AccountUseCase accountUseCase;
+
     @Override
     @Transactional
     public Long save(MatchMaking matchMaking) {
@@ -80,11 +87,11 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     private void setupSchedule(MatchMaking matchMaking) {
         try {
             JobDetail endMatchMakingDetail = JobBuilder.newJob(ExpiredMatchMakingJob.class)
-                    .withIdentity("endMatchMaking_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
+                    .withIdentity("endMatchMakingJobDetail_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
                     .usingJobData("matchMakingId", matchMaking.matchMakingId())
                     .build();
             Trigger endMatchMakingTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity("endMatchMaking_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
+                    .withIdentity("endMatchMakingTrigger_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
                     .startAt(Timestamp.valueOf(matchMaking.expiredAt().atStartOfDay()))
                     .build();
             Map<JobDetail, Set<? extends Trigger>> jobAndTrigger = new LinkedHashMap<>();
@@ -99,15 +106,32 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional
     public void update(DomainKey<Long> matchMakingId, MatchMaking matchMaking) {
-        commandService.update(matchMakingId.value(), matchMaking);
+        MatchMaking savedMatchMaking = commandService.update(matchMakingId.value(), matchMaking);
+
+        updateSchedule(savedMatchMaking);
+    }
+
+    private void updateSchedule(MatchMaking matchMaking) {
+        try {
+            TriggerKey triggerKey = TriggerKey.triggerKey("endMatchMakingTrigger_%s".formatted(matchMaking.matchMakingId()),
+                    "matchMaking");
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(triggerKey)
+                    .startAt(Timestamp.valueOf(matchMaking.expiredAt().atStartOfDay()))
+                    .build();
+            scheduler.rescheduleJob(triggerKey, trigger);
+        } catch (Exception e) {
+            log.error("[MatchMakingUseCaseService.updateSchedule(...)] message: {}", e.getMessage(), e);
+        }
     }
 
     @Override
     @Transactional
     public void process(DomainKey<Long> matchMakingId) {
-        MatchMaking matchMaking = commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING);
+        MatchMaking matchMaking = commandService
+                .updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING);
         List<MatchParticipant> matchParticipantEmptyList = MatchParticipant
-                .ofEmptyList(matchMaking.limitParticipant());
+                .ofEmptyList(matchMaking.limitParticipant(), Long.parseLong(matchMaking.createdBy()));
 
         matchParticipantUseCase.save(DomainKey.of(matchMaking.matchMakingId()), matchParticipantEmptyList);
     }
@@ -153,8 +177,13 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
                     List<MatchMakingSlot> slots = slotUseCase
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
+                    List<MatchParticipant> participants = matchParticipantUseCase
+                            .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
+                    Schedule schedule = scheduleUseCase.findById(DomainKey.of(m.scheduleId()))
+                            .orElseThrow(MyResourceNotFoundException::new);
 
-                    return m.withResources(resources).withSlots(slots).withWalletId(walletId);
+                    return m.withResources(resources).withSlots(slots).withWalletId(walletId)
+                            .withStartAt(schedule.date()).withParticipants(participants);
                 });
     }
 
@@ -169,5 +198,12 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     public Optional<Payment> generatePayment(DomainKey<Long> matchMakingId) {
         return findById(matchMakingId)
                 .map(paymentUseCase::createFromMatchMaking);
+    }
+
+    @Override
+    @Transactional
+    public void walletPayment(DomainKey<Long> matchMakingId) {
+        MatchMaking matchMaking = findById(matchMakingId).orElseThrow(MyResourceNotFoundException::new);
+        paymentUseCase.walletPaymentForMatchMaking(matchMaking);
     }
 }

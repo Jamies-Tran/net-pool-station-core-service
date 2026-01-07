@@ -11,5 +11,7 @@ public interface PaymentUseCase {
 
     Payment createFromMatchMaking(MatchMaking matchMaking);
 
-    void walletPayment(Booking booking);
+    void walletPaymentForBooking(Booking booking);
+
+    void walletPaymentForMatchMaking(MatchMaking matchMaking);
 }

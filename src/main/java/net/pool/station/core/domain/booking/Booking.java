@@ -12,7 +12,6 @@ import java.util.List;
 
 public record Booking(
         Long bookingId,
-        @With Long accountId,
         @With Long walletId,
         Long stationResourceId,
         Long scheduleId,
@@ -31,7 +30,8 @@ public record Booking(
         @With Schedule schedule,
         @With StationResource stationResource,
         @With List<BookingMenu> bookingMenus,
-        @With List<BookingSlot> bookingSlots
+        @With List<BookingSlot> bookingSlots,
+        String createdBy
 ) {
     public Booking {
         if (MyObjectUtils.isNotEmpty(stationResource)

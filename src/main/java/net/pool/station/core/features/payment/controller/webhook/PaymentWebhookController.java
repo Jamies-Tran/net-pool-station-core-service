@@ -7,11 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
-import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.features.payment.controller.webhook.models.PaymentWebhookRequest;
 import net.pool.station.core.features.payment.controller.webhook.models.PaymentWebhookRequestMapper;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -30,7 +28,7 @@ public class PaymentWebhookController implements PaymentWebhookApi {
             return MyValueResponse.successNoData();
         }
 
-        transactionUseCase.update(DomainKey.of(request.data().orderCode()), requestMapper.toDto(request.data()));
+        transactionUseCase.handlePaymentWebhook(DomainKey.of(request.data().orderCode()), requestMapper.toDto(request.data()));
 
         return MyValueResponse.successNoData();
     }
