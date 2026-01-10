@@ -43,4 +43,10 @@ public interface CategoryPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search
     );
+
+    @GetMapping("/interval-type")
+    MyListResponse<CategoryResponse> findIntervalTypeCategory(
+            @RequestParam(required = false, value = "search", defaultValue = "")
+            String search
+    );
 }
