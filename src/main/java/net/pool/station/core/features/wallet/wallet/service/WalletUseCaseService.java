@@ -11,6 +11,7 @@ import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,6 +39,12 @@ public class WalletUseCaseService implements WalletUseCase {
     public void updateBalance(DomainKey<Long> walletId, WalletLedger walletLedger) {
         commandService.updateBalance(walletId.value(), walletLedger.newBalance(),
                 walletLedger.newContributedCommission());
+    }
+
+    @Override
+    @Transactional
+    public void updateBalance(List<WalletLedger> walletLedgers) {
+        commandService.updateBalance(walletLedgers);
     }
 
     @Override

@@ -15,6 +15,7 @@ import net.pool.station.core.features.station.station.repository.database.Statio
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,18 +30,16 @@ public class StationCommandService {
         return repository.save(mapper.toEntity(station)).getStationId();
     }
 
-    protected void update(Long stationId, Station station) {
-        repository.findByStationId(stationId)
-                .ifPresentOrElse(
-                        foundStation -> {
-                            validate(foundStation, station);
-                            mapper.update(foundStation, station);
-                            repository.save(foundStation);
-                        },
-                        () -> {
-                            throw new MyResourceNotFoundException();
-                        }
-                );
+    protected Station update(Long stationId, Station station) {
+        Optional<StationEntity> entity = repository.findByStationId(stationId);
+        return entity
+                .map(foundStation -> {
+                    validate(foundStation, station);
+                    mapper.update(foundStation, station);
+
+                    return mapper.toDto(repository.save(foundStation));
+                })
+                .orElseThrow(MyResourceNotFoundException::new);
     }
 
     protected void delete(Long stationId) {
@@ -63,11 +62,9 @@ public class StationCommandService {
                         foundStation -> {
                             if (MyObjectUtils.isNotEmpty(rejectReason)
                                     && MyObjectUtils.isEquals(EStationStatus.REJECT, status)) {
-                                Station.Metadata metadata = Station.Metadata.builder()
-                                        .rejectReason(rejectReason)
-                                        .rejectAt(LocalDateTime.now())
-                                        .build();
-                                foundStation.setMetadata(metadata);
+
+                                foundStation.setRejectReason(rejectReason);
+                                foundStation.setRejectAt(LocalDateTime.now());
                             }
                             foundStation.setStatusCode(status.getCode());
                             foundStation.setStatusName(status.getName());

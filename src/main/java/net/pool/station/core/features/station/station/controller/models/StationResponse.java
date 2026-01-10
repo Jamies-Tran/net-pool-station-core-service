@@ -5,6 +5,7 @@ import lombok.With;
 import net.pool.station.core.domain.media.Media;
 import net.pool.station.core.domain.station.Station;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -22,7 +23,8 @@ public record StationResponse(
         Double distance,
         String hotline,
         List<Media> media,
-        Station.Metadata metadata,
+        String rejectReason,
+        LocalDateTime rejectAt,
         String statusCode,
         String statusName
 ) {

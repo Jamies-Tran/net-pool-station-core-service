@@ -37,7 +37,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
                             AND bs IS NOT NULL AND t.timeSlotId = bs.bookingSlotId.timeSlotId) OR
                          (m IS NOT NULL AND m.statusCode IN ('PENDING', 'STARTED', 'DRAFT') 
                                  AND ms IS NOT NULL AND t.timeSlotId = ms.id.timeSlotId) THEN FALSE 
-                    WHEN (bs IS NULL AND sc.date <= CURRENT_DATE AND t.end < CURRENT_TIME) THEN FALSE
+                    WHEN (bs IS NULL AND (sc.date <= CURRENT_DATE OR t.end < CURRENT_TIME)) THEN FALSE
                     ELSE TRUE 
                 END AS allowBooking      
         FROM StationResourceEntity sr

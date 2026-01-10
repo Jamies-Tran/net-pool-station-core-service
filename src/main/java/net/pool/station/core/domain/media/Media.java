@@ -1,6 +1,7 @@
 package net.pool.station.core.domain.media;
 
 import lombok.Builder;
+import lombok.With;
 import net.pool.station.core.bootstrap.enums.EMediaType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import org.apache.tika.Tika;
@@ -12,6 +13,8 @@ import java.util.stream.Stream;
 
 @Builder
 public record Media(
+        Long mediaId,
+        @With Long stationId,
         String url,
         String mediaTypeCode,
         String mediaTypeName

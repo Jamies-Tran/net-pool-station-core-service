@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface WalletLedgerRepository extends JpaRepository<WalletLedgerEntity, Long> {
     @Query("""
@@ -18,6 +20,16 @@ public interface WalletLedgerRepository extends JpaRepository<WalletLedgerEntity
         WHERE w.walletId = :walletId
         """)
     CurrentBalanceAndCommissionDao findCurrentBalanceByWalletId(Long walletId);
+
+    @Query("""
+        SELECT 
+                w.walletId AS walletId,
+                w.balance AS currentBalance,
+                w.contributedCommission AS currentContributedCommission
+        FROM WalletEntity w
+        WHERE w.walletId IN :walletIds
+        """)
+    List<CurrentBalanceAndCommissionDao> findCurrentBalanceByWalletIdIn(List<Long> walletIds);
 
     @Query("""
         SELECT wl

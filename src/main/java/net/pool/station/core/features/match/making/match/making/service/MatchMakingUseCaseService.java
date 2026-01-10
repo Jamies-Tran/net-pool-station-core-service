@@ -171,7 +171,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     public Optional<MatchMaking> findById(DomainKey<Long> matchMakingId) {
         return queryService.findById(matchMakingId.value())
                 .map(m -> {
-                    Long walletId = queryService.findOwnerWalletIdByStationId(m.stationId())
+                    Long ownerWalletId = queryService.findOwnerWalletIdByStationId(m.stationId())
                             .orElseThrow(MyResourceNotFoundException::new);
                     List<MatchMakingResource> resources = resourceUseCase
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
@@ -182,7 +182,10 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                     Schedule schedule = scheduleUseCase.findById(DomainKey.of(m.scheduleId()))
                             .orElseThrow(MyResourceNotFoundException::new);
 
-                    return m.withResources(resources).withSlots(slots).withWalletId(walletId)
+                    return m
+                            .withResources(resources)
+                            .withSlots(slots)
+                            .withOwnerWalletId(ownerWalletId)
                             .withStartAt(schedule.date()).withParticipants(participants);
                 });
     }

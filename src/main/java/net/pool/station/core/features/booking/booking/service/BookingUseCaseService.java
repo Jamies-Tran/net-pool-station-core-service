@@ -41,6 +41,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -80,7 +81,9 @@ public class BookingUseCaseService implements BookingUseCase {
     public void save(Booking booking) {
         Booking savedBooking = commandService.save(booking);
         DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
-        bookingMenuUseCase.save(bookingId, booking.bookingMenus());
+        if (MyObjectUtils.isNotEmpty(booking.bookingMenus())) {
+            bookingMenuUseCase.save(bookingId, booking.bookingMenus());
+        }
         bookingSlotUseCase.save(bookingId, booking.bookingSlots());
         if (MyObjectUtils.isEquals(EBookingStatus.NEW.getCode(), savedBooking.statusCode())) {
             scheduleBooking(savedBooking);
@@ -113,7 +116,7 @@ public class BookingUseCaseService implements BookingUseCase {
                             .findAllByBookingId(DomainKey.of(booking.bookingId()));
 
                     return booking
-                            .withWalletId(stationOwnerWalletId)
+                            .withOwnerWalletId(stationOwnerWalletId)
                             .withSchedule(schedule)
                             .withStationResource(stationResource)
                             .withBookingMenus(bookingMenus)
@@ -206,7 +209,7 @@ public class BookingUseCaseService implements BookingUseCase {
         int totalPrice = resourcePrice + menuPrice;
         return completedBooking
                 .withTotalPrice(totalPrice)
-                .withWalletId(stationOwnerWalletId)
+                .withOwnerWalletId(stationOwnerWalletId)
                 .withSchedule(schedule)
                 .withStationResource(stationResource)
                 .withBookingMenus(bookingMenus)

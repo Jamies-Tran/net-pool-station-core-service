@@ -14,6 +14,8 @@ import net.pool.station.core.domain.logging.factory.LoggingFactory;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.map.place.PlaceUseCase;
 import net.pool.station.core.domain.map.place.detail.PlaceDetail;
+import net.pool.station.core.domain.media.Media;
+import net.pool.station.core.domain.media.MediaUseCase;
 import net.pool.station.core.domain.station.Station;
 import net.pool.station.core.domain.station.StationCriteria;
 import net.pool.station.core.domain.station.StationUseCase;
@@ -21,13 +23,17 @@ import net.pool.station.core.domain.station.account.StationAccount;
 import net.pool.station.core.domain.station.account.StationAccountId;
 import net.pool.station.core.domain.station.account.StationAccountUseCase;
 import net.pool.station.core.domain.station.log.StationLog;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,6 +50,8 @@ public class StationUseCaseService implements StationUseCase {
 
     PlaceUseCase placeUseCase;
 
+    MediaUseCase mediaUseCase;
+
     @Override
     @Transactional
     public void save(Station station) {
@@ -52,6 +60,7 @@ public class StationUseCaseService implements StationUseCase {
         Long savedId = commandService.save(station
                 .withLatitude(location.latitude())
                 .withLongitude(location.longitude()));
+        mediaUseCase.saveAll(DomainKey.of(savedId), station.media());
         LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
                 .orElseThrow(MyAuthenticationException::new);
         if (MyObjectUtils.isNotEquals(loginInfo.roleCode(), ERole.STATION_OWNER.getCode())) {
@@ -72,13 +81,24 @@ public class StationUseCaseService implements StationUseCase {
     @Override
     @Transactional(readOnly = true)
     public Optional<Station> findById(DomainKey<Long> stationId) {
-        return queryService.findById(stationId.value());
+        return queryService.findById(stationId.value())
+                .map(s -> {
+                    List<Media> medias = mediaUseCase.findAllByStationId(DomainKey.of(s.stationId()));
+                    return s.withMedia(medias);
+                });
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Station> findAll(StationCriteria criteria, PageRequest pageRequest) {
-        return queryService.findAll(criteria, pageRequest);
+        Page<Station> stations = queryService.findAll(criteria, pageRequest);
+        List<Long> stationIds = stations.stream().map(Station::stationId).toList();
+        Map<Long, List<Media>> stationMediaMap = mediaUseCase.findAllByStationIdIn(stationIds)
+                .stream()
+                .collect(Collectors.groupingBy(Media::stationId));
+
+        return stations.map(s -> s.withMedia(stationMediaMap
+                .computeIfAbsent(s.stationId(), k -> List.of())));
     }
 
     @Override
@@ -86,9 +106,10 @@ public class StationUseCaseService implements StationUseCase {
     public void update(DomainKey<Long> stationId, Station station) {
         PlaceDetail.Result placeDetail = placeDetail(station.placeId());
         PlaceDetail.Result.Geometry.Location location = placeDetail.geometry().location();
-        commandService.update(stationId.value(), station
+        Station updatedStation = commandService.update(stationId.value(), station
                 .withLatitude(location.latitude())
                 .withLongitude(location.longitude()));
+        mediaUseCase.saveAll(DomainKey.of(updatedStation.stationId()), station.media());
 
         loggingService.log(StationLog.createUpdate(stationId.value()));
     }

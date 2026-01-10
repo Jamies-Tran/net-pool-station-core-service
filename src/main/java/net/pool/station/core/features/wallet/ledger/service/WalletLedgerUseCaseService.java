@@ -34,6 +34,13 @@ public class WalletLedgerUseCaseService implements WalletLedgerUseCase {
     }
 
     @Override
+    @Transactional
+    public void saveAll(List<WalletLedger> walletLedgers) {
+        List<WalletLedger> savedWalletLedgers = commandService.saveAll(walletLedgers);
+        walletUseCase.updateBalance(savedWalletLedgers);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Page<WalletLedger> findAll(WalletLedgerCriteria criteria, PageRequest pageRequest) {
         return queryService.findAll(criteria, pageRequest);

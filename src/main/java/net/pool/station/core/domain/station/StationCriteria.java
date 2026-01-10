@@ -86,20 +86,6 @@ public record StationCriteria(
                                      Double latitude,
                                      Double longitude,
                                      String gameName,
-                                     String pcCpu,
-                                     String pcRam,
-                                     String pcGpu,
-                                     String pcMonitor,
-                                     String pcKeyboard,
-                                     String pcMouse,
-                                     String pcHeadphone,
-                                     String btTableDetail,
-                                     String btCueDetail,
-                                     String btBallDetail,
-                                     String csConsoleModel,
-                                     String csTvModel,
-                                     String csControllerType,
-                                     Integer csControllerCount,
                                      List<String> statusCodes) {
         return StationCriteria.builder()
                 .search(search)
@@ -107,20 +93,6 @@ public record StationCriteria(
                 .commune(commune)
                 .district(district)
                 .gameName(gameName)
-                .pcCpu(pcCpu)
-                .pcRam(pcRam)
-                .pcGpu(pcGpu)
-                .pcMonitor(pcMonitor)
-                .pcKeyboard(pcKeyboard)
-                .pcMouse(pcMouse)
-                .pcHeadphone(pcHeadphone)
-                .btTableDetail(btTableDetail)
-                .btCueDetail(btCueDetail)
-                .btBallDetail(btBallDetail)
-                .csConsoleModel(csConsoleModel)
-                .csTvModel(csTvModel)
-                .csControllerType(csControllerType)
-                .csControllerCount(csControllerCount)
                 .statusCodes(statusCodes)
                 .latitude(latitude)
                 .longitude(longitude)

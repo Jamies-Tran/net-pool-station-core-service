@@ -140,7 +140,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
                 .data();
         Transaction transaction = Transaction.builder()
                 .bookingId(booking.bookingId())
-                .walletId(booking.walletId())
+                .walletId(booking.ownerWalletId())
                 .transactionCode(paymentResponse.orderCode())
                 .amount(paymentResponse.amount())
                 .currency(paymentResponse.currency())
@@ -180,7 +180,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
                 .data();
         Transaction transaction = Transaction.builder()
                 .matchMakingId(matchMaking.matchMakingId())
-                .walletId(matchMaking.walletId())
+                .walletId(matchMaking.ownerWalletId())
                 .transactionCode(paymentResponse.orderCode())
                 .amount(paymentResponse.amount())
                 .currency(paymentResponse.currency())

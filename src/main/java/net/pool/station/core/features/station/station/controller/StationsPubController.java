@@ -59,20 +59,6 @@ public class StationsPubController implements StationsPubApi {
                 latitude,
                 longitude,
                 gameName,
-                pcCpu,
-                pcRam,
-                pcGpu,
-                pcMonitor,
-                pcKeyboard,
-                pcMouse,
-                pcHeadphone,
-                btTableDetail,
-                btCueDetail,
-                btBallDetail,
-                csConsoleModel,
-                csTvModel,
-                csControllerType,
-                csControllerCount,
                 statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<StationResponse> responses = stationUseCase.findAll(criteria, pageRequest)

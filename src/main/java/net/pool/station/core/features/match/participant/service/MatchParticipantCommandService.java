@@ -14,7 +14,9 @@ import net.pool.station.core.features.match.participant.repository.database.Matc
 import net.pool.station.core.features.match.participant.repository.database.MatchParticipantRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,18 +54,34 @@ public class MatchParticipantCommandService {
         repository.findById(matchParticipantId)
                 .ifPresentOrElse(
                         matchParticipant -> {
-                            if (MyObjectUtils.isEquals(matchParticipant.getTypeCode(),
-                                    EMatchParticipantType.HOST.getCode())) {
-                                throw new MyResourceNotValid("Không thể kick chủ phòng");
-                            }
-
+                            List<MatchParticipantEntity> savedList = new ArrayList<>();
                             matchParticipant.setAccountId(null);
                             matchParticipant.setTypeCode(null);
                             matchParticipant.setTypeName(null);
                             matchParticipant.setStatusCode(EMatchParticipantStatus.EMPTY.getCode());
                             matchParticipant.setStatusName(EMatchParticipantStatus.EMPTY.getName());
+                            savedList.add(matchParticipant);
+                            if (MyObjectUtils.isEquals(matchParticipant.getTypeCode(),
+                                    EMatchParticipantType.HOST.getCode())) {
+                                Optional<MatchParticipantEntity> participantOptional = repository
+                                        .findAllByMatchMakingIdAndStatusCode(matchParticipant.getMatchParticipantId(),
+                                                EMatchParticipantStatus.FILLED.getCode())
+                                        .stream()
+                                        .filter(m -> MyObjectUtils
+                                                .isNotEquals(m.getMatchParticipantId(), matchParticipant
+                                                        .getMatchParticipantId()))
+                                        .findAny();
+                                if (participantOptional.isPresent()) {
+                                    MatchParticipantEntity participant = participantOptional.get();
+                                    participant.setTypeCode(EMatchParticipantType.HOST.getCode());
+                                    participant.setTypeName(EMatchParticipantType.HOST.getName());
+                                    savedList.add(participant);
+                                } else {
+                                    throw new MyResourceNotValid("Không còn thành viên nào trong phòng, chỉ có thể hủy.");
+                                }
+                            }
 
-                            repository.save(matchParticipant);
+                            repository.saveAll(savedList);
                         },
                         MyResourceNotFoundException::new
                 );

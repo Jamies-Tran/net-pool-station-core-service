@@ -56,13 +56,9 @@ public class StationEntity extends Auditor {
 
     String hotline;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    List<Media> media;
+    String rejectReason;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    Station.Metadata metadata;
+    LocalDateTime rejectAt;
 
     Double latitude;
 
@@ -85,9 +81,9 @@ public class StationEntity extends Auditor {
             stationCode = "ST_%s".formatted(UUID.randomUUID().toString());
         }
 
-        metadata = Optional.ofNullable(metadata).orElse(Station.Metadata.empty());
-
-        media = Optional.ofNullable(media).orElse(List.of());
+//        metadata = Optional.ofNullable(metadata).orElse(Station.Metadata.empty());
+//
+//        media = Optional.ofNullable(media).orElse(List.of());
 
         deleted = false;
     }

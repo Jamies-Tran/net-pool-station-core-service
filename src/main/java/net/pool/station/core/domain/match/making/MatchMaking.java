@@ -1,8 +1,6 @@
 package net.pool.station.core.domain.match.making;
 
-import lombok.Builder;
 import lombok.With;
-import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
@@ -22,7 +20,7 @@ public record MatchMaking(
         Long stationId,
         Long gameId,
         Long scheduleId,
-        @With Long walletId,
+        @With Long ownerWalletId,
         String matchMakingCode,
         Integer numberOfHoldingDay,
         Integer limitParticipant,

@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface WalletLedgerUseCase {
     void save(WalletLedger walletLedger);
 
+    void saveAll(List<WalletLedger> walletLedgers);
+
     Page<WalletLedger> findAll(WalletLedgerCriteria criteria, PageRequest pageRequest);
 
     Optional<WalletLedger> findById(DomainKey<Long> walletLedgerId);

@@ -1,6 +1,5 @@
 package net.pool.station.core.features.transaction.service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,7 +26,6 @@ import net.pool.station.core.domain.wallet.WalletUseCase;
 import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -35,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -90,15 +89,15 @@ public class TransactionUseCaseService implements TransactionUseCase {
         if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), booking.paymentMethodCode())) {
             throw new MyResourceNotValid("Booking không thanh toán bằng ví hệ thống.");
         }
-        Wallet wallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(booking.createdBy())))
+        Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(booking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
-        if (wallet.balance() < booking.totalPrice()) {
+        if (playerWallet.balance() < booking.totalPrice()) {
             throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục booking."
-                    .formatted(booking.totalPrice() - wallet.balance()));
+                    .formatted(booking.totalPrice() - playerWallet.balance()));
         }
         Transaction transaction = Transaction.builder()
                 .bookingId(booking.bookingId())
-                .walletId(booking.walletId())
+                .walletId(booking.ownerWalletId())
                 .amount(booking.totalPrice())
                 .paymentMethodCode(booking.paymentMethodCode())
                 .paymentMethodName(booking.paymentMethodName())
@@ -106,13 +105,19 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .paymentTypeName(EPaymentType.BOOKING_PAYMENT.getName())
                 .build();
         Transaction savedTransaction = commandService.save(transaction);
-        WalletLedger walletLedger = WalletLedger.builder()
-                .walletId(wallet.walletId())
+        WalletLedger playerWalletLedger = WalletLedger.builder()
+                .walletId(playerWallet.walletId())
                 .transactionId(savedTransaction.transactionId())
                 .changeAmount(-booking.totalPrice())
                 .chargedCommission(0)
                 .build();
-        walletLedgerUseCase.save(walletLedger);
+        WalletLedger ownerWalletLedger = WalletLedger.builder()
+                .walletId(booking.ownerWalletId())
+                .transactionId(savedTransaction.transactionId())
+                .changeAmount(booking.totalPrice())
+                .chargedCommission(calculateCommission(booking.totalPrice()))
+                .build();
+        walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
         bookingUseCase().processed(new DomainKey<>(booking.bookingId()));
     }
 
@@ -122,16 +127,16 @@ public class TransactionUseCaseService implements TransactionUseCase {
         if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), matchMaking.paymentMethodCode())) {
             throw new MyResourceNotValid("Phòng ghép trận không thanh toán bằng ví hệ thống.");
         }
-        Wallet wallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(matchMaking.createdBy())))
+        Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(matchMaking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
         Integer deposit = calculateDeposit(matchMaking);
-        if (wallet.balance() < deposit) {
+        if (playerWallet.balance() < deposit) {
             throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục."
-                    .formatted(deposit - wallet.balance()));
+                    .formatted(deposit - playerWallet.balance()));
         }
         Transaction transaction = Transaction.builder()
                 .matchMakingId(matchMaking.matchMakingId())
-                .walletId(matchMaking.walletId())
+                .walletId(matchMaking.ownerWalletId())
                 .amount(deposit)
                 .paymentMethodCode(matchMaking.paymentMethodCode())
                 .paymentMethodName(matchMaking.paymentMethodName())
@@ -139,13 +144,19 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .paymentTypeName(EPaymentType.MATCH_MAKING_DEPOSIT.getName())
                 .build();
         Transaction savedTransaction = commandService.save(transaction);
-        WalletLedger walletLedger = WalletLedger.builder()
-                .walletId(wallet.walletId())
+        WalletLedger playerWalletLedger = WalletLedger.builder()
+                .walletId(playerWallet.walletId())
                 .transactionId(savedTransaction.transactionId())
                 .changeAmount(-deposit)
                 .chargedCommission(0)
                 .build();
-        walletLedgerUseCase.save(walletLedger);
+        WalletLedger ownerWalletLedger = WalletLedger.builder()
+                .walletId(matchMaking.ownerWalletId())
+                .transactionId(savedTransaction.transactionId())
+                .changeAmount(deposit)
+                .chargedCommission(0)
+                .build();
+        walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
         matchMakingUseCase().process(new DomainKey<>(matchMaking.matchMakingId()));
     }
 
@@ -153,7 +164,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Transactional
     public void handlePaymentWebhook(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook) {
         log.info("Received webhook: {}", paymentWebhook);
-        int chargeCommission = 0;
+        int chargeCommission;
         if (MyObjectUtils.isEquals(paymentWebhook.code(), "00")) {
             log.info("Processing transaction");
             Transaction transaction = Transaction.builder()
@@ -167,8 +178,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
             log.info("Transaction updated: {}", savedTransaction);
 
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
+                chargeCommission = calculateCommission(paymentWebhook.amount());
                 if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
-                    chargeCommission = paymentWebhook.amount() * commission / 100;
                     bookingUseCase().processed(new DomainKey<>(savedTransaction.bookingId())  );
                 }
                 if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())) {
@@ -185,6 +196,10 @@ public class TransactionUseCaseService implements TransactionUseCase {
             }
 
         }
+    }
+
+    private Integer calculateCommission(Integer receive) {
+        return receive * commission / 100;
     }
 
     private Integer calculateDeposit(MatchMaking matchMaking) {

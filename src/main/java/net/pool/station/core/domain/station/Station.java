@@ -21,21 +21,10 @@ public record Station(
         @With Double longitude,
         @With Double distance,
         String hotline,
-        List<Media> media,
-        Metadata metadata,
+        @With List<Media> media,
+        String rejectReason,
+        LocalDateTime rejectAt,
         String statusCode,
         String statusName
 ) {
-    @Builder
-    public record Metadata(
-            String rejectReason,
-            LocalDateTime rejectAt
-    ) {
-        public static Metadata empty() {
-            return Metadata.builder()
-                    .rejectReason("")
-                    .rejectAt(null)
-                    .build();
-        }
-    }
 }

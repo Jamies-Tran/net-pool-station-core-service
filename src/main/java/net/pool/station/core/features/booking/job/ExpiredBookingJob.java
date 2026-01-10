@@ -10,21 +10,13 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingUseCase;
-import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.wallet.ledger.WalletLedger;
 import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
-import net.pool.station.core.features.booking.booking.repository.database.BookingEntity;
-import net.pool.station.core.features.booking.booking.repository.database.BookingRepository;
-import net.pool.station.core.features.booking.booking.service.BookingCommandService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -49,7 +41,7 @@ public class ExpiredBookingJob implements Job {
             && MyObjectUtils.isEquals(EBookingStatus.COMPLETED.getCode(), booking.statusCode())) {
             int chargeCommission = booking.totalPrice() * commission/100;
             WalletLedger walletLedger = WalletLedger.builder()
-                    .walletId(booking.walletId())
+                    .walletId(booking.ownerWalletId())
                     .changeAmount(-booking.totalPrice())
                     .chargedCommission(chargeCommission)
                     .build();
