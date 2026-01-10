@@ -116,7 +116,7 @@ public class BookingCommandService {
 
     private void validateChange(BookingEntity booking) {
         if (MyObjectUtils.isNotEquals(booking.getStatusCode(), EBookingStatus.NEW.getCode())) {
-            throw new MyResourceNotValid();
+            throw new MyResourceNotValid("Booking không thể thay đổi ngay lúc này");
         }
     }
 }

@@ -46,14 +46,17 @@ public class TimeSlotQueryService {
     }
 
     protected List<TimeSlot> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId) {
-        Map<Long, Boolean> timeSlotId = repository
+        Map<Long, List<Boolean>> timeSlotId = repository
                 .findAllByScheduleIdAndStationResourceId(scheduleId, stationResourceId).stream()
-                .collect(Collectors.toMap(TimeSlotAllowBookingDao::getTimeSlotId, TimeSlotAllowBookingDao::getAllowBooking));
+                .collect(Collectors.groupingBy(TimeSlotAllowBookingDao::getTimeSlotId, Collectors
+                        .mapping(TimeSlotAllowBookingDao::getAllowBooking, Collectors.toList())));
 
         return repository.findAllById(timeSlotId.keySet())
                 .stream()
                 .map(dao -> mapper
-                        .toDto(dao).withAllowBooking(timeSlotId.computeIfAbsent(dao.getTimeSlotId(), a -> false)))
+                        .toDto(dao).withAllowBooking(timeSlotId.computeIfAbsent(dao.getTimeSlotId(), a -> List.of())
+                                .stream()
+                                .allMatch(c -> c)))
                 .toList();
     }
 
