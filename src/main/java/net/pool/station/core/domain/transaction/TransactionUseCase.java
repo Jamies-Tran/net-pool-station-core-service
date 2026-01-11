@@ -21,4 +21,6 @@ public interface TransactionUseCase {
     void handlePaymentWallet(MatchMaking matchMaking);
 
     void handlePaymentWebhook(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook);
+
+    void handleRefundMatchMaking(MatchMaking matchMaking);
 }

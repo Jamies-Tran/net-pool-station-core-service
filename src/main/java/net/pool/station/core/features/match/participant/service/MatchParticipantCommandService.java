@@ -3,12 +3,16 @@ package net.pool.station.core.features.match.participant.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
+import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
+import net.pool.station.core.domain.match.participant.MatchParticipantCancel;
 import net.pool.station.core.features.match.participant.repository.database.MatchParticipantEntity;
 import net.pool.station.core.features.match.participant.repository.database.MatchParticipantMapper;
 import net.pool.station.core.features.match.participant.repository.database.MatchParticipantRepository;
@@ -50,40 +54,37 @@ public class MatchParticipantCommandService {
 
     }
 
-    protected void empty(Long matchParticipantId) {
-        repository.findById(matchParticipantId)
-                .ifPresentOrElse(
-                        matchParticipant -> {
-                            List<MatchParticipantEntity> savedList = new ArrayList<>();
-                            matchParticipant.setAccountId(null);
-                            matchParticipant.setTypeCode(null);
-                            matchParticipant.setTypeName(null);
-                            matchParticipant.setStatusCode(EMatchParticipantStatus.EMPTY.getCode());
-                            matchParticipant.setStatusName(EMatchParticipantStatus.EMPTY.getName());
-                            savedList.add(matchParticipant);
-                            if (MyObjectUtils.isEquals(matchParticipant.getTypeCode(),
-                                    EMatchParticipantType.HOST.getCode())) {
-                                Optional<MatchParticipantEntity> participantOptional = repository
-                                        .findAllByMatchMakingIdAndStatusCode(matchParticipant.getMatchParticipantId(),
-                                                EMatchParticipantStatus.FILLED.getCode())
-                                        .stream()
-                                        .filter(m -> MyObjectUtils
-                                                .isNotEquals(m.getMatchParticipantId(), matchParticipant
-                                                        .getMatchParticipantId()))
-                                        .findAny();
-                                if (participantOptional.isPresent()) {
-                                    MatchParticipantEntity participant = participantOptional.get();
-                                    participant.setTypeCode(EMatchParticipantType.HOST.getCode());
-                                    participant.setTypeName(EMatchParticipantType.HOST.getName());
-                                    savedList.add(participant);
-                                } else {
-                                    throw new MyResourceNotValid("Không còn thành viên nào trong phòng, chỉ có thể hủy.");
-                                }
-                            }
+    protected MatchParticipantCancel empty(Long matchParticipantId) {
+        return repository.findById(matchParticipantId)
+                .map(matchParticipant -> {
+                    authorizeUpdate(matchParticipant);
+                    if (MyObjectUtils.isEquals(matchParticipant.getTypeCode(), EMatchParticipantType.HOST.getCode())) {
+                        return MatchParticipantCancel.builder()
+                                .isCancel(true)
+                                .matchMakingId(matchParticipant.getMatchMakingId())
+                                .build();
+                    }
+                    matchParticipant.setAccountId(null);
+                    matchParticipant.setTypeCode(null);
+                    matchParticipant.setTypeName(null);
+                    matchParticipant.setStatusCode(EMatchParticipantStatus.EMPTY.getCode());
+                    matchParticipant.setStatusName(EMatchParticipantStatus.EMPTY.getName());
 
-                            repository.saveAll(savedList);
-                        },
-                        MyResourceNotFoundException::new
-                );
+                    repository.save(matchParticipant);
+
+                    return MatchParticipantCancel.builder()
+                            .isCancel(false)
+                            .matchMakingId(matchParticipant.getMatchMakingId())
+                            .build();
+                })
+                .orElseThrow(MyResourceNotFoundException::new);
+    }
+
+    private void authorizeUpdate(MatchParticipantEntity matchParticipant) {
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
+        if (MyObjectUtils.isNotEquals(loginInfo.accountId(), Long.valueOf(matchParticipant.getCreatedBy()))) {
+            throw new MyAuthenticationException("Tài khoản của bạn không thể thực hiện thao tác này");
+        }
     }
 }

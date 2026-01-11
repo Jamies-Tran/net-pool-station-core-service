@@ -11,7 +11,7 @@ public interface MatchParticipantUseCase {
 
     void fillEmptyParticipant(DomainKey<Long> matchMakingId, Long accountId);
 
-    void emptyFilledParticipant(DomainKey<Long> matchParticipantId);
+    MatchParticipantCancel emptyFilledParticipant(DomainKey<Long> matchParticipantId);
 
     List<MatchParticipant> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
 

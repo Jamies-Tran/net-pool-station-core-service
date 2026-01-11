@@ -13,6 +13,7 @@ import net.pool.station.core.bootstrap.enums.EPaymentType;
 import net.pool.station.core.bootstrap.rest.response.PayOsResponse;
 import net.pool.station.core.bootstrap.utils.MyPaymentEncryptionUtils;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.bootstrap.utils.MyPaymentUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
@@ -64,9 +65,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
     @Value("${environment.payOs.returnUrl}")
     String returnUrl;
 
-    @NonFinal
-    @Value("${environment.deposit.percent:30}")
-    Integer deposit;
+
 
     @Override
     @Transactional
@@ -165,7 +164,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
         }
         PaymentRequest paymentRequest = PaymentRequest.builder()
                 .orderCode(System.currentTimeMillis())
-                .amount(calculateDeposit(matchMaking))
+                .amount(MyPaymentUtils.calculateDeposit(matchMaking))
                 .description("Tiền cọc Match making")
                 .buyerName(account.username())
                 .buyerEmail(account.email())
@@ -194,19 +193,6 @@ public class PaymentUseCaseService implements PaymentUseCase {
         return mapper.toDto(paymentResponse);
     }
 
-    private Integer calculateDeposit(MatchMaking matchMaking) {
-        int totalDeposit = matchMaking.totalPrice() * deposit / 100;
-        int numberOfHoldingDay = matchMaking.numberOfHoldingDay();
-        if (numberOfHoldingDay > 1 && numberOfHoldingDay <= 3) {
-            return (int) (totalDeposit * 1.3);
-        }
-        if (numberOfHoldingDay > 3 && numberOfHoldingDay <= 7) {
-            return (int) (totalDeposit * 1.7);
-        }
-
-        return (int) (totalDeposit * 1.0);
-    }
-
     @Override
     @Transactional
     public void walletPaymentForBooking(Booking booking) {
@@ -218,6 +204,12 @@ public class PaymentUseCaseService implements PaymentUseCase {
     @Transactional
     public void walletPaymentForMatchMaking(MatchMaking matchMaking) {
         transactionUseCase.handlePaymentWallet(matchMaking);
+    }
+
+    @Override
+    @Transactional
+    public void refundMatchMakingDeposit(MatchMaking matchMaking) {
+        transactionUseCase.handleRefundMatchMaking(matchMaking);
     }
 
     private List<PaymentRequest.ItemRequest> fromBooking(Booking booking) {

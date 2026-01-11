@@ -8,7 +8,9 @@ import net.pool.station.core.features.match.making.match.making.controller.model
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,4 +47,8 @@ public interface MatchMakingsApi {
             @RequestParam(required = false, value = "pageSize", defaultValue = "25")
             Integer pageSize
     );
+
+    @PutMapping("/participant/empty/{matchParticipantId}")
+    @PreAuthorize("hasRole('ROLE_PLAYER')")
+    MyValueResponse<?> emptyParticipant(@PathVariable Long matchParticipantId);
 }

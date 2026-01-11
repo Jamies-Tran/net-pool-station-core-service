@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.enums.EPaymentType;
 import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionCriteria;
 import net.pool.station.core.features.transaction.repository.database.TransactionEntityMapper;
@@ -24,6 +25,11 @@ public class TransactionQueryService {
 
     protected Optional<Transaction> findByTransactionCode(String transactionCode) {
         return repository.findByTransactionCode(transactionCode)
+                .map(mapper::toDto);
+    }
+
+    protected Optional<Transaction> findByMatchMakingIdAndPaymentType(Long matchMakingId, EPaymentType paymentType) {
+        return repository.findByMatchMakingIdAndPaymentTypeCode(matchMakingId, paymentType.getCode())
                 .map(mapper::toDto);
     }
 

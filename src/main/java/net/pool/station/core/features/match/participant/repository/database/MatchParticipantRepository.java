@@ -30,4 +30,11 @@ public interface MatchParticipantRepository extends JpaRepository<MatchParticipa
                 OR mp.statusCode IN :#{#criteria.statusCodes()})
         """)
     Page<MatchParticipantEntity> findAll(MatchParticipantCriteria criteria, Pageable pageable);
+
+    @Query("""
+        SELECT mp
+        FROM MatchParticipantEntity mp
+        
+        """)
+    Boolean existsByHostId(String accountId);
 }

@@ -31,4 +31,6 @@ public interface MatchMakingUseCase {
     Optional<Payment> generatePayment(DomainKey<Long> matchMakingId);
 
     void walletPayment(DomainKey<Long> matchMakingId);
+
+    void emptyParticipant(DomainKey<Long> matchParticipantId);
 }

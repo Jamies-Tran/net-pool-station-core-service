@@ -18,12 +18,14 @@ import net.pool.station.core.domain.match.making.resource.MatchMakingResourceUse
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlotUseCase;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
+import net.pool.station.core.domain.match.participant.MatchParticipantCancel;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
 import net.pool.station.core.domain.notification.NotificationUseCase;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
+import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.domain.wallet.WalletUseCase;
 import net.pool.station.core.features.match.making.job.ExpiredMatchMakingJob;
 import org.quartz.JobBuilder;
@@ -145,7 +147,12 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional
     public void cancel(DomainKey<Long> matchMakingId) {
-        commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.CANCEL);
+        MatchMaking matchMaking = commandService
+                .updateStatus(matchMakingId.value(), EMatchMakingStatus.CANCEL);
+        Long ownerWalletId = queryService.findOwnerWalletIdByStationId(matchMaking.stationId())
+                .orElseThrow(MyResourceNotFoundException::new);
+
+        paymentUseCase.refundMatchMakingDeposit(matchMaking.withOwnerWalletId(ownerWalletId));
     }
 
     @Override
@@ -208,5 +215,15 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     public void walletPayment(DomainKey<Long> matchMakingId) {
         MatchMaking matchMaking = findById(matchMakingId).orElseThrow(MyResourceNotFoundException::new);
         paymentUseCase.walletPaymentForMatchMaking(matchMaking);
+    }
+
+    @Override
+    @Transactional
+    public void emptyParticipant(DomainKey<Long> matchParticipantId) {
+        MatchParticipantCancel participantCancel = matchParticipantUseCase.emptyFilledParticipant(matchParticipantId);
+
+        if (participantCancel.isCancel()) {
+            cancel(DomainKey.of(participantCancel.matchMakingId()));
+        }
     }
 }

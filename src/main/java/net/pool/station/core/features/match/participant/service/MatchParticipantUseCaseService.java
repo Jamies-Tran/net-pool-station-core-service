@@ -8,6 +8,7 @@ import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
+import net.pool.station.core.domain.match.participant.MatchParticipantCancel;
 import net.pool.station.core.domain.match.participant.MatchParticipantCriteria;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
 import org.checkerframework.checker.units.qual.A;
@@ -45,8 +46,8 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
 
     @Override
     @Transactional
-    public void emptyFilledParticipant(DomainKey<Long> matchParticipantId) {
-        commandService.empty(matchParticipantId.value());
+    public MatchParticipantCancel emptyFilledParticipant(DomainKey<Long> matchParticipantId) {
+        return commandService.empty(matchParticipantId.value());
     }
 
     @Override

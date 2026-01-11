@@ -28,4 +28,7 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
                     OR t.statusCode IN :#{#criteria.statusCodes()})
         """)
     Page<TransactionEntity> findAll(TransactionCriteria criteria, Pageable pageable);
+
+    Optional<TransactionEntity> findByMatchMakingIdAndPaymentTypeCode(Long matchMakingId,
+                                                                      String paymentTypeCode);
 }

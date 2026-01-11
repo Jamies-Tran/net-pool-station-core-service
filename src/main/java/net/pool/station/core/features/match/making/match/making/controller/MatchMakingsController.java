@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.match.making.MatchMakingCriteria;
 import net.pool.station.core.domain.match.making.MatchMakingUseCase;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingRequest;
@@ -54,5 +55,12 @@ public class MatchMakingsController implements MatchMakingsApi {
                 .map(responseMapping::toModel);
 
         return MyPageResponse.success(responses);
+    }
+
+    @Override
+    public MyValueResponse<?> emptyParticipant(Long matchParticipantId) {
+        matchMakingUseCase.emptyParticipant(DomainKey.of(matchParticipantId));
+
+        return MyValueResponse.successNoData();
     }
 }

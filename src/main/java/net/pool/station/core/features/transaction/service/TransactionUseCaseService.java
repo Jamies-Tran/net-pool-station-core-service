@@ -11,6 +11,7 @@ import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.enums.EPaymentStatus;
 import net.pool.station.core.bootstrap.enums.EPaymentType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.bootstrap.utils.MyPaymentUtils;
 import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.Booking;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,13 +51,6 @@ public class TransactionUseCaseService implements TransactionUseCase {
 
     WalletUseCase walletUseCase;
 
-    @NonFinal
-    @Value("${environment.deposit.percent:30}")
-    Integer deposit;
-
-    @NonFinal
-    @Value("${environment.commission.percent}")
-    Integer commission;
 
     private BookingUseCase bookingUseCase() {
         return MySpringContext.getBean(BookingUseCase.class);
@@ -115,7 +110,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .walletId(booking.ownerWalletId())
                 .transactionId(savedTransaction.transactionId())
                 .changeAmount(booking.totalPrice())
-                .chargedCommission(calculateCommission(booking.totalPrice()))
+                .chargedCommission(MyPaymentUtils.calculateCommission(booking.totalPrice()))
                 .build();
         walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
         bookingUseCase().processed(new DomainKey<>(booking.bookingId()));
@@ -129,7 +124,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
         }
         Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(matchMaking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
-        Integer deposit = calculateDeposit(matchMaking);
+        Integer deposit = MyPaymentUtils.calculateDeposit(matchMaking);
         if (playerWallet.balance() < deposit) {
             throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục."
                     .formatted(deposit - playerWallet.balance()));
@@ -178,7 +173,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
             log.info("Transaction updated: {}", savedTransaction);
 
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
-                chargeCommission = calculateCommission(paymentWebhook.amount());
+                chargeCommission = MyPaymentUtils.calculateCommission(paymentWebhook.amount());
                 if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
                     bookingUseCase().processed(new DomainKey<>(savedTransaction.bookingId())  );
                 }
@@ -198,20 +193,44 @@ public class TransactionUseCaseService implements TransactionUseCase {
         }
     }
 
-    private Integer calculateCommission(Integer receive) {
-        return receive * commission / 100;
+    @Override
+    @Transactional
+    public void handleRefundMatchMaking(MatchMaking matchMaking) {
+        if (matchMaking.createdAt().until(LocalDateTime.now(), ChronoUnit.DAYS) <= 1) {
+            Optional<Transaction> oldTransactionOpt = queryService
+                    .findByMatchMakingIdAndPaymentType(matchMaking.matchMakingId(),
+                            EPaymentType.MATCH_MAKING_DEPOSIT);
+            if (oldTransactionOpt.isPresent()) {
+                Transaction oldTransaction = oldTransactionOpt.get();
+                Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(matchMaking.createdBy())))
+                        .orElseThrow(MyResourceNotFoundException::new);
+                Transaction transaction = Transaction.builder()
+                        .matchMakingId(matchMaking.matchMakingId())
+                        .walletId(matchMaking.ownerWalletId())
+                        .amount(oldTransaction.amount())
+                        .paymentMethodCode(matchMaking.paymentMethodCode())
+                        .paymentMethodName(matchMaking.paymentMethodName())
+                        .paymentTypeCode(EPaymentType.MATCH_MAKING_DEPOSIT_REFUND.getCode())
+                        .paymentTypeName(EPaymentType.MATCH_MAKING_DEPOSIT_REFUND.getName())
+                        .build();
+                Transaction savedTransaction = commandService.save(transaction);
+                WalletLedger playerWalletLedger = WalletLedger.builder()
+                        .walletId(playerWallet.walletId())
+                        .transactionId(savedTransaction.transactionId())
+                        .changeAmount(savedTransaction.amount())
+                        .chargedCommission(0)
+                        .build();
+                WalletLedger ownerWalletLedger = WalletLedger.builder()
+                        .walletId(matchMaking.ownerWalletId())
+                        .transactionId(savedTransaction.transactionId())
+                        .changeAmount(-savedTransaction.amount())
+                        .chargedCommission(0)
+                        .build();
+                walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
+            }
+
+        }
     }
 
-    private Integer calculateDeposit(MatchMaking matchMaking) {
-        int totalDeposit = matchMaking.totalPrice() * deposit / 100;
-        int numberOfHoldingDay = matchMaking.numberOfHoldingDay();
-        if (numberOfHoldingDay > 1 && numberOfHoldingDay <= 3) {
-            return (int) (totalDeposit * 1.3);
-        }
-        if (numberOfHoldingDay > 3 && numberOfHoldingDay <= 7) {
-            return (int) (totalDeposit * 1.7);
-        }
 
-        return (int) (totalDeposit * 1.0);
-    }
 }

@@ -36,6 +36,7 @@ public record MatchMaking(
         String statusName,
         Integer totalPrice,
         String createdBy,
+        LocalDateTime createdAt,
         @With Boolean allowJoin,
         @With List<MatchMakingSlot> slots,
         @With List<MatchMakingResource> resources,
