@@ -24,9 +24,8 @@ public class MyPaymentUtils {
         MyPaymentUtils.commission = commission;
     }
 
-    public static Integer calculateDeposit(MatchMaking matchMaking) {
-        int totalDeposit = matchMaking.totalPrice() * deposit / 100;
-        int numberOfHoldingDay = matchMaking.numberOfHoldingDay();
+    public static Integer calculateDeposit(Integer totalPrice, Integer numberOfHoldingDay) {
+        int totalDeposit = totalPrice * deposit / 100;
         if (numberOfHoldingDay > 1 && numberOfHoldingDay <= 3) {
             return (int) (totalDeposit * 1.3);
         }

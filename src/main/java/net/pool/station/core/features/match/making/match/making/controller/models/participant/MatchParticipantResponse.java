@@ -9,6 +9,11 @@ public record MatchParticipantResponse(
         Long matchMakingId,
         String typeCode,
         String typeName,
+        String paymentMethodCode,
+        String paymentMethodName,
+        String readyStatusCode,
+        String readyStatusName,
+        Integer shareAmount,
         String statusCode,
         String statusName,
         AccountResponse account

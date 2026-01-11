@@ -124,7 +124,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
         }
         Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(matchMaking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
-        Integer deposit = MyPaymentUtils.calculateDeposit(matchMaking);
+        Integer deposit = MyPaymentUtils.calculateDeposit(matchMaking.totalPrice(), matchMaking.numberOfHoldingDay());
         if (playerWallet.balance() < deposit) {
             throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục."
                     .formatted(deposit - playerWallet.balance()));

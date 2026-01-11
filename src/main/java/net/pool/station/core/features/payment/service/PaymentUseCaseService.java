@@ -164,7 +164,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
         }
         PaymentRequest paymentRequest = PaymentRequest.builder()
                 .orderCode(System.currentTimeMillis())
-                .amount(MyPaymentUtils.calculateDeposit(matchMaking))
+                .amount(MyPaymentUtils.calculateDeposit(matchMaking.totalPrice(), matchMaking.numberOfHoldingDay()))
                 .description("Tiền cọc Match making")
                 .buyerName(account.username())
                 .buyerEmail(account.email())

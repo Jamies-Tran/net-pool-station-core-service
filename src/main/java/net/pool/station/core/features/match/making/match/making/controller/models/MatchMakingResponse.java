@@ -12,6 +12,7 @@ public record MatchMakingResponse (
         Long stationId,
         String matchMakingCode,
         Integer limitParticipant,
+        Integer totalPrice,
         LocalDate startAt,
         LocalDate expiredAt,
         String statusCode,

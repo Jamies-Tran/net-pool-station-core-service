@@ -29,6 +29,11 @@ public class MatchParticipantEntity extends Auditor {
     Long accountId;
     String typeCode;
     String typeName;
+    String paymentMethodCode;
+    String paymentMethodName;
+    String readyStatusCode;
+    String readyStatusName;
+    Integer shareAmount;
     String statusCode;
     String statusName;
 }

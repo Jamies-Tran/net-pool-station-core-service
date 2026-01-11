@@ -132,8 +132,18 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     public void process(DomainKey<Long> matchMakingId) {
         MatchMaking matchMaking = commandService
                 .updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING);
+        List<MatchMakingResource> resources = resourceUseCase
+                .findAllByMatchMakingId(DomainKey.of(matchMaking.matchMakingId()));
+        List<MatchMakingSlot> slots = slotUseCase
+                .findAllByMatchMakingId(DomainKey.of(matchMaking.matchMakingId()));
+        int totalPrice = matchMaking.withResources(resources).withSlots(slots).totalPrice();
         List<MatchParticipant> matchParticipantEmptyList = MatchParticipant
-                .ofEmptyList(matchMaking.limitParticipant(), Long.parseLong(matchMaking.createdBy()));
+                .ofEmptyList(
+                        matchMaking.limitParticipant(),
+                        totalPrice,
+                        matchMaking.numberOfHoldingDay(),
+                        Long.parseLong(matchMaking.createdBy())
+                );
 
         matchParticipantUseCase.save(DomainKey.of(matchMaking.matchMakingId()), matchParticipantEmptyList);
     }

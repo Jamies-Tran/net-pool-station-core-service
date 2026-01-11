@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
+import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
@@ -47,6 +48,8 @@ public class MatchParticipantCommandService {
         emptyParticipant.setAccountId(accountId);
         emptyParticipant.setTypeCode(EMatchParticipantType.MEMBER.getCode());
         emptyParticipant.setTypeName(EMatchParticipantType.MEMBER.getName());
+        emptyParticipant.setReadyStatusCode(EMatchParticipantReadyStatus.NOT_READY.getCode());
+        emptyParticipant.setReadyStatusCode(EMatchParticipantReadyStatus.NOT_READY.getName());
         emptyParticipant.setStatusCode(EMatchParticipantStatus.FILLED.getCode());
         emptyParticipant.setStatusName(EMatchParticipantStatus.FILLED.getName());
 
@@ -67,6 +70,8 @@ public class MatchParticipantCommandService {
                     matchParticipant.setAccountId(null);
                     matchParticipant.setTypeCode(null);
                     matchParticipant.setTypeName(null);
+                    matchParticipant.setReadyStatusCode(null);
+                    matchParticipant.setReadyStatusName(null);
                     matchParticipant.setStatusCode(EMatchParticipantStatus.EMPTY.getCode());
                     matchParticipant.setStatusName(EMatchParticipantStatus.EMPTY.getName());
 
