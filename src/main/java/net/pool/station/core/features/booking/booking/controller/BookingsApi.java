@@ -30,6 +30,9 @@ public interface BookingsApi {
             @RequestParam(required = false, value = "accountId", defaultValue = "")
             String accountId,
 
+            @RequestParam(required = false, value = "stationId", defaultValue = "")
+            Long stationId,
+
             @RequestParam(required = false, value = "dateRange", defaultValue = "")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             List<LocalDate> dateRange,

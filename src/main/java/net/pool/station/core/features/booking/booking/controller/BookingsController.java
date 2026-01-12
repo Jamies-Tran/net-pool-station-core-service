@@ -40,6 +40,7 @@ public class BookingsController implements BookingsApi {
     public MyPageResponse<BookingResponse> findAll(
             String search,
             String accountId,
+            Long stationId,
             List<LocalDate> dateRange,
             List<String> typeCodes,
             List<String> statusCodes,
@@ -47,7 +48,7 @@ public class BookingsController implements BookingsApi {
             Integer current,
             Integer pageSize
     ) {
-        BookingCriteria criteria = BookingCriteria.of(search, accountId, dateRange, typeCodes, statusCodes);
+        BookingCriteria criteria = BookingCriteria.of(search, accountId, stationId, dateRange, typeCodes, statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<BookingResponse> responses = bookingUseCase.findAll(criteria, pageRequest)
                 .map(responseMapper::toModel);

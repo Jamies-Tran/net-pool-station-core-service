@@ -20,6 +20,10 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
         SELECT b
         FROM BookingEntity b
         INNER JOIN ScheduleEntity sc ON b.scheduleId = sc.scheduleId
+        INNER JOIN StationResourceEntity sr ON b.stationResourceId = sr.stationResourceId
+        INNER JOIN AreaEntity a ON sr.areaId = a.areaId
+        INNER JOIN StationSpaceEntity ss ON a.stationSpaceId = ss.stationSpaceId
+        INNER JOIN StationEntity s ON ss.stationId = s.stationId
         WHERE b.deleted = false
             AND (:#{#criteria.dateRange().empty} = TRUE
                     OR sc.date BETWEEN :#{#criteria.startFrom()} AND :#{#criteria.endTo()})
@@ -31,6 +35,8 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
                     OR b.statusCode IN :#{#criteria.statusCodes()})
             AND (:#{#criteria.search().empty} = TRUE
                     OR b.bookingCode ILIKE %:#{#criteria.search()}%)
+            AND (:#{#criteria.stationId()} = 0
+                    OR s.stationId = :#{#criteria.stationId()})
         """)
     Page<BookingEntity> findAll(BookingCriteria criteria, Pageable pageable);
 

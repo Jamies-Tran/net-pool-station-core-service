@@ -16,6 +16,7 @@ import java.util.List;
 public record BookingCriteria(
         String search,
         String accountId,
+        Long stationId,
         List<LocalDate> dateRange,
         List<String> typeCodes,
         List<String> statusCodes
@@ -29,6 +30,7 @@ public record BookingCriteria(
         } else {
             accountId = MyObjectUtils.defaultValue(accountId, new TypeReference<>() {});
         }
+        stationId = MyObjectUtils.defaultValue(stationId, new TypeReference<>() {});
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         dateRange = MyObjectUtils.defaultValue(dateRange, new TypeReference<>() {});
         typeCodes = MyObjectUtils.defaultValue(typeCodes, new TypeReference<>() {});
@@ -38,12 +40,14 @@ public record BookingCriteria(
     public static BookingCriteria of(
             String search,
             String accountId,
+            Long stationId,
             List<LocalDate> dateRange,
             List<String> typeCodes,
             List<String> statusCodes
     ) {
         return BookingCriteria.builder()
                 .search(search)
+                .stationId(stationId)
                 .accountId(accountId)
                 .dateRange(dateRange)
                 .typeCodes(typeCodes)
