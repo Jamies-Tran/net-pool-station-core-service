@@ -2,6 +2,7 @@ package net.pool.station.core.domain.booking;
 
 import lombok.With;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.booking.menu.BookingMenu;
 import net.pool.station.core.domain.booking.slot.BookingSlot;
 import net.pool.station.core.domain.schedule.Schedule;
@@ -32,6 +33,7 @@ public record Booking(
         @With StationResource stationResource,
         @With List<BookingMenu> bookingMenus,
         @With List<BookingSlot> bookingSlots,
+        @With Account account,
         String createdBy
 ) {
     public Booking {

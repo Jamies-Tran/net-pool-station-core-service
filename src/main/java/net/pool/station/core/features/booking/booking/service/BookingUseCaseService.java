@@ -114,13 +114,16 @@ public class BookingUseCaseService implements BookingUseCase {
                             .findAllByBookingId(DomainKey.of(booking.bookingId()));
                     List<BookingSlot> bookingSlots = bookingSlotUseCase
                             .findAllByBookingId(DomainKey.of(booking.bookingId()));
+                    Account account = accountUseCase.findById(DomainKey.of(Long.valueOf(booking.createdBy())))
+                            .orElse(null);
 
                     return booking
                             .withOwnerWalletId(stationOwnerWalletId)
                             .withSchedule(schedule)
                             .withStationResource(stationResource)
                             .withBookingMenus(bookingMenus)
-                            .withBookingSlots(bookingSlots);
+                            .withBookingSlots(bookingSlots)
+                            .withAccount(account);
                 });
     }
 
