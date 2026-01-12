@@ -3,6 +3,7 @@ package net.pool.station.core.features.booking.booking.controller.models;
 import net.pool.station.core.domain.booking.menu.BookingMenuId;
 import net.pool.station.core.domain.booking.slot.BookingSlotId;
 import net.pool.station.core.domain.schedule.Schedule;
+import net.pool.station.core.features.account.account.controller.models.AccountResponse;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,7 +11,6 @@ import java.util.List;
 
 public record BookingResponse(
         Long bookingId,
-        Long accountId,
         Long scheduleId,
         Long stationResourceId,
         Long matchMakingId,
@@ -25,10 +25,12 @@ public record BookingResponse(
         String paymentMethodName,
         String statusCode,
         String statusName,
+        String createdBy,
         Schedule schedule,
         StationResourceResponse stationResource,
         List<BookingMenuResponse> bookingMenus,
-        List<BookingSlotResponse> bookingSlots
+        List<BookingSlotResponse> bookingSlots,
+        AccountResponse account
 
 ) {
     public record StationResourceResponse(
