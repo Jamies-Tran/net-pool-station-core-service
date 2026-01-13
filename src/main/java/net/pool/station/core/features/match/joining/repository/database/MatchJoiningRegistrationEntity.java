@@ -1,4 +1,4 @@
-package net.pool.station.core.features.match.invitation.repository.database;
+package net.pool.station.core.features.match.joining.repository.database;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
-import net.pool.station.core.bootstrap.enums.EMatchInvitationStatus;
+import net.pool.station.core.bootstrap.enums.EMatchJoiningRegistrationStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 
 @Getter
@@ -21,28 +21,32 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "match_invitations")
+@Table(name = "match_joining_registration")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MatchInvitationEntity extends Auditor {
+public class MatchJoiningRegistrationEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long matchInvitationId;
+    Long matchJoiningRegistrationId;
+
     Long matchMakingId;
-    Long accountId;
+
     String message;
+
     String statusCode;
+
     String statusName;
+
     Boolean deleted;
 
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            statusCode = EMatchInvitationStatus.SENT.getCode();
-            statusName = EMatchInvitationStatus.SENT.getName();
+            statusCode = EMatchJoiningRegistrationStatus.DELIVERED.getCode();
+            statusName = EMatchJoiningRegistrationStatus.DELIVERED.getName();
         }
 
         if (MyObjectUtils.isEmpty(message)) {
-            message = "Hãy cùng tham gia và kiếm thật nhiều niềm vui với mọi người";
+            message = "Cho mình chơi chung với";
         }
 
         deleted = false;
