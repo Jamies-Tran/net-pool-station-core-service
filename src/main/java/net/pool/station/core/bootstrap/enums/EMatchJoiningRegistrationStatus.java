@@ -12,7 +12,8 @@ import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
 public enum EMatchJoiningRegistrationStatus implements EnumProperty {
     DELIVERED("DELIVERED", "Đã gửi"),
     ACCEPT("ACCEPT", "Chấp nhận"),
-    DENY("DENY", "Từ chối");
+    DENY("DENY", "Từ chối"),
+    CANCEL("CANCEL", "Hủy");
 
     String code;
     String name;

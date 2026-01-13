@@ -1,12 +1,14 @@
 package net.pool.station.core.domain.match.joining;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.Builder;
 import net.pool.station.core.bootstrap.utils.MyDateTimeUtils;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 public record MatchJoiningRegistrationCriteria(
         Long matchMakingId,
         String createdBy,

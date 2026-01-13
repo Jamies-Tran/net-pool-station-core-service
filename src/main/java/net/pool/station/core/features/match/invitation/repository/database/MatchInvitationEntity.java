@@ -41,6 +41,10 @@ public class MatchInvitationEntity extends Auditor {
             statusName = EMatchInvitationStatus.SENT.getName();
         }
 
+        if (MyObjectUtils.isEmpty(message)) {
+            message = "Hãy cùng tham gia và kiếm thật nhiều niềm vui với mọi người";
+        }
+
         deleted = false;
     }
 }

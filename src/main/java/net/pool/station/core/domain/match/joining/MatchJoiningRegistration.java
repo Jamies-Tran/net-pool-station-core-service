@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.match.joining;
 
+import lombok.With;
 import net.pool.station.core.domain.account.Account;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,6 @@ public record MatchJoiningRegistration(
         String statusName,
         String createdBy,
         LocalDateTime createdAt,
-        Account account
+        @With Account account
 ) {
 }

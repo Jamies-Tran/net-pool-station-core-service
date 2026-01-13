@@ -45,6 +45,10 @@ public class MatchJoiningRegistrationEntity extends Auditor {
             statusName = EMatchJoiningRegistrationStatus.DELIVERED.getName();
         }
 
+        if (MyObjectUtils.isEmpty(message)) {
+            message = "Cho mình chơi chung với";
+        }
+
         deleted = false;
     }
 }
