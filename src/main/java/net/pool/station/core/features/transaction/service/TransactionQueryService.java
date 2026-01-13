@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,9 +24,8 @@ public class TransactionQueryService {
 
     TransactionEntityMapper mapper;
 
-    protected Optional<Transaction> findByTransactionCode(String transactionCode) {
-        return repository.findByTransactionCode(transactionCode)
-                .map(mapper::toDto);
+    protected List<Transaction> findAllByIdIn(List<Long> transactionIds) {
+        return mapper.toDto(repository.findAllByTransactionIdIn(transactionIds));
     }
 
     protected Optional<Transaction> findByMatchMakingIdAndPaymentType(Long matchMakingId, EPaymentType paymentType) {

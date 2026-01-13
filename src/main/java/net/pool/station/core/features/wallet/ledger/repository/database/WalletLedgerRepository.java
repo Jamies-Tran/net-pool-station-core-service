@@ -4,6 +4,7 @@ import net.pool.station.core.domain.wallet.ledger.WalletLedgerCriteria;
 import net.pool.station.core.features.wallet.ledger.repository.database.dao.CurrentBalanceAndCommissionDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -40,5 +41,5 @@ public interface WalletLedgerRepository extends JpaRepository<WalletLedgerEntity
             AND wl.createdAt BETWEEN :#{#criteria.timeRange().get(0)}
                 AND :#{#criteria.timeRange().get(1)}
         """)
-    Page<WalletLedgerEntity> findAll(WalletLedgerCriteria criteria, PageRequest pageRequest);
+    Page<WalletLedgerEntity> findAll(WalletLedgerCriteria criteria, Pageable pageRequest);
 }

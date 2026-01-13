@@ -7,6 +7,7 @@ import net.pool.station.core.domain.payment.PaymentWebhook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TransactionUseCase {
@@ -14,7 +15,7 @@ public interface TransactionUseCase {
 
     Page<Transaction> findAll(TransactionCriteria criteria, PageRequest pageRequest);
 
-    Optional<Transaction> findByTransactionCode(DomainKey<String> transactionCode);
+    List<Transaction> findAllByIdIn(List<Long> transactionIds);
 
     void handlePaymentWallet(Booking booking);
 

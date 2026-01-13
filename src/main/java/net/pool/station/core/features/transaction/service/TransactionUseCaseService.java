@@ -74,8 +74,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Transaction> findByTransactionCode(DomainKey<String> transactionCode) {
-        return queryService.findByTransactionCode(transactionCode.value());
+    public List<Transaction> findAllByIdIn(List<Long> transactionIds) {
+        return queryService.findAllByIdIn(transactionIds);
     }
 
     @Override
