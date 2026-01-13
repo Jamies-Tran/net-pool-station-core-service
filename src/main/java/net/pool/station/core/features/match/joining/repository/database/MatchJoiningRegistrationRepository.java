@@ -21,4 +21,15 @@ public interface MatchJoiningRegistrationRepository extends JpaRepository<MatchJ
         AND (mj.createdAt BETWEEN :#{#criteria.timeRange().get(0)} AND :#{#criteria.timeRange().get(1)})
         """)
     Page<MatchJoiningRegistrationEntity> findAll(MatchJoiningRegistrationCriteria criteria, Pageable pageable);
+
+    Boolean existsByMatchJoiningRegistrationIdAndCreatedBy(Long matchJoiningRegistrationId, String accountId);
+
+    @Query("""
+        SELECT COUNT(mj) > 0
+        FROM MatchJoiningRegistrationEntity mj
+        INNER JOIN MatchMakingEntity m ON mj.matchMakingId = m.matchMakingId
+        WHERE mj.matchJoiningRegistrationId = :matchJoiningRegistrationId
+                AND m.createdBy = :accountId
+        """)
+    Boolean existsByMatchJoningRegistrationIdMatchMakingCreatedBy(Long matchJoiningRegistrationId, String accountId);
 }

@@ -18,9 +18,10 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
     @Query("""
         SELECT 
                 m AS matchMaking,
-                mp.accountId = :accountId AS allowJoin
+                (SELECT COUNT(mp) > 0
+                 FROM MatchParticipantEntity mp
+                 WHERE mp.matchMakingId = m.matchMakingId AND mp.accountId = :accountId) AS allowJoin
         FROM MatchMakingEntity m
-        LEFT JOIN MatchParticipantEntity mp ON m.matchMakingId = mp.matchMakingId AND mp.accountId IS NOT NULL
         WHERE m.matchMakingId = :matchMakingId
                 AND m.deleted = FALSE
         """)

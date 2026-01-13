@@ -30,4 +30,16 @@ public class MatchJoiningRegistrationQueryService {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
     }
+
+    protected Boolean existsByCreatedBy(Long matchJoiningRegistrationId, Long accountId) {
+        return repository.existsByMatchJoiningRegistrationIdAndCreatedBy(matchJoiningRegistrationId,
+                accountId.toString());
+    }
+
+    protected Boolean existsByMatchMakingCreatedBy(Long matchJoiningRegistrationId, Long accountId) {
+        return repository.existsByMatchJoningRegistrationIdMatchMakingCreatedBy(matchJoiningRegistrationId,
+                accountId.toString());
+    }
+
+
 }

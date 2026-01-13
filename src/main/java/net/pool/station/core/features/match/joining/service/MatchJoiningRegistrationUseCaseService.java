@@ -3,10 +3,14 @@ package net.pool.station.core.features.match.joining.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EMatchJoiningRegistrationStatus;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
+import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.match.joining.MatchJoiningRegistration;
 import net.pool.station.core.domain.match.joining.MatchJoiningRegistrationCriteria;
 import net.pool.station.core.domain.match.joining.MatchJoiningRegistrationUseCase;
@@ -63,6 +67,13 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
     @Override
     @Transactional
     public void accept(DomainKey<Long> matchJoiningRegistrationId) {
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
+        Boolean isMatchMakingOwner = queryService.existsByMatchMakingCreatedBy(matchJoiningRegistrationId.value(),
+                loginInfo.accountId());
+        if (!isMatchMakingOwner) {
+            throw new MyResourceNotValid("Bạn không thể chấp nhật yêu cầu này.");
+        }
         MatchJoiningRegistration savedRegistration = commandService.updateStatus(matchJoiningRegistrationId.value(),
                 EMatchJoiningRegistrationStatus.ACCEPT);
         matchParticipantUseCase.fillEmptyParticipant(DomainKey.of(savedRegistration.matchMakingId()),
@@ -72,6 +83,13 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
     @Override
     @Transactional
     public void deny(DomainKey<Long> matchJoiningRegistrationId) {
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
+        Boolean isMatchMakingOwner = queryService.existsByMatchMakingCreatedBy(matchJoiningRegistrationId.value(),
+                loginInfo.accountId());
+        if (!isMatchMakingOwner) {
+            throw new MyResourceNotValid("Bạn không thể từ chối yêu cầu này.");
+        }
         commandService.updateStatus(matchJoiningRegistrationId.value(),
                 EMatchJoiningRegistrationStatus.DENY);
     }
@@ -79,6 +97,12 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
     @Override
     @Transactional
     public void cancel(DomainKey<Long> matchJoiningRegistrationId) {
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
+        Boolean isOwner = queryService.existsByCreatedBy(matchJoiningRegistrationId.value(), loginInfo.accountId());
+        if (!isOwner) {
+            throw new MyResourceNotValid("Bạn không thể hủy yêu cầu này.");
+        }
         commandService.updateStatus(matchJoiningRegistrationId.value(),
                 EMatchJoiningRegistrationStatus.CANCEL);
     }
