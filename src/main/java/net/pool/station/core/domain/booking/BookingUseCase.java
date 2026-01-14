@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import java.util.Optional;
 
 public interface BookingUseCase {
-    void save(Booking booking);
+    Booking save(Booking booking);
 
     Optional<Booking> findById(DomainKey<Long> bookingId);
 

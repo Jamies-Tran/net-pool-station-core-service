@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
+import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingCriteria;
 import net.pool.station.core.domain.booking.BookingUseCase;
 import net.pool.station.core.features.booking.booking.controller.models.BookingRequest;
@@ -30,10 +31,10 @@ public class BookingsController implements BookingsApi {
     BookingResponseMapper responseMapper;
 
     @Override
-    public MyValueResponse<?> save(BookingRequest bookingRequest) {
-        bookingUseCase.save(requestMapper.toDto(bookingRequest));
+    public MyValueResponse<Long> save(BookingRequest bookingRequest) {
+        Booking booking = bookingUseCase.save(requestMapper.toDto(bookingRequest));
 
-        return MyValueResponse.successNoData();
+        return MyValueResponse.success(booking.bookingId());
     }
 
     @Override

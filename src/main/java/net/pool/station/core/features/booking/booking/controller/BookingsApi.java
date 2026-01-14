@@ -20,7 +20,7 @@ import java.util.List;
 public interface BookingsApi {
     @PostMapping
     @PreAuthorize("hasRole({'ROLE_PLAYER'})")
-    MyValueResponse<?> save(@RequestBody @Valid BookingRequest bookingRequest);
+    MyValueResponse<Long> save(@RequestBody @Valid BookingRequest bookingRequest);
 
     @GetMapping
     MyPageResponse<BookingResponse> findAll(
