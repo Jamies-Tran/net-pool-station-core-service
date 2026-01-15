@@ -78,7 +78,7 @@ public class BookingUseCaseService implements BookingUseCase {
 
     @Override
     @Transactional
-    public void save(Booking booking) {
+    public Booking save(Booking booking) {
         Booking savedBooking = commandService.save(booking);
         DomainKey<Long> bookingId = DomainKey.of(savedBooking.bookingId());
         if (MyObjectUtils.isNotEmpty(booking.bookingMenus())) {
@@ -89,6 +89,8 @@ public class BookingUseCaseService implements BookingUseCase {
             scheduleBooking(savedBooking);
             notificationUseCase.pushNotification(Notification.ofBooking(fcmInfos(savedBooking), savedBooking));
         }
+
+        return savedBooking;
     }
 
     private List<FcmInfo> fcmInfos(Booking booking) {
