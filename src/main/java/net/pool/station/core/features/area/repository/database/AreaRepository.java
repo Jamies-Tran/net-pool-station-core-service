@@ -35,8 +35,8 @@ public interface AreaRepository extends JpaRepository<AreaEntity, Long> {
                         OR a.statusCode IN :#{#criteria.statusCodes()})
                 AND (:#{#criteria.stationId()} = 0
                         OR ss.stationId = :#{#criteria.stationId()})
-                AND (:#{#criteria.spaceId()} = 0
-                        OR ss.spaceId = :#{#criteria.spaceId()})
+                AND (:#{#criteria.stationSpaceId()} = 0
+                        OR ss.stationSpaceId = :#{#criteria.stationSpaceId()})
         """)
     Page<AreaEntity> findAll(AreaCriteria criteria, Pageable pageable);
 }

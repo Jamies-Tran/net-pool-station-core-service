@@ -10,14 +10,14 @@ import java.util.List;
 public record AreaCriteria(
         String search,
         Long stationId,
-        Long spaceId,
+        Long stationSpaceId,
         List<String> statusCodes,
         List<String> typeCodes
 ) {
     public AreaCriteria {
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         stationId = MyObjectUtils.defaultValue(stationId, new TypeReference<>() {});
-        spaceId = MyObjectUtils.defaultValue(spaceId, new TypeReference<>() {});
+        stationSpaceId = MyObjectUtils.defaultValue(stationSpaceId, new TypeReference<>() {});
         statusCodes = MyObjectUtils.defaultValue(statusCodes, new TypeReference<>() {});
         typeCodes = MyObjectUtils.defaultValue(typeCodes, new TypeReference<>() {});
     }
@@ -25,14 +25,14 @@ public record AreaCriteria(
     public static AreaCriteria of(
             String search,
             Long stationId,
-            Long spaceId,
+            Long stationSpaceId,
             List<String> statusCodes,
             List<String> typeCodes
     ) {
         return AreaCriteria.builder()
                 .search(search)
                 .stationId(stationId)
-                .spaceId(spaceId)
+                .stationSpaceId(stationSpaceId)
                 .statusCodes(statusCodes)
                 .typeCodes(typeCodes)
                 .build();

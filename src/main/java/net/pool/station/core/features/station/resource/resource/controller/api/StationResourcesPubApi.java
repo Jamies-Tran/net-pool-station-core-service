@@ -20,7 +20,10 @@ public interface StationResourcesPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search,
 
-            @RequestParam
+            @RequestParam(required = false, value = "stationSpaceId", defaultValue = "")
+            Long stationSpaceId,
+
+            @RequestParam(required = false, value = "areaId", defaultValue = "")
             Long areaId,
 
             @RequestParam(required = false, value = "typeCodes", defaultValue = "")
@@ -45,7 +48,10 @@ public interface StationResourcesPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search,
 
-            @RequestParam
+            @RequestParam(required = false, value = "stationSpaceId", defaultValue = "")
+            Long stationSpaceId,
+
+            @RequestParam(required = false, value = "areaId", defaultValue = "")
             Long areaId,
 
             @RequestParam(required = false, value = "typeCodes", defaultValue = "")

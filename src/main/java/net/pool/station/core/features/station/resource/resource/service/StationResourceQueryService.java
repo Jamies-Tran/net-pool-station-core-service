@@ -25,12 +25,13 @@ public class StationResourceQueryService {
     StationResourceDaoMapper daoMapper;
 
     protected Optional<StationResource> findById(Long stationResourceId) {
+
         return repository.findByStationResourceId(stationResourceId)
                 .map(daoMapper::toDto);
     }
 
     protected Page<StationResource> findAll(StationResourceCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
-                .map(mapper::toDto);
+                .map(daoMapper::toDto);
     }
 }

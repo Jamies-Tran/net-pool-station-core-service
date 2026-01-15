@@ -21,6 +21,8 @@ public interface StationResourceRepository extends JpaRepository<StationResource
         SELECT
                 sr.stationResourceId AS stationResourceId,
                 sr.areaId AS areaId,
+                sr.rowCode AS rowCode,
+                sr.rowName AS rowName,
                 sr.resourceCode AS resourceCode,
                 sr.resourceName AS resourceName,
                 sr.typeCode AS typeCode,
@@ -47,11 +49,25 @@ public interface StationResourceRepository extends JpaRepository<StationResource
     Optional<StationResourceEntity> findByStationResourceIdAndDeletedFalse(Long stationResourceId);
 
     @Query("""
-        SELECT s
+        SELECT 
+                s.stationResourceId AS stationResourceId,
+                s.rowCode AS rowCode,
+                s.rowName AS rowName,
+                s.areaId AS areaId,
+                s.resourceCode AS resourceCode,
+                s.resourceName AS resourceName,
+                s.typeCode AS typeCode,
+                s.typeName AS typeName,
+                s.statusCode AS statusCode,
+                s.statusName AS statusName,
+                s.displayOrder AS displayOrder,
+                a.price AS price
         FROM StationResourceEntity s
         INNER JOIN AreaEntity a ON a.areaId = s.areaId
         WHERE (:#{#criteria.areaId()} = 0
                 OR s.areaId = :#{#criteria.areaId()})
+              AND (:#{#criteria.stationSpaceId()} = 0
+                      OR a.stationSpaceId = :#{#criteria.stationSpaceId()})
               AND (:#{#criteria.search().empty} = TRUE
                       OR (s.resourceName ILIKE %:#{#criteria.search()}%
                               OR s.resourceCode = :#{#criteria.search()}
@@ -61,7 +77,7 @@ public interface StationResourceRepository extends JpaRepository<StationResource
               AND (:#{#criteria.statusCodes().empty} = TRUE
                       OR s.statusCode IN :#{#criteria.statusCodes()})
         """)
-    Page<StationResourceEntity> findAll(StationResourceCriteria criteria, Pageable pageable);
+    Page<StationResourceDao> findAll(StationResourceCriteria criteria, Pageable pageable);
 
     @Query("""
         SELECT COUNT(a) > 0

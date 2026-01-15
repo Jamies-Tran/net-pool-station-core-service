@@ -18,8 +18,8 @@ public interface AreasPubApi {
             @RequestParam
             Long stationId,
 
-            @RequestParam(required = false, value = "spaceId", defaultValue = "0")
-            Long spaceId,
+            @RequestParam(required = false, value = "stationSpaceId", defaultValue = "0")
+            Long stationSpaceId,
 
             @RequestParam(required = false, value = "statusCodes", defaultValue = "")
             List<String> statusCodes,

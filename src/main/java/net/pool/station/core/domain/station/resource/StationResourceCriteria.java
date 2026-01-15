@@ -14,12 +14,14 @@ import java.util.List;
 @Builder
 public record StationResourceCriteria(
         String search,
+        Long stationSpaceId,
         Long areaId,
         List<LocalDateTime> timeRange,
         List<String> typeCodes,
         List<String> statusCodes
 ) {
     public StationResourceCriteria {
+        stationSpaceId = MyObjectUtils.defaultValue(stationSpaceId, new TypeReference<>() {});
         areaId = MyObjectUtils.defaultValue(areaId, new TypeReference<>() {});
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         typeCodes = MyObjectUtils.defaultValue(typeCodes, new TypeReference<>() {});
@@ -28,12 +30,14 @@ public record StationResourceCriteria(
 
     public static StationResourceCriteria of(
             String search,
+            Long stationSpaceId,
             Long areaId,
             List<String> typeCodes,
             List<String> statusCodes
     ) {
         return StationResourceCriteria.builder()
                 .search(search)
+                .stationSpaceId(stationSpaceId)
                 .areaId(areaId)
                 .typeCodes(typeCodes)
                 .statusCodes(statusCodes)

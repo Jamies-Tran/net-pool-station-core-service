@@ -18,19 +18,19 @@ public interface StationSpaceRepository extends JpaRepository<StationSpaceEntity
         SELECT COUNT(ss) > 0
         FROM StationSpaceEntity ss
         WHERE ss.deleted = FALSE
-                AND ss.spaceId = :spaceId
+                AND ss.stationId = :stationId
                 AND ss.spaceName = :spaceName
         """)
-    Boolean existsByStationIdAndSpaceName(Long spaceId, String spaceName);
+    Boolean existsByStationIdAndSpaceName(Long stationId, String spaceName);
 
     @Query("""
         SELECT COUNT(ss) > 0
         FROM StationSpaceEntity ss
         WHERE ss.deleted = FALSE
-                AND ss.spaceId = :spaceId
+                AND ss.stationId = :stationId
                 AND ss.spaceCode = :spaceCode
         """)
-    Boolean existsByStationIdAndSpaceCode(Long spaceId, String spaceCode);
+    Boolean existsByStationIdAndSpaceCode(Long stationId, String spaceCode);
 
     @Query("""
         SELECT 

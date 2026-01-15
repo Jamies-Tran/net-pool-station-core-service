@@ -3,6 +3,10 @@ package net.pool.station.core.features.station.resource.resource.repository.data
 public interface StationResourceDao {
     Long getStationResourceId();
 
+    String getRowCode();
+
+    String getRowName();
+
     Long getAreaId();
 
     String getResourceCode();
@@ -18,6 +22,8 @@ public interface StationResourceDao {
     String getStatusName();
 
     Integer getPrice();
+
+    Integer getDisplayOrder();
 
     Boolean getAllowDirectPayment();
 }

@@ -12,6 +12,7 @@ public record StationResourceResponse(
         StationResourceSpecResponse spec,
         String resourceCode,
         String resourceName,
+        Integer price,
         String typeCode,
         String typeName,
         Boolean allowDirectPayment,

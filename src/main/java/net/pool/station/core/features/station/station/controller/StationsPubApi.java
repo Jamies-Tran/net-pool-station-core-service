@@ -17,6 +17,9 @@ public interface StationsPubApi {
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search,
 
+            @RequestParam(required = false, value = "createdBy", defaultValue = "")
+            String createdBy,
+
             @RequestParam(required = false, value = "province", defaultValue = "")
             String province,
 

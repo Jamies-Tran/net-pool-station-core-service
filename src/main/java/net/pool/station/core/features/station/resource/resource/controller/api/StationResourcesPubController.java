@@ -36,12 +36,14 @@ public class StationResourcesPubController implements StationResourcesPubApi{
     @Override
     public MyPageResponse<?> findAll(
             String search,
+            Long stationSpaceId,
             Long areaId,
             List<String> typeCodes,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize
     ) {
-        StationResourceCriteria criteria = StationResourceCriteria.of(search, areaId, typeCodes, statusCodes);
+        StationResourceCriteria criteria = StationResourceCriteria.of(search, stationSpaceId,
+                areaId, typeCodes, statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<StationResourceResponse> responses = stationResourceUseCase.findAll(criteria, pageRequest)
                 .map(responseMapper::toModel);
@@ -52,12 +54,13 @@ public class StationResourcesPubController implements StationResourcesPubApi{
     @Override
     public MyListResponse<StationResourceKeyValueResponse> findAllMapByRow(
             String search,
+            Long stationSpaceId,
             Long areaId,
             List<String> typeCodes,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize
     ) {
-        StationResourceCriteria criteria = StationResourceCriteria.of(search, areaId,
+        StationResourceCriteria criteria = StationResourceCriteria.of(search, stationSpaceId, areaId,
                 typeCodes, statusCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         List<StationResourceKeyValueResponse> response = stationResourceUseCase

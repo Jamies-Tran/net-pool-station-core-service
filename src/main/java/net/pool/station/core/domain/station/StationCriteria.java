@@ -38,9 +38,11 @@ public record StationCriteria(
         String csControllerType,
         Integer csControllerCount,
         List<LocalDateTime> timeRange,
-        List<String> statusCodes
+        List<String> statusCodes,
+        String createdBy
 ) {
     public StationCriteria {
+        createdBy = MyObjectUtils.defaultValue(createdBy, new TypeReference<>() {});
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
         province = MyObjectUtils.defaultValue(province, new TypeReference<>() {});
         commune = MyObjectUtils.defaultValue(commune, new TypeReference<>() {});
@@ -80,6 +82,7 @@ public record StationCriteria(
     }
 
     public static StationCriteria of(String search,
+                                     String createdBy,
                                      String province,
                                      String commune,
                                      String district,
@@ -89,6 +92,7 @@ public record StationCriteria(
                                      List<String> statusCodes) {
         return StationCriteria.builder()
                 .search(search)
+                .createdBy(createdBy)
                 .province(province)
                 .commune(commune)
                 .district(district)

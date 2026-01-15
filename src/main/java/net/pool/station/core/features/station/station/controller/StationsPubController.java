@@ -28,6 +28,7 @@ public class StationsPubController implements StationsPubApi {
     @Override
     public MyPageResponse<StationResponse> findAll(
             String search,
+            String createdBy,
             String province,
             String commune,
             String district,
@@ -53,6 +54,7 @@ public class StationsPubController implements StationsPubApi {
     {
         StationCriteria criteria = StationCriteria.of(
                 search,
+                createdBy,
                 province,
                 commune,
                 district,

@@ -43,6 +43,8 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
                 AND (:#{#criteria.search().empty} = TRUE
                         OR (s.stationName ILIKE %:#{#criteria.search()}%
                                 OR s.statusCode = :#{#criteria.search()}))
+                AND (:#{#criteria.createdBy().empty} = TRUE
+                        OR s.createdBy = :#{#criteria.createdBy()})
                 AND (:#{#criteria.province().empty} = TRUE
                         OR s.province ILIKE :#{#criteria.province()})
                 AND (:#{#criteria.commune().empty} = TRUE

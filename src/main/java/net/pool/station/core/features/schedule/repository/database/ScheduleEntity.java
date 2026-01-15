@@ -44,8 +44,8 @@ public class ScheduleEntity extends Auditor {
     @PrePersist
     private void prePersist() {
         if (MyObjectUtils.isEmpty(statusCode)) {
-            statusCode = EScheduleStatus.DRAFT.getCode();
-            statusName = EScheduleStatus.DRAFT.getName();
+            statusCode = EScheduleStatus.ENABLED.getCode();
+            statusName = EScheduleStatus.ENABLED.getName();
         }
 
         deleted = Optional.ofNullable(deleted).orElse(Boolean.FALSE);
