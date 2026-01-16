@@ -26,13 +26,13 @@ public class AreasPubController implements AreasPubApi {
     @Override
     public MyPageResponse<AreaResponse> findAll(
             String search,
+            Long stationId,
             Long stationSpaceId,
-            Long spaceId,
             List<String> statusCodes,
             List<String> typeCodes,
             String sorter, Integer current, Integer pageSize
     ) {
-        AreaCriteria criteria = AreaCriteria.of(search, stationSpaceId, spaceId, statusCodes, typeCodes);
+        AreaCriteria criteria = AreaCriteria.of(search, stationId, stationSpaceId, statusCodes, typeCodes);
         PageRequest pageRequest = PageRequest.of(current, pageSize, MySorter.of(sorter));
         Page<AreaResponse> responses = areaUseCase.findAll(criteria, pageRequest)
                 .map(responseMapper::toModel);
