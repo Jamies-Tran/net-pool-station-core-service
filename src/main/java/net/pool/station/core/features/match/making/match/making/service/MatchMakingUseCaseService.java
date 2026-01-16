@@ -129,7 +129,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     @Override
     @Transactional
-    public void process(DomainKey<Long> matchMakingId) {
+    public void process(DomainKey<Long> matchMakingId, Integer paidDeposit) {
         MatchMaking matchMaking = commandService
                 .updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING);
         List<MatchMakingResource> resources = resourceUseCase
@@ -141,7 +141,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                 .ofEmptyList(
                         matchMaking.limitParticipant(),
                         totalPrice,
-                        matchMaking.numberOfHoldingDay(),
+                        paidDeposit,
                         Long.parseLong(matchMaking.createdBy())
                 );
 

@@ -12,7 +12,7 @@ public interface MatchMakingUseCase {
 
     void update(DomainKey<Long> matchMakingId, MatchMaking matchMaking);
 
-    void process(DomainKey<Long> matchMakingId);
+    void process(DomainKey<Long> matchMakingId, Integer paidDeposit);
 
     void start(DomainKey<Long> matchMakingId);
 

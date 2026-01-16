@@ -152,7 +152,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .chargedCommission(0)
                 .build();
         walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
-        matchMakingUseCase().process(new DomainKey<>(matchMaking.matchMakingId()));
+        matchMakingUseCase().process(new DomainKey<>(matchMaking.matchMakingId()), deposit);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     bookingUseCase().processed(new DomainKey<>(savedTransaction.bookingId())  );
                 }
                 if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())) {
-                    matchMakingUseCase().process(new DomainKey<>(savedTransaction.matchMakingId()));
+                    matchMakingUseCase().process(new DomainKey<>(savedTransaction.matchMakingId()), paymentWebhook.amount());
                 }
                 WalletLedger walletLedger = WalletLedger.builder()
                         .walletId(savedTransaction.walletId())

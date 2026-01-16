@@ -24,24 +24,25 @@ public record MatchParticipant(
         String readyStatusCode,
         String readyStatusName,
         Integer shareAmount,
+        Integer paidDeposit,
         String statusCode,
         String statusName,
         @With Account account
 ) {
-    public static MatchParticipant ofEmpty(int shareAmount) {
+    public static MatchParticipant ofEmpty() {
 
         return MatchParticipant.builder()
-                .shareAmount(shareAmount)
+                .shareAmount(0)
                 .statusCode(EMatchParticipantStatus.EMPTY.getCode())
                 .statusName(EMatchParticipantStatus.EMPTY.getName())
                 .build();
     }
 
-    public static MatchParticipant ofHost(Long hostId, int totalPrice, int shareAmount, int numberOfHoldingDay) {
-        int paidDeposit = MyPaymentUtils.calculateDeposit(totalPrice, numberOfHoldingDay);
+    public static MatchParticipant ofHost(Long hostId, int totalPrice, int paidDeposit) {
         return MatchParticipant.builder()
                 .accountId(hostId)
-                .shareAmount(shareAmount - paidDeposit)
+                .shareAmount(totalPrice)
+                .paidDeposit(paidDeposit)
                 .typeCode(EMatchParticipantType.HOST.getCode())
                 .typeName(EMatchParticipantType.HOST.getName())
                 .readyStatusCode(EMatchParticipantReadyStatus.READY.getCode())
@@ -54,14 +55,13 @@ public record MatchParticipant(
 
     public static List<MatchParticipant> ofEmptyList(int size,
                                                      int totalPrice,
-                                                     int numberOfHoldingDay,
+                                                     int paidDeposit,
                                                      long hostId
     ) {
-        int shareAmount = totalPrice / size;
         List<MatchParticipant> list = new ArrayList<>(List
-                .of(ofHost(hostId, totalPrice, shareAmount, numberOfHoldingDay)));
+                .of(ofHost(hostId, totalPrice, paidDeposit)));
         for (int i = 0; i <= size; i++) {
-            list.add(ofEmpty(shareAmount));
+            list.add(ofEmpty());
         }
 
         return list;

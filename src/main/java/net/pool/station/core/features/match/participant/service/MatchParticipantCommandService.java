@@ -40,12 +40,27 @@ public class MatchParticipantCommandService {
     }
 
     protected void update(Long matchMakingId, Long accountId) {
-        List<MatchParticipantEntity> emptyList = repository.findAllByMatchMakingIdAndStatusCode(matchMakingId,
-                EMatchParticipantStatus.EMPTY.getCode());
-        MatchParticipantEntity emptyParticipant = emptyList.stream()
+        List<MatchParticipantEntity> participants = repository.findAllByMatchMakingId(matchMakingId);
+        MatchParticipantEntity emptyParticipant = participants
+                .stream()
+                .filter(p -> MyObjectUtils.isEquals(p.getStatusCode(),
+                        EMatchParticipantStatus.EMPTY.getCode()))
                 .findAny()
                 .orElseThrow(() -> new MyResourceNotFoundException("Phòng sếp trận đã đủ người"));
+        MatchParticipantEntity host = participants
+                .stream()
+                .filter(p -> MyObjectUtils.isEquals(p.getTypeCode(),
+                        EMatchParticipantType.HOST.getCode()))
+                .findAny()
+                .orElseThrow(() -> new MyResourceNotValid("Phòng không tồn tại"));
+        int matchMakingSize = participants.stream()
+                .filter(p -> MyObjectUtils.isEquals(p.getStatusCode(),
+                        EMatchParticipantStatus.FILLED.getCode()))
+                .toList()
+                .size();
+        int share = host.getShareAmount() / matchMakingSize;
         emptyParticipant.setAccountId(accountId);
+        emptyParticipant.setShareAmount(share);
         emptyParticipant.setTypeCode(EMatchParticipantType.MEMBER.getCode());
         emptyParticipant.setTypeName(EMatchParticipantType.MEMBER.getName());
         emptyParticipant.setReadyStatusCode(EMatchParticipantReadyStatus.NOT_READY.getCode());
@@ -53,7 +68,9 @@ public class MatchParticipantCommandService {
         emptyParticipant.setStatusCode(EMatchParticipantStatus.FILLED.getCode());
         emptyParticipant.setStatusName(EMatchParticipantStatus.FILLED.getName());
 
-        repository.save(emptyParticipant);
+        host.setShareAmount(share);
+
+        repository.saveAll(List.of(emptyParticipant, host));
 
     }
 

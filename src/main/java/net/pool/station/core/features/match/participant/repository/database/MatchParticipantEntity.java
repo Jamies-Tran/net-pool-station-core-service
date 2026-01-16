@@ -34,6 +34,7 @@ public class MatchParticipantEntity extends Auditor {
     String readyStatusCode;
     String readyStatusName;
     Integer shareAmount;
+    Integer paidDeposit;
     String statusCode;
     String statusName;
 }
