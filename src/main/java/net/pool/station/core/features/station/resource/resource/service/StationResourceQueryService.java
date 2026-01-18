@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,5 +34,9 @@ public class StationResourceQueryService {
     protected Page<StationResource> findAll(StationResourceCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(daoMapper::toDto);
+    }
+
+    protected Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds) {
+        return repository.totalPriceByStationResourceIdIn(stationResourceIds);
     }
 }

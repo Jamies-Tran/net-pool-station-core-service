@@ -85,4 +85,12 @@ public interface StationResourceRepository extends JpaRepository<StationResource
         WHERE a.areaId = :areaId
         """)
     Boolean validateToken(Long areaId);
+
+    @Query("""
+        SELECT SUM(COALESCE(a.price, 0) )
+        FROM StationResourceEntity sr
+        INNER JOIN AreaEntity a ON sr.areaId = a.areaId
+        WHERE sr.stationResourceId IN :stationResourceIds
+        """)
+    Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds);
 }

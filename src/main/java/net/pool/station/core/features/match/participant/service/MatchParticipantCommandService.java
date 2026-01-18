@@ -19,9 +19,11 @@ import net.pool.station.core.features.match.participant.repository.database.Matc
 import net.pool.station.core.features.match.participant.repository.database.MatchParticipantRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class MatchParticipantCommandService {
     }
 
     protected void update(Long matchMakingId, Long accountId) {
+        Integer totalPrice = repository.findTotalPriceByMatchMakingId(matchMakingId);
         List<MatchParticipantEntity> participants = repository.findAllByMatchMakingId(matchMakingId);
         MatchParticipantEntity emptyParticipant = participants
                 .stream()
@@ -58,19 +61,23 @@ public class MatchParticipantCommandService {
                         EMatchParticipantStatus.FILLED.getCode()))
                 .toList()
                 .size();
-        int share = host.getShareAmount() / matchMakingSize;
         emptyParticipant.setAccountId(accountId);
-        emptyParticipant.setShareAmount(share);
         emptyParticipant.setTypeCode(EMatchParticipantType.MEMBER.getCode());
         emptyParticipant.setTypeName(EMatchParticipantType.MEMBER.getName());
         emptyParticipant.setReadyStatusCode(EMatchParticipantReadyStatus.NOT_READY.getCode());
-        emptyParticipant.setReadyStatusCode(EMatchParticipantReadyStatus.NOT_READY.getName());
+        emptyParticipant.setReadyStatusName(EMatchParticipantReadyStatus.NOT_READY.getName());
         emptyParticipant.setStatusCode(EMatchParticipantStatus.FILLED.getCode());
         emptyParticipant.setStatusName(EMatchParticipantStatus.FILLED.getName());
 
-        host.setShareAmount(share);
+        int share = totalPrice / (matchMakingSize + 1);
+        List<MatchParticipantEntity> savedList = participants
+                .stream()
+                .peek(p -> p.setShareAmount(share))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        repository.saveAll(List.of(emptyParticipant, host));
+        savedList.add(emptyParticipant);
+
+        repository.saveAll(List.of(emptyParticipant));
 
     }
 
@@ -100,6 +107,36 @@ public class MatchParticipantCommandService {
                             .build();
                 })
                 .orElseThrow(MyResourceNotFoundException::new);
+    }
+
+    protected void updateReadyStatus(Long matchParticipantId,
+                                     EMatchParticipantReadyStatus readyStatus) {
+        repository.findById(matchParticipantId)
+                .ifPresentOrElse(
+                        matchParticipant -> {
+                            matchParticipant.setReadyStatusCode(readyStatus.getCode());
+                            matchParticipant.setReadyStatusName(readyStatus.getName());
+                            repository.save(matchParticipant);
+                        },
+                        MyResourceNotFoundException::new
+
+                );
+    }
+
+    protected void updateReadyStatus(Long matchParticipantId,
+                                     EMatchParticipantReadyStatus readyStatus,
+                                     LocalDateTime paidShareAt) {
+        repository.findById(matchParticipantId)
+                .ifPresentOrElse(
+                        matchParticipant -> {
+                            matchParticipant.setReadyStatusCode(readyStatus.getCode());
+                            matchParticipant.setReadyStatusName(readyStatus.getName());
+                            matchParticipant.setPaidShareAt(paidShareAt);
+                            repository.save(matchParticipant);
+                        },
+                        MyResourceNotFoundException::new
+
+                );
     }
 
     private void authorizeUpdate(MatchParticipantEntity matchParticipant) {

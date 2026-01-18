@@ -14,6 +14,8 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -35,6 +37,7 @@ public class MatchParticipantEntity extends Auditor {
     String readyStatusName;
     Integer shareAmount;
     Integer paidDeposit;
+    LocalDateTime paidShareAt;
     String statusCode;
     String statusName;
 }

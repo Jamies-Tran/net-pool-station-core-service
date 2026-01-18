@@ -41,12 +41,14 @@ public class MatchMakingsController implements MatchMakingsApi {
     @Override
     public MyPageResponse<MatchMakingResponse> findAll(
             String search,
+            String createdBy,
             List<LocalDate> timeRangeStartAt,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize
     ) {
         MatchMakingCriteria criteria = MatchMakingCriteria.builder()
                 .search(search)
+                .createdBy(createdBy)
                 .timeRangeStartAt(timeRangeStartAt)
                 .statusCodes(statusCodes)
                 .build();
@@ -60,6 +62,13 @@ public class MatchMakingsController implements MatchMakingsApi {
     @Override
     public MyValueResponse<?> emptyParticipant(Long matchParticipantId) {
         matchMakingUseCase.emptyParticipant(DomainKey.of(matchParticipantId));
+
+        return MyValueResponse.successNoData();
+    }
+
+    @Override
+    public MyValueResponse<?> participantWalletPayment(Long matchParticipateId) {
+        matchMakingUseCase.participantWalletPayment(DomainKey.of(matchParticipateId));
 
         return MyValueResponse.successNoData();
     }

@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.With;
 import net.pool.station.core.domain.transaction.Transaction;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record WalletLedger(
         Long walletLedgerId,
@@ -14,6 +16,7 @@ public record WalletLedger(
         @With Integer newBalance,
         @With Integer chargedCommission,
         @With Integer newContributedCommission,
-        @With Transaction transaction
-        ) {
+        @With Transaction transaction,
+        LocalDateTime createdAt
+) {
 }

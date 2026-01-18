@@ -39,9 +39,13 @@ public class WalletLedgerUseCaseService implements WalletLedgerUseCase {
 
     @Override
     @Transactional
-    public void save(WalletLedger walletLedger) {
+    public WalletLedger save(WalletLedger walletLedger, Boolean isUpdateBalance) {
         WalletLedger saveLedger = commandService.save(walletLedger);
-        walletUseCase.updateBalance(DomainKey.of(saveLedger.walletId()), saveLedger);
+        if (isUpdateBalance) {
+            walletUseCase.updateBalance(DomainKey.of(saveLedger.walletId()), saveLedger);
+        }
+
+        return saveLedger;
     }
 
     @Override
@@ -50,6 +54,16 @@ public class WalletLedgerUseCaseService implements WalletLedgerUseCase {
         List<WalletLedger> savedWalletLedgers = commandService.saveAll(walletLedgers);
         walletUseCase.updateBalance(savedWalletLedgers);
     }
+
+    @Override
+    @Transactional
+    public List<WalletLedger> updateBalanceByTransactionIds(List<Long> transactionIds) {
+        List<WalletLedger> walletLedgers = queryService.findAllByTransactionIdIn(transactionIds);
+        walletUseCase.updateBalance(walletLedgers);
+
+        return walletLedgers;
+    }
+
 
     @Override
     @Transactional(readOnly = true)

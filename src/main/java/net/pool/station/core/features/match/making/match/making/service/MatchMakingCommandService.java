@@ -64,6 +64,22 @@ public class MatchMakingCommandService {
                 .orElseThrow(MyResourceNotFoundException::new);
     }
 
+    protected MatchMaking updateStatus(Long matchMakingId, EMatchMakingStatus status,
+                                       LocalDateTime paidDepositAt) {
+        return repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
+                .map(
+                        foundMatchMaking -> {
+                            validateUpdateStatus(foundMatchMaking.getStatusCode(), status);
+                            foundMatchMaking.setStatusCode(status.getCode());
+                            foundMatchMaking.setStatusName(status.getName());
+                            foundMatchMaking.setPaidDepositAt(paidDepositAt);
+
+                            return mapper.toDto(repository.save(foundMatchMaking));
+                        }
+                )
+                .orElseThrow(MyResourceNotFoundException::new);
+    }
+
     protected void handleExpiredJob(Long matchMakingId) {
         repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
                 .ifPresentOrElse(

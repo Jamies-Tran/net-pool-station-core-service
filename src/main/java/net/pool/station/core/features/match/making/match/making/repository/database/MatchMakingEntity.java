@@ -41,6 +41,7 @@ public class MatchMakingEntity extends Auditor {
     String matchMakingCode;
     Integer numberOfHoldingDay;
     Integer limitParticipant;
+    Integer totalPrice;
     LocalDate expiredAt;
     String resourceTypeCode;
     String resourceTypeName;
@@ -48,6 +49,7 @@ public class MatchMakingEntity extends Auditor {
     String typeName;
     String paymentMethodCode;
     String paymentMethodName;
+    LocalDateTime paidDepositAt;
     String statusCode;
     String statusName;
     Boolean deleted;

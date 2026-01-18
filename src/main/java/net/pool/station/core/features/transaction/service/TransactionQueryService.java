@@ -33,8 +33,19 @@ public class TransactionQueryService {
                 .map(mapper::toDto);
     }
 
+    protected Optional<Transaction> findByMatchParticipantIdAndPaymentType(Long matchParticipantId,
+                                                                           EPaymentType paymentType) {
+        return repository.findByMatchParticipantIdAndPaymentTypeCode(matchParticipantId, paymentType.getCode())
+                .map(mapper::toDto);
+    }
+
     protected Page<Transaction> findAll(TransactionCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
+    }
+
+    protected List<Transaction> findAllBy(Long matchMakingId, List<EPaymentType> paymentTypes) {
+        List<String> paymentTypeCodes = paymentTypes.stream().map(EPaymentType::getCode).toList();
+        return mapper.toDto(repository.findAllByMatchMakingIdAndPaymentTypeCodeIn(matchMakingId, paymentTypeCodes));
     }
 }

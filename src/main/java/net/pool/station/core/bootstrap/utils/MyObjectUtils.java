@@ -19,6 +19,10 @@ public class MyObjectUtils {
         return !Objects.equals(t1, t2);
     }
 
+    public static <T> Boolean isNotIn(T t1 , List<T> t2) {
+        return !t2.contains(t1);
+    }
+
     public static <T> Boolean isEqualIgnoreCase(T t1 , T t2) {
         if (t1 instanceof String && t2 instanceof String) {
             return ((String) t1).equalsIgnoreCase((String) t2);

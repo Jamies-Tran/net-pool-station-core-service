@@ -30,9 +30,11 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
     @Query("""
         SELECT DISTINCT
                 m.matchMakingId AS matchMakingId,
-                mp.accountId = :accountId AS allowJoin
+                (mp IS NOT NULL AND mp.accountId = :accountId) 
+                        OR m.createdBy = :#{#accountId.toString()} AS allowJoin
         FROM MatchMakingEntity m
-        INNER JOIN MatchParticipantEntity mp ON m.matchMakingId = mp.matchMakingId AND mp.accountId IS NOT NULL
+        LEFT JOIN MatchParticipantEntity mp ON m.matchMakingId = mp.matchMakingId 
+                AND mp.accountId IS NOT NULL AND mp.accountId = :accountId
         INNER JOIN ScheduleEntity s ON m.scheduleId = s.scheduleId
         WHERE m.deleted = FALSE
             AND (:#{#criteria.search().empty} = TRUE
@@ -42,6 +44,8 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
                             AND :#{#criteria.timeRangeStartAt().get(1)})
             AND (:#{#criteria.statusCodes().empty} = TRUE
                     OR m.statusCode IN :#{#criteria.statusCodes()})
+            AND (:#{#criteria.createdBy().empty} = TRUE
+                    OR m.createdBy = :#{#criteria.createdBy()})
         """)
     Page<MatchMakingDao> findAll(MatchMakingCriteria criteria, Long accountId, Pageable pageable);
 
@@ -59,4 +63,11 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
         WHERE mm.stationId = :stationId
         """)
     Optional<Long> findOwnerWalletIdByStationId(Long stationId);
+
+    @Query("""
+        SELECT w.walletId
+        FROM WalletEntity w
+        WHERE w.accountId = :createdBy
+        """)
+    Optional<Long> findPlayerWalletIdByCreatedBy(Long createdBy);
 }

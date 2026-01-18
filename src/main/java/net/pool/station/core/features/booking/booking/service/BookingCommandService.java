@@ -87,6 +87,17 @@ public class BookingCommandService {
                 .orElseThrow(MyResourceNotFoundException::new);
     }
 
+    protected Booking updateStatus(Long bookingId, EBookingStatus status, LocalDateTime paidTotalAt) {
+        return repository.findByBookingIdAndDeletedFalse(bookingId)
+                .map(foundEntity -> {
+                    foundEntity.setStatusCode(status.getCode());
+                    foundEntity.setStatusName(status.getName());
+                    foundEntity.setPaidTotalAt(paidTotalAt);
+                    return mapper.toDto(repository.save(foundEntity));
+                })
+                .orElseThrow(MyResourceNotFoundException::new);
+    }
+
     protected void updateStatus(Long bookingId, String cancelReason, EBookingStatus status) {
         repository.findByBookingIdAndDeletedFalse(bookingId)
                 .ifPresentOrElse(

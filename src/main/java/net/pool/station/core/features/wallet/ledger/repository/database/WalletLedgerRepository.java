@@ -42,4 +42,6 @@ public interface WalletLedgerRepository extends JpaRepository<WalletLedgerEntity
                 AND :#{#criteria.timeRange().get(1)}
         """)
     Page<WalletLedgerEntity> findAll(WalletLedgerCriteria criteria, Pageable pageRequest);
+
+    List<WalletLedgerEntity> findAllByTransactionIdIn(List<Long> transactionIds);
 }

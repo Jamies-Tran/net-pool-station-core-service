@@ -21,15 +21,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RequestMapping("/v1/api/match-making")
+@PreAuthorize("hasRole('ROLE_PLAYER')")
 public interface MatchMakingsApi {
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_PLAYER')")
     MyValueResponse<Long> save(@RequestBody @Valid MatchMakingRequest request);
 
     @GetMapping
     MyPageResponse<MatchMakingResponse> findAll(
             @RequestParam(required = false, value = "search", defaultValue = "")
             String search,
+
+            @RequestParam(required = false, value = "createdBy", defaultValue = "")
+            String createdBy,
 
             @RequestParam(required = false, value = "timeRangeStartAt", defaultValue = "")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -49,6 +52,8 @@ public interface MatchMakingsApi {
     );
 
     @PutMapping("/participant/empty/{matchParticipantId}")
-    @PreAuthorize("hasRole('ROLE_PLAYER')")
     MyValueResponse<?> emptyParticipant(@PathVariable Long matchParticipantId);
+
+    @PostMapping("/participant/{matchParticipateId}/wallet-payment")
+    MyValueResponse<?> participantWalletPayment(@PathVariable Long matchParticipateId);
 }

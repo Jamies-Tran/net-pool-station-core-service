@@ -73,16 +73,16 @@ public class MatchMakingController implements MatchMakingApi {
     }
 
     @Override
-    public MyValueResponse<PaymentResponse> payment(Long matchMakingId) {
-        Payment payment = matchMakingUseCase.generatePayment(DomainKey.of(matchMakingId))
+    public MyValueResponse<PaymentResponse> depositPayment(Long matchMakingId) {
+        Payment payment = matchMakingUseCase.generateDepositPayment(DomainKey.of(matchMakingId))
                 .orElseThrow(MyResourceNotFoundException::new);
 
         return MyValueResponse.success(paymentResponseMapper.toModel(payment));
     }
 
     @Override
-    public MyValueResponse<?> walletPayment(Long matchMakingId) {
-        matchMakingUseCase.walletPayment(DomainKey.of(matchMakingId));
+    public MyValueResponse<?> depositWalletPayment(Long matchMakingId) {
+        matchMakingUseCase.depositWalletPayment(DomainKey.of(matchMakingId));
 
         return MyValueResponse.successNoData();
     }

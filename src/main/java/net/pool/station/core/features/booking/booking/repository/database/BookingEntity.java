@@ -41,6 +41,7 @@ public class BookingEntity extends Auditor {
     String cancelReason;
     LocalDateTime startAt;
     LocalDateTime endAt;
+    LocalDateTime paidTotalAt;
     String paymentMethodCode;
     String paymentMethodName;
     String statusCode;

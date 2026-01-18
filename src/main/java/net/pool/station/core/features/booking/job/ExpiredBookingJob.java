@@ -45,7 +45,7 @@ public class ExpiredBookingJob implements Job {
                     .changeAmount(-booking.totalPrice())
                     .chargedCommission(chargeCommission)
                     .build();
-            walletLedgerUseCase.save(walletLedger);
+            walletLedgerUseCase.save(walletLedger, true);
         }
     }
 }

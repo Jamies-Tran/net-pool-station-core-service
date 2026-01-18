@@ -35,6 +35,12 @@ public class WalletUseCaseService implements WalletUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<Wallet> findById(DomainKey<Long> walletId) {
+        return queryService.findById(walletId.value());
+    }
+
+    @Override
     @Transactional
     public void updateBalance(DomainKey<Long> walletId, WalletLedger walletLedger) {
         commandService.updateBalance(walletId.value(), walletLedger.newBalance(),

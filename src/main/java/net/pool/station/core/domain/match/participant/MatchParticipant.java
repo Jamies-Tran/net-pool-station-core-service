@@ -9,6 +9,7 @@ import net.pool.station.core.bootstrap.enums.EMatchParticipantType;
 import net.pool.station.core.bootstrap.utils.MyPaymentUtils;
 import net.pool.station.core.domain.account.Account;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public record MatchParticipant(
         Long matchParticipantId,
         Long accountId,
+        @With Long participantWalletId,
         @With Long matchMakingId,
         String typeCode,
         String typeName,
@@ -25,6 +27,7 @@ public record MatchParticipant(
         String readyStatusName,
         Integer shareAmount,
         Integer paidDeposit,
+        LocalDateTime paidShareAt,
         String statusCode,
         String statusName,
         @With Account account
@@ -45,8 +48,8 @@ public record MatchParticipant(
                 .paidDeposit(paidDeposit)
                 .typeCode(EMatchParticipantType.HOST.getCode())
                 .typeName(EMatchParticipantType.HOST.getName())
-                .readyStatusCode(EMatchParticipantReadyStatus.READY.getCode())
-                .readyStatusName(EMatchParticipantReadyStatus.READY.getName())
+                .readyStatusCode(EMatchParticipantReadyStatus.NOT_READY.getCode())
+                .readyStatusName(EMatchParticipantReadyStatus.NOT_READY.getName())
                 .statusCode(EMatchParticipantStatus.FILLED.getCode())
                 .statusName(EMatchParticipantStatus.FILLED.getName())
                 .build();
@@ -60,7 +63,8 @@ public record MatchParticipant(
     ) {
         List<MatchParticipant> list = new ArrayList<>(List
                 .of(ofHost(hostId, totalPrice, paidDeposit)));
-        for (int i = 0; i <= size; i++) {
+
+        for (int i = list.size(); i < size; i = list.size()) {
             list.add(ofEmpty());
         }
 

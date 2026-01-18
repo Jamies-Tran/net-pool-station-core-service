@@ -35,7 +35,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
                 CASE 
                     WHEN (b IS NOT NULL AND b.statusCode IN ('PENDING', 'NEW', 'PROCESSING') 
                             AND bs IS NOT NULL AND t.timeSlotId = bs.bookingSlotId.timeSlotId) OR
-                         (m IS NOT NULL AND m.statusCode IN ('PENDING', 'STARTED', 'DRAFT') 
+                         (m IS NOT NULL AND mmr IS NOT NULL AND m.statusCode IN ('PENDING', 'STARTED', 'DRAFT') 
                                  AND ms IS NOT NULL AND t.timeSlotId = ms.id.timeSlotId) THEN FALSE 
                     WHEN (bs IS NULL AND (sc.date <= CURRENT_DATE AND t.end < CURRENT_TIME)) THEN FALSE
                     ELSE TRUE 
@@ -45,10 +45,11 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
         INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId = a.stationSpaceId
         LEFT JOIN StationEntity s ON ss.stationId = s.stationId
         LEFT JOIN ScheduleEntity sc ON sc.stationId = s.stationId AND sc.scheduleId = :scheduleId AND sc.deleted = FALSE
-        LEFT JOIN BookingEntity b ON sc.scheduleId = b.scheduleId AND sc.deleted = FALSE 
+        LEFT JOIN BookingEntity b ON sc.scheduleId = b.scheduleId AND sc.deleted = FALSE AND b.stationResourceId = sr.stationResourceId
         LEFT JOIN TimeSlotEntity t ON sc.scheduleId = t.scheduleId
         LEFT JOIN BookingSlotEntity bs ON bs.bookingSlotId.timeSlotId = t.timeSlotId
         LEFT JOIN MatchMakingEntity m ON m.scheduleId = sc.scheduleId AND m.deleted = FALSE
+        LEFT JOIN MatchMakingResourceEntity mmr ON sr.stationResourceId = mmr.id.stationResourceId
         LEFT JOIN MatchMakingSlotEntity ms ON m.matchMakingId = ms.id.matchMakingId
         WHERE sr.stationResourceId = :stationResourceId
         """)

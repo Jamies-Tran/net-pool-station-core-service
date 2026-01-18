@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
+import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.AccountUseCase;
@@ -25,8 +26,8 @@ import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
-import net.pool.station.core.domain.transaction.TransactionUseCase;
-import net.pool.station.core.domain.wallet.WalletUseCase;
+import net.pool.station.core.domain.station.resource.StationResource;
+import net.pool.station.core.domain.station.resource.StationResourceUseCase;
 import net.pool.station.core.features.match.making.job.ExpiredMatchMakingJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +69,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     Scheduler scheduler;
 
+    StationResourceUseCase stationResourceUseCase;
+
     NotificationUseCase notificationUseCase;
 
     AccountUseCase accountUseCase;
@@ -76,7 +80,15 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     public Long save(MatchMaking matchMaking) {
         Schedule schedule = scheduleUseCase.findById(DomainKey.of(matchMaking.scheduleId()))
                 .orElseThrow(MyResourceNotFoundException::new);
-        matchMaking = matchMaking.withExpiredAt(schedule.date().plusDays(matchMaking.numberOfHoldingDay()));
+        List<Long> stationResourceIds = matchMaking.resources()
+                .stream()
+                .map(m -> m.id().stationResourceId())
+                .toList();
+        Integer totalPrice = stationResourceUseCase.totalPriceByStationResourceIdIn(stationResourceIds)
+                * matchMaking.slots().size();
+        matchMaking = matchMaking
+                .withExpiredAt(schedule.date().plusDays(matchMaking.numberOfHoldingDay()))
+                .withTotalPrice(totalPrice);
         MatchMaking savedMatchMaking = commandService.save(matchMaking);
         Long matchMakingId = savedMatchMaking.matchMakingId();
         slotUseCase.save(DomainKey.of(matchMakingId), matchMaking.slots());
@@ -129,14 +141,10 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     @Override
     @Transactional
-    public void process(DomainKey<Long> matchMakingId, Integer paidDeposit) {
+    public void process(DomainKey<Long> matchMakingId, Integer paidDeposit, LocalDateTime paidDepositAt) {
         MatchMaking matchMaking = commandService
-                .updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING);
-        List<MatchMakingResource> resources = resourceUseCase
-                .findAllByMatchMakingId(DomainKey.of(matchMaking.matchMakingId()));
-        List<MatchMakingSlot> slots = slotUseCase
-                .findAllByMatchMakingId(DomainKey.of(matchMaking.matchMakingId()));
-        int totalPrice = matchMaking.withResources(resources).withSlots(slots).totalPrice();
+                .updateStatus(matchMakingId.value(), EMatchMakingStatus.PENDING, paidDepositAt);
+        int totalPrice = matchMaking.totalPrice();
         List<MatchParticipant> matchParticipantEmptyList = MatchParticipant
                 .ofEmptyList(
                         matchMaking.limitParticipant(),
@@ -150,7 +158,21 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     @Override
     @Transactional
+    public void processParticipant(DomainKey<Long> matchParticipantId, LocalDateTime paidShareAt) {
+        matchParticipantUseCase.ready(matchParticipantId, paidShareAt);
+    }
+
+    @Override
+    @Transactional
     public void start(DomainKey<Long> matchMakingId) {
+        MatchMaking matchMaking = findById(matchMakingId)
+                .orElseThrow(MyResourceNotFoundException::new);
+        List<MatchParticipant> matchParticipants = matchMaking.participants();
+        if (!matchParticipants.stream().allMatch(mp -> MyObjectUtils.isEquals(mp.readyStatusCode(),
+                EMatchParticipantReadyStatus.READY.getCode()))) {
+            throw new MyResourceNotFoundException("Tất cả thành viên phải sẵn sàng");
+        }
+        paymentUseCase.paymentToStartMatchMaking(matchMaking);
         commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.STARTED);
     }
 
@@ -190,6 +212,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                 .map(m -> {
                     Long ownerWalletId = queryService.findOwnerWalletIdByStationId(m.stationId())
                             .orElseThrow(MyResourceNotFoundException::new);
+                    Long playerWalletId = queryService.findPlayerWalletIdByCreatedBy(Long.valueOf(m.createdBy()))
+                            .orElseThrow(MyResourceNotFoundException::new);
                     List<MatchMakingResource> resources = resourceUseCase
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
                     List<MatchMakingSlot> slots = slotUseCase
@@ -203,6 +227,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                             .withResources(resources)
                             .withSlots(slots)
                             .withOwnerWalletId(ownerWalletId)
+                            .withPlayerWalletId(playerWalletId)
                             .withStartAt(schedule.date()).withParticipants(participants);
                 });
     }
@@ -215,16 +240,16 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     @Override
     @Transactional
-    public Optional<Payment> generatePayment(DomainKey<Long> matchMakingId) {
+    public Optional<Payment> generateDepositPayment(DomainKey<Long> matchMakingId) {
         return findById(matchMakingId)
-                .map(paymentUseCase::createFromMatchMaking);
+                .map(paymentUseCase::createDepositFromMatchMaking);
     }
 
     @Override
     @Transactional
-    public void walletPayment(DomainKey<Long> matchMakingId) {
+    public void depositWalletPayment(DomainKey<Long> matchMakingId) {
         MatchMaking matchMaking = findById(matchMakingId).orElseThrow(MyResourceNotFoundException::new);
-        paymentUseCase.walletPaymentForMatchMaking(matchMaking);
+        paymentUseCase.depositWalletPaymentForMatchMaking(matchMaking);
     }
 
     @Override
@@ -235,5 +260,13 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
         if (participantCancel.isCancel()) {
             cancel(DomainKey.of(participantCancel.matchMakingId()));
         }
+    }
+
+    @Override
+    @Transactional
+    public void participantWalletPayment(DomainKey<Long> matchParticipantId) {
+        MatchParticipant matchParticipant = matchParticipantUseCase.findById(matchParticipantId)
+                .orElseThrow(MyResourceNotFoundException::new);
+        paymentUseCase.walletPaymentForMatchParticipant(matchParticipant);
     }
 }

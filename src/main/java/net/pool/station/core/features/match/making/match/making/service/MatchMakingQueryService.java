@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,5 +51,9 @@ public class MatchMakingQueryService {
 
     protected Optional<Long> findOwnerWalletIdByStationId(Long stationId) {
         return repository.findOwnerWalletIdByStationId(stationId);
+    }
+
+    protected Optional<Long> findPlayerWalletIdByCreatedBy(Long createdBy) {
+        return repository.findPlayerWalletIdByCreatedBy(createdBy);
     }
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/v1/api/match-making/{matchMakingId}")
 public interface MatchMakingApi {
@@ -36,9 +35,9 @@ public interface MatchMakingApi {
     @PatchMapping("/finish")
     MyValueResponse<?> finish(@PathVariable Long matchMakingId);
 
-    @GetMapping("/payment")
-    MyValueResponse<PaymentResponse> payment(@PathVariable Long matchMakingId);
+    @GetMapping("/deposit/payment")
+    MyValueResponse<PaymentResponse> depositPayment(@PathVariable Long matchMakingId);
 
-    @PostMapping("/wallet-payment")
-    MyValueResponse<?> walletPayment(@PathVariable Long matchMakingId);
+    @PostMapping("/deposit/wallet-payment")
+    MyValueResponse<?> depositWalletPayment(@PathVariable Long matchMakingId);
 }

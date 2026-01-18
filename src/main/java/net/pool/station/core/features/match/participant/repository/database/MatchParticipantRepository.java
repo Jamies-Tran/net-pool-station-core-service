@@ -14,8 +14,12 @@ import java.util.List;
 public interface MatchParticipantRepository extends JpaRepository<MatchParticipantEntity, Long> {
     List<MatchParticipantEntity> findAllByMatchMakingId(Long matchMakingId);
 
-    List<MatchParticipantEntity> findAllByMatchMakingIdAndStatusCode(Long matchMakingId,
-                                                                     String statusCode);
+    @Query("""
+        SELECT m.totalPrice
+        FROM MatchMakingEntity m
+        WHERE m.matchMakingId = :matchMakingId
+        """)
+    Integer findTotalPriceByMatchMakingId(Long matchMakingId);
 
     @Query("""
         SELECT mp

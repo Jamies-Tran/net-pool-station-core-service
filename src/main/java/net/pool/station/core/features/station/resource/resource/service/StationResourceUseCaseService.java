@@ -118,4 +118,10 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     public void delete(DomainKey<Long> stationResourceId) {
         commandService.delete(stationResourceId.value());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds) {
+        return queryService.totalPriceByStationResourceIdIn(stationResourceIds);
+    }
 }

@@ -5,6 +5,7 @@ import net.pool.station.core.domain.payment.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface MatchMakingUseCase {
@@ -12,7 +13,9 @@ public interface MatchMakingUseCase {
 
     void update(DomainKey<Long> matchMakingId, MatchMaking matchMaking);
 
-    void process(DomainKey<Long> matchMakingId, Integer paidDeposit);
+    void process(DomainKey<Long> matchMakingId, Integer paidDeposit, LocalDateTime paidDepositAt);
+
+    void processParticipant(DomainKey<Long> matchParticipantId, LocalDateTime paidShareAt);
 
     void start(DomainKey<Long> matchMakingId);
 
@@ -28,9 +31,11 @@ public interface MatchMakingUseCase {
 
     Page<MatchMaking> findAll(MatchMakingCriteria criteria, PageRequest pageRequest);
 
-    Optional<Payment> generatePayment(DomainKey<Long> matchMakingId);
+    Optional<Payment> generateDepositPayment(DomainKey<Long> matchMakingId);
 
-    void walletPayment(DomainKey<Long> matchMakingId);
+    void depositWalletPayment(DomainKey<Long> matchMakingId);
 
     void emptyParticipant(DomainKey<Long> matchParticipantId);
+
+    void participantWalletPayment(DomainKey<Long> matchParticipantId);
 }
