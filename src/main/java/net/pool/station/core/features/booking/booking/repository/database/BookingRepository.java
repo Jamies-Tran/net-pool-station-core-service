@@ -61,8 +61,8 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
         FROM BookingEntity b
         INNER JOIN StationResourceEntity sr ON b.stationResourceId = sr.stationResourceId
         INNER JOIN AreaEntity a ON a.areaId = sr.areaId
-        INNER JOIN StationSpaceEntity ss ON ss.stationId = a.stationSpaceId
-        INNER JOIN StationEntity s ON ss.stationId = ss.stationId
+        INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId = a.stationSpaceId
+        INNER JOIN StationEntity s ON ss.stationId = s.stationId
         INNER JOIN StationAccountEntity sa ON sa.stationAccountId.stationId = s.stationId
         INNER JOIN AccountEntity ac ON sa.stationAccountId.accountId = ac.accountId
         INNER JOIN RoleEntity r ON ac.roleId = r.roleId 

@@ -84,7 +84,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
         if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), booking.paymentMethodCode())) {
             throw new MyResourceNotValid("Booking không thanh toán bằng ví hệ thống.");
         }
-        Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(booking.createdBy())))
+        Wallet playerWallet = walletUseCase
+                .findByAccountId(DomainKey.of(Long.valueOf(booking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
         if (playerWallet.balance() < booking.totalPrice()) {
             throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục booking."

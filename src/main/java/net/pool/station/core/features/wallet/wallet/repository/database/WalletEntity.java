@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.auditor.Auditor;
 import net.pool.station.core.bootstrap.enums.EWalletStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 
@@ -23,7 +24,7 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 @Entity
 @Table(name = "wallets")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WalletEntity {
+public class WalletEntity extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long walletId;
