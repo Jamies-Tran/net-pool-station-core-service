@@ -40,4 +40,8 @@ public class MatchParticipantQueryService {
         return repository.findById(matchParticipantId)
                 .map(mapper::toDto);
     }
+
+    protected Boolean allowByAccountId(Long matchParticipantId, Long accountId) {
+        return repository.allowsByAccountId(matchParticipantId, accountId);
+    }
 }

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.AccountUseCase;
@@ -42,6 +43,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,45 +101,12 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
         return savedMatchMaking.matchMakingId();
     }
 
-    private void setupSchedule(MatchMaking matchMaking) {
-        try {
-            JobDetail endMatchMakingDetail = JobBuilder.newJob(ExpiredMatchMakingJob.class)
-                    .withIdentity("endMatchMakingJobDetail_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
-                    .usingJobData("matchMakingId", matchMaking.matchMakingId())
-                    .build();
-            Trigger endMatchMakingTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity("endMatchMakingTrigger_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
-                    .startAt(Timestamp.valueOf(matchMaking.expiredAt().atStartOfDay()))
-                    .build();
-            Map<JobDetail, Set<? extends Trigger>> jobAndTrigger = new LinkedHashMap<>();
-            jobAndTrigger.put(endMatchMakingDetail, Set.of(endMatchMakingTrigger));
-            scheduler.scheduleJobs(jobAndTrigger, true);
-        } catch (Exception e) {
-            log.error("[MatchMakingUseCaseService.setupSchedule(...)] message: {}", e.getMessage(), e);
-        }
-
-    }
-
     @Override
     @Transactional
     public void update(DomainKey<Long> matchMakingId, MatchMaking matchMaking) {
         MatchMaking savedMatchMaking = commandService.update(matchMakingId.value(), matchMaking);
 
         updateSchedule(savedMatchMaking);
-    }
-
-    private void updateSchedule(MatchMaking matchMaking) {
-        try {
-            TriggerKey triggerKey = TriggerKey.triggerKey("endMatchMakingTrigger_%s".formatted(matchMaking.matchMakingId()),
-                    "matchMaking");
-            Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(triggerKey)
-                    .startAt(Timestamp.valueOf(matchMaking.expiredAt().atStartOfDay()))
-                    .build();
-            scheduler.rescheduleJob(triggerKey, trigger);
-        } catch (Exception e) {
-            log.error("[MatchMakingUseCaseService.updateSchedule(...)] message: {}", e.getMessage(), e);
-        }
     }
 
     @Override
@@ -152,7 +122,6 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                         paidDeposit,
                         Long.parseLong(matchMaking.createdBy())
                 );
-
         matchParticipantUseCase.save(DomainKey.of(matchMaking.matchMakingId()), matchParticipantEmptyList);
     }
 
@@ -160,6 +129,12 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Transactional
     public void processParticipant(DomainKey<Long> matchParticipantId, LocalDateTime paidShareAt) {
         matchParticipantUseCase.ready(matchParticipantId, paidShareAt);
+    }
+
+    @Override
+    @Transactional
+    public void prepareToStart(DomainKey<Long> matchMakingId) {
+        commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.PREPARE_START);
     }
 
     @Override
@@ -264,9 +239,58 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     @Override
     @Transactional
-    public void participantWalletPayment(DomainKey<Long> matchParticipantId) {
-        MatchParticipant matchParticipant = matchParticipantUseCase.findById(matchParticipantId)
-                .orElseThrow(MyResourceNotFoundException::new);
-        paymentUseCase.walletPaymentForMatchParticipant(matchParticipant);
+    public void participantWalletPayment(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod) {
+
+        MatchParticipant updateMatchParticipant = matchParticipantUseCase
+                .updatePaymentMethod(matchParticipantId, paymentMethod);
+
+        paymentUseCase.walletPaymentForMatchParticipant(updateMatchParticipant);
+    }
+
+    private void setupSchedule(MatchMaking matchMaking) {
+        try {
+            JobDetail endMatchMakingDetail = JobBuilder.newJob(ExpiredMatchMakingJob.class)
+                    .withIdentity("endMatchMakingJobDetail_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
+                    .usingJobData("matchMakingId", matchMaking.matchMakingId())
+                    .build();
+            Trigger endMatchMakingTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("endMatchMakingTrigger_%s".formatted(matchMaking.matchMakingId()), "matchMaking")
+                    .startAt(Timestamp.valueOf(matchMaking.expiredAt().atStartOfDay()))
+                    .build();
+            Map<JobDetail, Set<? extends Trigger>> jobAndTrigger = new LinkedHashMap<>();
+            jobAndTrigger.put(endMatchMakingDetail, Set.of(endMatchMakingTrigger));
+            scheduler.scheduleJobs(jobAndTrigger, true);
+        } catch (Exception e) {
+            log.error("[MatchMakingUseCaseService.setupSchedule(...)] message: {}", e.getMessage(), e);
+        }
+
+    }
+
+    private void updateSchedule(MatchMaking matchMaking) {
+        try {
+            TriggerKey triggerKey = TriggerKey.triggerKey("endMatchMakingTrigger_%s".formatted(matchMaking.matchMakingId()),
+                    "matchMaking");
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(triggerKey)
+                    .startAt(Timestamp.valueOf(matchMaking.expiredAt().atStartOfDay()))
+                    .build();
+            scheduler.rescheduleJob(triggerKey, trigger);
+        } catch (Exception e) {
+            log.error("[MatchMakingUseCaseService.updateSchedule(...)] message: {}", e.getMessage(), e);
+        }
+    }
+
+    private void processSchedule(Long matchMakingId) {
+        try {
+            List<MatchMakingSlot> matchMakingSlots = slotUseCase
+                    .findAllByMatchMakingId(DomainKey.of(matchMakingId));
+            LocalTime endTime = matchMakingSlots
+                    .stream()
+                    .max(Comparator.comparing(MatchMakingSlot::end))
+                    .map(MatchMakingSlot::end)
+                    .orElseThrow(MyResourceNotFoundException::new);
+        } catch (Exception e) {
+            log.error("[MatchMakingUseCaseService.processSchedule(...)] message: {}", e.getMessage(), e);
+        }
     }
 }

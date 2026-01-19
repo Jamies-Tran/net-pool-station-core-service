@@ -3,6 +3,7 @@ package net.pool.station.core.features.match.making.match.making.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
@@ -13,6 +14,7 @@ import net.pool.station.core.features.match.making.match.making.controller.model
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingRequestMapping;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponseMapping;
+import net.pool.station.core.features.match.making.match.making.controller.models.payment.method.PaymentMethodRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,8 +69,9 @@ public class MatchMakingsController implements MatchMakingsApi {
     }
 
     @Override
-    public MyValueResponse<?> participantWalletPayment(Long matchParticipateId) {
-        matchMakingUseCase.participantWalletPayment(DomainKey.of(matchParticipateId));
+    public MyValueResponse<?> participantWalletPayment(Long matchParticipateId, PaymentMethodRequest request) {
+        EPaymentMethod paymentMethod = EPaymentMethod.valueOf(request.paymentMethodCode());
+        matchMakingUseCase.participantWalletPayment(DomainKey.of(matchParticipateId), paymentMethod);
 
         return MyValueResponse.successNoData();
     }

@@ -36,4 +36,10 @@ public class BookingSlotUseCaseService implements BookingSlotUseCase {
     public List<BookingSlot> findAllByBookingId(DomainKey<Long> bookingId) {
         return queryService.findAllByBookingId(bookingId.value());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingSlot> findAllByStationResourceIdAndTimeSlotIdIn(DomainKey<Long> stationResourceId, List<Long> timeSlotIds) {
+        return queryService.findAllByStationResourceIdAndTimeSlotIdIn(stationResourceId.value(), timeSlotIds);
+    }
 }

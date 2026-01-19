@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.match.participant;
 
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.domain.DomainKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,8 @@ public interface MatchParticipantUseCase {
     void fillEmptyParticipant(DomainKey<Long> matchMakingId, Long accountId);
 
     MatchParticipantCancel emptyFilledParticipant(DomainKey<Long> matchParticipantId);
+
+    MatchParticipant updatePaymentMethod(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod);
 
     List<MatchParticipant> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
 

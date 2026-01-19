@@ -5,6 +5,7 @@ import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingRequest;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponse;
+import net.pool.station.core.features.match.making.match.making.controller.models.payment.method.PaymentMethodRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +15,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RequestMapping("/v1/api/match-making")
@@ -55,5 +54,6 @@ public interface MatchMakingsApi {
     MyValueResponse<?> emptyParticipant(@PathVariable Long matchParticipantId);
 
     @PostMapping("/participant/{matchParticipateId}/wallet-payment")
-    MyValueResponse<?> participantWalletPayment(@PathVariable Long matchParticipateId);
+    MyValueResponse<?> participantWalletPayment(@PathVariable Long matchParticipateId,
+                                                @RequestBody @Valid PaymentMethodRequest request);
 }

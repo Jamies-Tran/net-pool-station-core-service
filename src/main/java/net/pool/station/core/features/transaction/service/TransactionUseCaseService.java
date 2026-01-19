@@ -240,9 +240,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build();
             Transaction savedTransaction = commandService.update(transactionCode.value(), transaction);
-            log.info("Transaction updated: {}", savedTransaction);
-            boolean isUpdateBalance = MyObjectUtils.isNotEquals(savedTransaction.paymentTypeCode(),
-                    EPaymentType.MATCH_MAKING_DEPOSIT.getCode());
+
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
                 chargeCommission = MyPaymentUtils.calculateCommission(paymentWebhook.amount());
                 WalletLedger walletLedger = WalletLedger.builder()
@@ -251,20 +249,24 @@ public class TransactionUseCaseService implements TransactionUseCase {
                         .changeAmount(paymentWebhook.amount())
                         .chargedCommission(chargeCommission)
                         .build();
-                WalletLedger savedLedger = walletLedgerUseCase.save(walletLedger, isUpdateBalance);
+                WalletLedger savedLedger = walletLedgerUseCase.save(walletLedger, true);
+                log.info("Ledger saved: {}", savedLedger);
                 if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
                     bookingUseCase().processed(new DomainKey<>(savedTransaction.bookingId()), savedLedger.createdAt());
+                    log.info("Booking processed");
                 }
                 if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())
                         && Objects.equals(savedTransaction.paymentTypeCode(), EPaymentType.MATCH_MAKING_DEPOSIT.getCode())) {
                     matchMakingUseCase().process(new DomainKey<>(savedTransaction.matchMakingId()),
                             paymentWebhook.amount(), savedLedger.createdAt());
+                    log.info("Match Making processed");
                 }
                 if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())
                     && Objects.equals(savedTransaction.paymentTypeCode(), EPaymentType.MATCH_PARTICIPANT_PAYMENT.getCode())) {
 
                     matchMakingUseCase().processParticipant(new DomainKey<>(savedTransaction.matchParticipantId()),
                             savedLedger.createdAt());
+                    log.info("Match Participant processed");
                 }
                 log.info("Transaction completed");
             }

@@ -36,9 +36,9 @@ public interface MatchParticipantRepository extends JpaRepository<MatchParticipa
     Page<MatchParticipantEntity> findAll(MatchParticipantCriteria criteria, Pageable pageable);
 
     @Query("""
-        SELECT mp
+        SELECT mp.accountId = :accountId
         FROM MatchParticipantEntity mp
-        
+        WHERE mp.matchParticipantId = :matchParticipantId
         """)
-    Boolean existsByHostId(String accountId);
+    Boolean allowsByAccountId(Long matchParticipantId, Long accountId);
 }

@@ -3,6 +3,7 @@ package net.pool.station.core.domain.match.making.slot;
 import lombok.Builder;
 import lombok.With;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Builder
@@ -10,6 +11,8 @@ import java.time.LocalTime;
 public record MatchMakingSlot(
         MatchMakingSlotId id,
         LocalTime begin,
-        LocalTime end
+        LocalTime end,
+        LocalDate startAt,
+        LocalDate expiredAt
 ) {
 }

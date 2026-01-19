@@ -43,6 +43,7 @@ public class MatchMakingEntity extends Auditor {
     Integer limitParticipant;
     Integer totalPrice;
     LocalDate expiredAt;
+    LocalDate processAt;
     String resourceTypeCode;
     String resourceTypeName;
     String typeCode;

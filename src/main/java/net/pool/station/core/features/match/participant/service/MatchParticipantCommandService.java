@@ -9,6 +9,7 @@ import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourc
 import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantType;
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.login.info.LoginInfo;
@@ -137,6 +138,16 @@ public class MatchParticipantCommandService {
                         MyResourceNotFoundException::new
 
                 );
+    }
+
+    protected MatchParticipant updatePaymentMethod(Long matchParticipantId, EPaymentMethod paymentMethod) {
+        return repository.findById(matchParticipantId)
+                .map(entity -> {
+                    entity.setPaymentMethodCode(paymentMethod.getCode());
+                    entity.setPaymentMethodName(paymentMethod.getName());
+                    return mapper.toDto(repository.save(entity));
+                })
+                .orElseThrow(MyResourceNotFoundException::new);
     }
 
     private void authorizeUpdate(MatchParticipantEntity matchParticipant) {

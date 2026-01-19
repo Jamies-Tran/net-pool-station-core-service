@@ -27,6 +27,7 @@ public record MatchMaking(
         Integer limitParticipant,
         @With LocalDate startAt,
         @With LocalDate expiredAt,
+        LocalDate processAt,
         String resourceTypeCode,
         String resourceTypeName,
         String typeCode,

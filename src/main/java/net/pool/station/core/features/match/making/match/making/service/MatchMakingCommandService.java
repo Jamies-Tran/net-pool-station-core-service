@@ -73,6 +73,9 @@ public class MatchMakingCommandService {
                             foundMatchMaking.setStatusCode(status.getCode());
                             foundMatchMaking.setStatusName(status.getName());
                             foundMatchMaking.setPaidDepositAt(paidDepositAt);
+                            if (MyObjectUtils.isEquals(status, EMatchMakingStatus.PENDING)) {
+                                foundMatchMaking.setProcessAt(LocalDate.now());
+                            }
 
                             return mapper.toDto(repository.save(foundMatchMaking));
                         }

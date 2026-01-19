@@ -3,12 +3,17 @@ package net.pool.station.core.features.match.participant.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
+import net.pool.station.core.bootstrap.utils.MyRequestContext;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.Account;
 import net.pool.station.core.domain.account.AccountUseCase;
+import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.match.participant.MatchParticipantCancel;
 import net.pool.station.core.domain.match.participant.MatchParticipantCriteria;
@@ -56,6 +61,23 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
     @Transactional
     public MatchParticipantCancel emptyFilledParticipant(DomainKey<Long> matchParticipantId) {
         return commandService.empty(matchParticipantId.value());
+    }
+
+    @Override
+    @Transactional
+    public MatchParticipant updatePaymentMethod(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod) {
+        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
+                .orElseThrow(MyAuthenticationException::new);
+        Boolean isAllow = queryService.allowByAccountId(matchParticipantId.value(), loginInfo.accountId());
+        if (!isAllow) {
+            throw new MyResourceNotValid("Bạn không thực hiện được thao tác này.");
+        }
+        MatchParticipant updatedMatchParticipant = commandService
+                .updatePaymentMethod(matchParticipantId.value(), paymentMethod);
+        Wallet wallet = walletUseCase.findByAccountId(DomainKey.of(updatedMatchParticipant.accountId()))
+                .orElseThrow(() -> new MyResourceNotFoundException("Không tìm thấy System Wallet của player"));
+
+        return updatedMatchParticipant.withParticipantWalletId(wallet.walletId());
     }
 
     @Override

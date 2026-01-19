@@ -12,6 +12,7 @@ import net.pool.station.core.bootstrap.configuration.enums.EnumProperty;
 public enum EMatchMakingStatus implements EnumProperty {
     DRAFT("DRAFT", "Nháp"),
     PENDING("PENDING", "Đang chờ"),
+    PREPARE_START("PREPARE_START", "Chuẩn bị bắt đầu"),
     CANCEL("CANCEL", "Đã hủy"),
     STARTED("STARTED", "Bắt đầu"),
     FINISHED("FINISHED", "Kết thúc"),;

@@ -1,5 +1,6 @@
 package net.pool.station.core.domain.match.making;
 
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.payment.Payment;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,8 @@ public interface MatchMakingUseCase {
     void process(DomainKey<Long> matchMakingId, Integer paidDeposit, LocalDateTime paidDepositAt);
 
     void processParticipant(DomainKey<Long> matchParticipantId, LocalDateTime paidShareAt);
+
+    void prepareToStart(DomainKey<Long> matchMakingId);
 
     void start(DomainKey<Long> matchMakingId);
 
@@ -37,5 +40,5 @@ public interface MatchMakingUseCase {
 
     void emptyParticipant(DomainKey<Long> matchParticipantId);
 
-    void participantWalletPayment(DomainKey<Long> matchParticipantId);
+    void participantWalletPayment(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod);
 }

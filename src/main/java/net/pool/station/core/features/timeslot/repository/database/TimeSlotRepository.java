@@ -2,6 +2,7 @@ package net.pool.station.core.features.timeslot.repository.database;
 
 import net.pool.station.core.domain.timeslot.TimeSlotCriteria;
 import net.pool.station.core.features.timeslot.repository.database.dao.TimeSlotAllowBookingDao;
+import net.pool.station.core.features.timeslot.repository.database.dao.TimeSlotDao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,7 +26,22 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
 
     List<TimeSlotEntity> findAllByScheduleIdAndStatusCode(Long scheduleId, String statusCode);
 
-    List<TimeSlotEntity> findAllByScheduleId(Long scheduleId);
+    @Query("""
+        SELECT
+                t.timeSlotId AS timeSlotId,
+                t.scheduleId AS scheduleId,
+                t.begin AS begin,
+                t.end AS end,
+                t.periodCode AS periodCode,
+                t.periodName AS periodName,
+                t.statusCode AS statusCode,
+                t.statusName AS statusName,
+                sc.date AS date
+        FROM TimeSlotEntity t
+        INNER JOIN ScheduleEntity sc ON t.scheduleId = sc.scheduleId
+        WHERE t.scheduleId = :scheduleId
+        """)
+    List<TimeSlotDao> findAllByScheduleId(Long scheduleId);
 
     void deleteAllByScheduleId(Long scheduleId);
 
@@ -33,10 +49,18 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
         SELECT DISTINCT
                 t.timeSlotId AS timeSlotId,
                 CASE 
-                    WHEN (b IS NOT NULL AND b.statusCode IN ('PENDING', 'NEW', 'PROCESSING') 
-                            AND bs IS NOT NULL AND t.timeSlotId = bs.bookingSlotId.timeSlotId) OR
-                         (m IS NOT NULL AND mmr IS NOT NULL AND m.statusCode IN ('PENDING', 'STARTED', 'DRAFT') 
-                                 AND ms IS NOT NULL AND t.timeSlotId = ms.id.timeSlotId) THEN FALSE 
+                    WHEN b IS NOT NULL AND b.statusCode IN ('PENDING', 'NEW', 'PROCESSING') 
+                            AND bs IS NOT NULL AND t.timeSlotId = bs.bookingSlotId.timeSlotId THEN FALSE 
+                    
+                    WHEN EXISTS (
+                            SELECT 1
+                            FROM TimeSlotEntity t2
+                            INNER JOIN ScheduleEntity sc2 ON t2.scheduleId = sc2.scheduleId
+                            INNER JOIN MatchMakingEntity m2 ON m2.scheduleId = sc2.scheduleId
+                            INNER JOIN MatchMakingResourceEntity mr2 ON mr2.id.matchMakingId = m2.matchMakingId
+                            WHERE (sc2.date <= CURRENT_DATE AND m2.expiredAt > CURRENT_DATE) AND (t2.begin <= CURRENT_TIME AND t2.end > CURRENT_TIME )
+                                    AND mr2.id.stationResourceId = mmr.id.stationResourceId
+                            ) THEN FALSE
                     WHEN (bs IS NULL AND (sc.date <= CURRENT_DATE AND t.end < CURRENT_TIME)) THEN FALSE
                     ELSE TRUE 
                 END AS allowBooking      
@@ -50,7 +74,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
         LEFT JOIN BookingSlotEntity bs ON bs.bookingSlotId.timeSlotId = t.timeSlotId
         LEFT JOIN MatchMakingEntity m ON m.scheduleId = sc.scheduleId AND m.deleted = FALSE
         LEFT JOIN MatchMakingResourceEntity mmr ON sr.stationResourceId = mmr.id.stationResourceId
-        LEFT JOIN MatchMakingSlotEntity ms ON m.matchMakingId = ms.id.matchMakingId
+        LEFT JOIN MatchMakingSlotEntity ms ON m.matchMakingId = ms.id.matchMakingId AND ms.id.timeSlotId = t.timeSlotId
         WHERE sr.stationResourceId = :stationResourceId
         """)
     List<TimeSlotAllowBookingDao> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId);
