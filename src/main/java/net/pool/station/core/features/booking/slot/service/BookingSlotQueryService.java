@@ -25,7 +25,13 @@ public class BookingSlotQueryService {
         return daoMapper.toDto(repository.findAllByBookingId(bookingId));
     }
 
-    protected List<BookingSlot> findAllByStationResourceIdAndTimeSlotIdIn(Long stationResourceId, List<Long> timeSlotIds) {
-        return daoMapper.toDto(repository.findAllByStationResourceIdAndTimeSlotIdIn(stationResourceId, timeSlotIds));
+    protected List<BookingSlot> findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeInd(
+            Long stationResourceId,
+            List<Long> timeSlotIds,
+            List<String> bookingStatusCodes
+    ) {
+        return daoMapper.toDto(repository
+                .findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeIn(stationResourceId, timeSlotIds,
+                        bookingStatusCodes));
     }
 }

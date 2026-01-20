@@ -13,6 +13,7 @@ public record MatchMakingSlot(
         LocalTime begin,
         LocalTime end,
         LocalDate startAt,
-        LocalDate expiredAt
+        LocalDate expiredAt,
+        String matchMakingStatusCode
 ) {
 }

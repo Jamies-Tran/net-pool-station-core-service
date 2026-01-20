@@ -39,7 +39,9 @@ public class MatchMakingSlotUseCaseService implements MatchMakingSlotUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MatchMakingSlot> findAllByStationResourceIdAndTimeSlotIdIn(DomainKey<Long> stationResourceId, List<Long> timeSlotIds) {
-        return queryService.findAllByStationResourceIdAndTimeSlotIdIn(stationResourceId.value(), timeSlotIds);
+    public List<MatchMakingSlot> findAllByStationResourceIdAndStatusCodeIn(
+            DomainKey<Long> stationResourceId, List<String> matchMakingStatusCodes) {
+        return queryService.findAllByStationResourceIdAndStatusCodeIn(
+                stationResourceId.value(), matchMakingStatusCodes);
     }
 }

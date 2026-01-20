@@ -40,7 +40,11 @@ public interface BookingSlotRepository extends JpaRepository<BookingSlotEntity, 
         INNER JOIN ScheduleEntity sc ON t.scheduleId = sc.scheduleId
         INNER JOIN BookingEntity b ON bs.bookingSlotId.bookingId = b.bookingId
         INNER JOIN StationResourceEntity s ON b.stationResourceId = s.stationResourceId
-        WHERE s.stationResourceId = :stationResourceId AND bs.bookingSlotId.timeSlotId IN :timeSlotIds
+        WHERE s.stationResourceId = :stationResourceId 
+                AND bs.bookingSlotId.timeSlotId IN :timeSlotIds
+                AND b.statusCode IN :bookingStatusCodes
         """)
-    List<BookingSlotDao> findAllByStationResourceIdAndTimeSlotIdIn(Long stationResourceId, List<Long> timeSlotIds);
+    List<BookingSlotDao> findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeIn(Long stationResourceId,
+                                                                                         List<Long> timeSlotIds,
+                                                                                         List<String> bookingStatusCodes);
 }

@@ -11,5 +11,6 @@ public interface BookingSlotUseCase {
 
     List<BookingSlot> findAllByBookingId(DomainKey<Long> bookingId);
 
-    List<BookingSlot> findAllByStationResourceIdAndTimeSlotIdIn(DomainKey<Long> stationResourceId, List<Long> timeSlotIds);
+    List<BookingSlot> findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeIn(
+            DomainKey<Long> stationResourceId, List<Long> timeSlotIds, List<String> bookingStatusCodes);
 }

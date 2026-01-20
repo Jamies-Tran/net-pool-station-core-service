@@ -3,6 +3,8 @@ package net.pool.station.core.features.timeslot.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.enums.EBookingStatus;
+import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.enums.ETimeSlotStatus;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -92,12 +95,25 @@ public class TimeSlotUseCaseService implements TimeSlotUseCase {
                 .stream()
                 .map(TimeSlot::timeSlotId)
                 .toList();
+        List<String> bookingStatusCodes = Stream.of(EBookingStatus.values())
+                .map(EBookingStatus::getCode)
+                .filter(s -> MyObjectUtils.isEquals(s, EBookingStatus.PENDING.getCode())
+                        || MyObjectUtils.isEquals(s, EBookingStatus.NEW.getCode())
+                        || MyObjectUtils.isEquals(s, EBookingStatus.PROCESSING.getCode()))
+                .toList();
+        List<String> matchMakingStatusCodes = Stream.of(EMatchMakingStatus.values())
+                .map(EMatchMakingStatus::getCode)
+                .filter(m -> MyObjectUtils.isEquals(m, EMatchMakingStatus.DRAFT.getCode())
+                        || MyObjectUtils.isEquals(m, EMatchMakingStatus.PENDING.getCode())
+                        || MyObjectUtils.isEquals(m, EMatchMakingStatus.PREPARE_START.getCode())
+                        || MyObjectUtils.isEquals(m, EMatchMakingStatus.STARTED.getCode()))
+                .toList();
         Map<Long, List<BookingSlot>> bookingSlots = bookingSlotUseCase
-                .findAllByStationResourceIdAndTimeSlotIdIn(stationResourceId, timeSlotIds)
+                .findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeIn(stationResourceId, timeSlotIds, bookingStatusCodes)
                 .stream()
                 .collect(Collectors.groupingBy(b -> b.bookingSlotId().timeSlotId()));
         Map<Long, List<MatchMakingSlot>> matchMakingSlots = matchMakingSlotUseCase
-                .findAllByStationResourceIdAndTimeSlotIdIn(stationResourceId, timeSlotIds)
+                .findAllByStationResourceIdAndStatusCodeIn(stationResourceId, matchMakingStatusCodes)
                 .stream()
                 .collect(Collectors.groupingBy(m -> m.id().timeSlotId()));
 
@@ -122,17 +138,32 @@ public class TimeSlotUseCaseService implements TimeSlotUseCase {
                     if (MyObjectUtils.isNotEmpty(bookingSlotList)) {
                         bookingCheck = bookingSlotList
                                 .stream()
-                                .noneMatch(b -> b.date().isEqual(now.toLocalDate())
-                                        && b.begin().isBefore(now.toLocalTime()) && b.end().isAfter(now.toLocalTime()));
+                                .noneMatch(b -> b.date().isEqual(t.date())
+                                        && b.begin().equals(t.begin()) && b.end().equals(t.end()));
                     }
 
                     if (MyObjectUtils.isNotEmpty(matchMakingSlotList)) {
                         matchMakingCheck = matchMakingSlotList
                                 .stream()
-                                .noneMatch(m -> m.startAt().isBefore(now.toLocalDate())
-                                        && m.expiredAt().isAfter(now.toLocalDate())
-                                        && m.begin().isBefore(now.toLocalTime()) && m.end().isAfter(now.toLocalTime()));
+                                .noneMatch(m -> (m.startAt().isBefore(t.date()) || m.startAt().equals(t.date()))
+                                        && m.expiredAt().isAfter(t.date())
+                                        && m.begin().equals(t.begin()) && m.end().equals(t.end()));
+                    } else if (MyObjectUtils.isNotEmpty(matchMakingSlots)) {
+                        matchMakingCheck = matchMakingSlots.entrySet()
+                                .stream()
+                                .noneMatch(entry -> entry.getValue().stream()
+                                        .anyMatch(m -> {
+                                            if (MyObjectUtils
+                                                    .isEquals(m.matchMakingStatusCode(), EMatchMakingStatus.STARTED.getCode())) {
+                                                return !(m.startAt().isBefore(t.date()) || m.startAt().equals(t.date()))
+                                                        && m.expiredAt().isAfter(t.date());
+                                            }
+                                            return (m.startAt().isBefore(t.date()) || m.startAt().equals(t.date()))
+                                                    && m.expiredAt().isAfter(t.date())
+                                                    && m.begin().equals(t.begin()) && m.end().equals(t.end());
+                                        }));
                     }
+
 
                     return dateCheck && bookingCheck && matchMakingCheck;
                 }));

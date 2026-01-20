@@ -23,7 +23,9 @@ public class MatchMakingSlotQueryService {
         return daoMapper.toDto(repository.findAllByMatchMakingId(matchMakingId));
     }
 
-    protected List<MatchMakingSlot> findAllByStationResourceIdAndTimeSlotIdIn(Long stationResourceId, List<Long> timeSlotIds) {
-        return daoMapper.toDto(repository.findAllByStationResourceIdAndTimeSlotIdIn(stationResourceId, timeSlotIds));
+    protected List<MatchMakingSlot> findAllByStationResourceIdAndStatusCodeIn(
+            Long stationResourceId, List<String> matchMakingStatusCodes) {
+        return daoMapper.toDto(repository.findAllByStationResourceIdAndStatusCodeIn(
+                stationResourceId, matchMakingStatusCodes));
     }
 }

@@ -11,5 +11,6 @@ public interface MatchMakingSlotUseCase {
 
     List<MatchMakingSlot> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
 
-    List<MatchMakingSlot> findAllByStationResourceIdAndTimeSlotIdIn(DomainKey<Long> stationResourceId, List<Long> timeSlotIds);
+    List<MatchMakingSlot> findAllByStationResourceIdAndStatusCodeIn(DomainKey<Long> stationResourceId,
+                                                                    List<String> matchMakingStatusCodes);
 }

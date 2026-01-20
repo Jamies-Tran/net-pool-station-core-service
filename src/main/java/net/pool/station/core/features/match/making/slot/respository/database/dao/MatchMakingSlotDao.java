@@ -15,4 +15,6 @@ public interface MatchMakingSlotDao {
     LocalDate getStartAt();
 
     LocalDate getExpiredAt();
+
+    String getMatchMakingStatusCode();
 }

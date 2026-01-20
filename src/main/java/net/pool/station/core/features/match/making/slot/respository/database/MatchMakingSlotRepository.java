@@ -30,19 +30,21 @@ public interface MatchMakingSlotRepository extends JpaRepository<MatchMakingSlot
     List<MatchMakingSlotDao> findAllByMatchMakingId(Long matchMakingId);
 
     @Query("""
-        SELECT 
-                ms.id.timeSlotId AS timeSlotId,
+        SELECT
+                ms.id AS id,
                 t.begin AS begin,
                 t.end AS end,
                 sc.date AS startAt,
-                m.expiredAt AS expiredAt
+                m.expiredAt AS expiredAt,
+                m.statusCode AS matchMakingStatusCode
         FROM MatchMakingSlotEntity ms
-        INNER JOIN MatchMakingResourceEntity mr ON ms.id.matchMakingId = mr.id.stationResourceId 
+        INNER JOIN MatchMakingResourceEntity mr ON ms.id.matchMakingId = mr.id.matchMakingId 
                 AND mr.id.stationResourceId = :stationResourceId
         INNER JOIN TimeSlotEntity t ON ms.id.timeSlotId = t.timeSlotId
         INNER JOIN MatchMakingEntity m ON m.matchMakingId = ms.id.matchMakingId
         INNER JOIN ScheduleEntity sc ON sc.scheduleId = m.scheduleId
-        WHERE ms.id.timeSlotId IN :timeSlotIds
+        WHERE m.statusCode IN :matchMakingStatusCodes
         """)
-    List<MatchMakingSlotDao> findAllByStationResourceIdAndTimeSlotIdIn(Long stationResourceId, List<Long> timeSlotIds);
+    List<MatchMakingSlotDao> findAllByStationResourceIdAndStatusCodeIn(
+            Long stationResourceId, List<String> matchMakingStatusCodes);
 }
