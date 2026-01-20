@@ -36,6 +36,7 @@ public interface MatchMakingSlotRepository extends JpaRepository<MatchMakingSlot
                 t.end AS end,
                 sc.date AS startAt,
                 m.expiredAt AS expiredAt,
+                m.playAt AS playAt,
                 m.statusCode AS matchMakingStatusCode
         FROM MatchMakingSlotEntity ms
         INNER JOIN MatchMakingResourceEntity mr ON ms.id.matchMakingId = mr.id.matchMakingId 

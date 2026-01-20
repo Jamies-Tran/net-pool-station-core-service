@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.With;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Builder
@@ -14,6 +15,7 @@ public record MatchMakingSlot(
         LocalTime end,
         LocalDate startAt,
         LocalDate expiredAt,
+        LocalDateTime playAt,
         String matchMakingStatusCode
 ) {
 }

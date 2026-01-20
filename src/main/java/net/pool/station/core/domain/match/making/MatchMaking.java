@@ -28,6 +28,7 @@ public record MatchMaking(
         @With LocalDate startAt,
         @With LocalDate expiredAt,
         LocalDate processAt,
+        LocalDateTime playAt,
         String resourceTypeCode,
         String resourceTypeName,
         String typeCode,

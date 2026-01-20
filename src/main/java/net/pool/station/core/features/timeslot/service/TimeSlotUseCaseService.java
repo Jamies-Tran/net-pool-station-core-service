@@ -127,8 +127,6 @@ public class TimeSlotUseCaseService implements TimeSlotUseCase {
 
                     List<BookingSlot> bookingSlotList = bookingSlots.computeIfAbsent(t.timeSlotId(), k -> List.of());
 
-                    List<MatchMakingSlot> matchMakingSlotList = matchMakingSlots.computeIfAbsent(t.timeSlotId(), k -> List.of());
-
                     if ((t.date().isEqual(now.toLocalDate())
                             && (t.begin().isAfter(now.toLocalTime()) && t.end().isAfter(now.toLocalTime())))
                             || t.date().isAfter(now.toLocalDate()) ) {
@@ -142,28 +140,22 @@ public class TimeSlotUseCaseService implements TimeSlotUseCase {
                                         && b.begin().equals(t.begin()) && b.end().equals(t.end()));
                     }
 
-                    if (MyObjectUtils.isNotEmpty(matchMakingSlotList)) {
-                        matchMakingCheck = matchMakingSlotList
-                                .stream()
-                                .noneMatch(m -> (m.startAt().isBefore(t.date()) || m.startAt().equals(t.date()))
-                                        && m.expiredAt().isAfter(t.date())
-                                        && m.begin().equals(t.begin()) && m.end().equals(t.end()));
-                    } else if (MyObjectUtils.isNotEmpty(matchMakingSlots)) {
+                    if (MyObjectUtils.isNotEmpty(matchMakingSlots)) {
                         matchMakingCheck = matchMakingSlots.entrySet()
                                 .stream()
                                 .noneMatch(entry -> entry.getValue().stream()
                                         .anyMatch(m -> {
-                                            if (MyObjectUtils
-                                                    .isEquals(m.matchMakingStatusCode(), EMatchMakingStatus.STARTED.getCode())) {
-                                                return !(m.startAt().isBefore(t.date()) || m.startAt().equals(t.date()))
-                                                        && m.expiredAt().isAfter(t.date());
+                                            if (MyObjectUtils.isEquals(m.matchMakingStatusCode(),
+                                                    EMatchMakingStatus.STARTED.getCode())) {
+                                                return m.playAt().toLocalDate().equals(t.date())
+                                                        && (m.playAt().toLocalTime().isAfter(t.begin()) || m.playAt().toLocalTime().equals(t.begin()))
+                                                        && m.playAt().toLocalTime().isBefore(t.end());
                                             }
                                             return (m.startAt().isBefore(t.date()) || m.startAt().equals(t.date()))
                                                     && m.expiredAt().isAfter(t.date())
                                                     && m.begin().equals(t.begin()) && m.end().equals(t.end());
                                         }));
                     }
-
 
                     return dateCheck && bookingCheck && matchMakingCheck;
                 }));

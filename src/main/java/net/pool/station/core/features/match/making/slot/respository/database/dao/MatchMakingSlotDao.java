@@ -1,6 +1,7 @@
 package net.pool.station.core.features.match.making.slot.respository.database.dao;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public interface MatchMakingSlotDao {
@@ -15,6 +16,8 @@ public interface MatchMakingSlotDao {
     LocalDate getStartAt();
 
     LocalDate getExpiredAt();
+
+    LocalDateTime getPlayAt();
 
     String getMatchMakingStatusCode();
 }
