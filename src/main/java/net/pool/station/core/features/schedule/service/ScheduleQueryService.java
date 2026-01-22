@@ -3,6 +3,7 @@ package net.pool.station.core.features.schedule.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleCriteria;
 import net.pool.station.core.features.schedule.repository.database.ScheduleEntity;
@@ -14,10 +15,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,5 +88,43 @@ public class ScheduleQueryService {
                 .toList();
 
         return new PageImpl<>(schedules, pageRequest, scheduleIds.getTotalElements());
+    }
+
+    protected List<Schedule> findAllByStationIdAndDateFromAndDateCount(
+            Long stationId, LocalDate dateFrom, Integer dateCount) {
+        List<LocalDate> dateList = dateFrom.datesUntil(dateFrom.plusDays(dateCount)).toList();
+        List<ScheduleEntity> schedules = repository.findAllByStationIdAndDateGreaterThanEqual(stationId, dateFrom);
+        if (!CollectionUtils.isEmpty(schedules)) {
+            Optional<LocalDate> lastDate = dateList
+                    .stream()
+                    .max(Comparator.comparing(date -> date));
+            Map<LocalDate, ScheduleEntity> scheduleMap = schedules
+                    .stream()
+                    .collect(Collectors.toMap(ScheduleEntity::getDate, Function.identity()));
+            return dateList
+                    .stream()
+                    .map(s -> {
+                        ScheduleEntity schedule = scheduleMap.computeIfAbsent(s, k -> null);
+                        if (schedule == null) {
+                            LocalDate nextDate = lastDate.get().plusDays(1);
+                            ScheduleEntity nextSchedule = scheduleMap.computeIfAbsent(nextDate, k -> null);
+                            while (MyObjectUtils.isEmpty(nextSchedule)) {
+                                nextDate = nextDate.plusDays(1);
+                                nextSchedule = scheduleMap.computeIfAbsent(nextDate, k -> null);
+                            }
+
+                            if (MyObjectUtils.isEmpty(nextSchedule)) {
+                                return null;
+                            }
+
+                            return mapper.toDto(nextSchedule);
+                        }
+
+                        return mapper.toDto(schedule);
+                    })
+                    .toList();
+        }
+
+        return null;
     }
 }

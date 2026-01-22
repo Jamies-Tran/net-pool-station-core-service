@@ -84,5 +84,5 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
 
     List<ScheduleEntity> findAllByScheduleIdIn(List<Long> scheduleIds, Sort sort);
 
-
+    List<ScheduleEntity> findAllByStationIdAndDateGreaterThanEqual(Long stationId, LocalDate date);
 }

@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +81,12 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
     @Transactional(readOnly = true)
     public Page<Schedule> findAllByStationSpace(ScheduleCriteria criteria, PageRequest pageRequest) {
         return queryService.findAllByStationSpace(criteria, pageRequest);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Schedule> findAllByDateFromAndDateCount(LocalDate dateFrom, Integer dateCount) {
+        return List.of();
     }
 
     @Override
