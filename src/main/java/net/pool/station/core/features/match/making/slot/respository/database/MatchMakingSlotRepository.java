@@ -19,7 +19,7 @@ public interface MatchMakingSlotRepository extends JpaRepository<MatchMakingSlot
     void deleteAllByMatchMakingId(Long matchMakingId);
 
     @Query("""
-        SELECT 
+        SELECT
                 mms.id AS id,
                 ts.begin AS begin,
                 ts.end AS end

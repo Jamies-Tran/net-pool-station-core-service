@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
+import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
@@ -27,7 +28,6 @@ import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
-import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
 import net.pool.station.core.features.match.making.job.ExpiredMatchMakingJob;
 import org.quartz.JobBuilder;
@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -140,15 +139,20 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional
     public void start(DomainKey<Long> matchMakingId) {
-        MatchMaking matchMaking = findById(matchMakingId)
-                .orElseThrow(MyResourceNotFoundException::new);
-        List<MatchParticipant> matchParticipants = matchMaking.participants();
-        if (!matchParticipants.stream().allMatch(mp -> MyObjectUtils.isEquals(mp.readyStatusCode(),
+        List<MatchParticipant> matchParticipants = matchParticipantUseCase
+                .findAllByMatchMakingId(matchMakingId);
+        if (!matchParticipants.stream()
+                .filter(mp -> MyObjectUtils.isEquals(mp.statusCode(), EMatchParticipantStatus.FILLED.getCode()))
+                .allMatch(mp -> MyObjectUtils.isEquals(mp.readyStatusCode(),
                 EMatchParticipantReadyStatus.READY.getCode()))) {
             throw new MyResourceNotFoundException("Tất cả thành viên phải sẵn sàng");
         }
-        paymentUseCase.paymentToStartMatchMaking(matchMaking);
-        commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.STARTED);
+        MatchMaking matchMaking = commandService
+                .updateStatus(matchMakingId.value(), EMatchMakingStatus.STARTED);
+        Long ownerWalletId = queryService.findOwnerWalletIdByStationId(matchMaking.stationId())
+                .orElseThrow(MyResourceNotFoundException::new);
+        paymentUseCase.paymentToStartMatchMaking(matchMaking.withOwnerWalletId(ownerWalletId));
+        processStartSchedule(matchMaking);
     }
 
     @Override
@@ -230,7 +234,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional
     public void emptyParticipant(DomainKey<Long> matchParticipantId) {
-        MatchParticipantCancel participantCancel = matchParticipantUseCase.emptyFilledParticipant(matchParticipantId);
+        MatchParticipantCancel participantCancel = matchParticipantUseCase
+                .emptyFilledParticipant(matchParticipantId);
 
         if (participantCancel.isCancel()) {
             cancel(DomainKey.of(participantCancel.matchMakingId()));
@@ -245,6 +250,12 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                 .updatePaymentMethod(matchParticipantId, paymentMethod);
 
         paymentUseCase.walletPaymentForMatchParticipant(updateMatchParticipant);
+    }
+
+    @Override
+    @Transactional
+    public void prepareStart(DomainKey<Long> matchMakingId) {
+        commandService.updateStatus(matchMakingId.value(), EMatchMakingStatus.PREPARE_START);
     }
 
     private void setupSchedule(MatchMaking matchMaking) {
@@ -280,15 +291,22 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
         }
     }
 
-    private void processSchedule(Long matchMakingId) {
+    private void processStartSchedule(MatchMaking matchMaking) {
         try {
+            Long matchMakingId = matchMaking.matchMakingId();
             List<MatchMakingSlot> matchMakingSlots = slotUseCase
-                    .findAllByMatchMakingId(DomainKey.of(matchMakingId));
-            LocalTime endTime = matchMakingSlots
+                    .findAllByMatchMakingId(DomainKey.of(matchMaking.matchMakingId()));
+            LocalDateTime endAt = matchMakingSlots
                     .stream()
                     .max(Comparator.comparing(MatchMakingSlot::end))
-                    .map(MatchMakingSlot::end)
+                    .map(m -> matchMaking.playAt().toLocalDate().atTime(m.end()))
                     .orElseThrow(MyResourceNotFoundException::new);
+            TriggerKey triggerKey = TriggerKey.triggerKey("endMatchMakingTrigger_%s".formatted(matchMakingId), "matchMaking");
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(triggerKey)
+                    .startAt(Timestamp.valueOf(endAt))
+                    .build();
+            scheduler.rescheduleJob(triggerKey, trigger);
         } catch (Exception e) {
             log.error("[MatchMakingUseCaseService.processSchedule(...)] message: {}", e.getMessage(), e);
         }

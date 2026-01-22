@@ -33,7 +33,9 @@ public class MatchMakingQueryService {
         LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
                 .orElseThrow(MyAuthenticationException::new);
         return repository.findByMatchMakingIdAndDeletedFalse(matchMakingId, loginInfo.accountId())
-                .map(m -> mapper.toDto(m.getMatchMaking()).withAllowJoin(m.getAllowJoin()));
+                .map(m -> mapper.toDto(m.getMatchMaking())
+                        .withAllowJoin(m.getAllowJoin())
+                        .withAllowView(m.getAllowView()));
     }
 
     protected Page<MatchMaking> findAll(MatchMakingCriteria criteria, PageRequest pageRequest) {

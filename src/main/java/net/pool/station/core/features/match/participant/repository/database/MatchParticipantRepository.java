@@ -22,6 +22,21 @@ public interface MatchParticipantRepository extends JpaRepository<MatchParticipa
     Integer findTotalPriceByMatchMakingId(Long matchMakingId);
 
     @Query("""
+        SELECT COUNT(mp) > 0
+        FROM MatchParticipantEntity mp
+        INNER JOIN MatchMakingEntity m ON m.matchMakingId = mp.matchMakingId
+        WHERE m.statusCode = 'PENDING' AND mp.matchParticipantId = :matchParticipantId
+        """)
+    Boolean allowParticipantByMatchParticipantId(Long matchParticipantId);
+
+    @Query("""
+        SELECT COUNT(m) > 0
+        FROM MatchMakingEntity m
+        WHERE m.statusCode = 'PENDING' AND m.matchMakingId = :matchMakingId
+        """)
+    Boolean allowParticipantByMatchMakingId(Long matchMakingId);
+
+    @Query("""
         SELECT mp
         FROM MatchParticipantEntity mp
         LEFT JOIN AccountEntity a ON mp.accountId = a.accountId

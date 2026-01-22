@@ -54,12 +54,18 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
     @Override
     @Transactional
     public void fillEmptyParticipant(DomainKey<Long> matchMakingId, Long accountId) {
+        if (!queryService.allowParticipantByMatchMakingId(matchMakingId.value())) {
+            throw new MyResourceNotValid("Không thể tham gia phòng vào lúc này");
+        }
         commandService.update(matchMakingId.value(), accountId);
     }
 
     @Override
     @Transactional
     public MatchParticipantCancel emptyFilledParticipant(DomainKey<Long> matchParticipantId) {
+        if (!queryService.allowParticipantByMatchParticipantId(matchParticipantId.value())) {
+            throw new MyResourceNotValid("Không thể kick thành viên phòng vào lúc này");
+        }
         return commandService.empty(matchParticipantId.value());
     }
 

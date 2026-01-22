@@ -44,4 +44,12 @@ public class MatchParticipantQueryService {
     protected Boolean allowByAccountId(Long matchParticipantId, Long accountId) {
         return repository.allowsByAccountId(matchParticipantId, accountId);
     }
+
+    protected Boolean allowParticipantByMatchParticipantId(Long matchParticipantId) {
+        return repository.allowParticipantByMatchParticipantId(matchParticipantId);
+    }
+
+    protected Boolean allowParticipantByMatchMakingId(Long matchMakingId) {
+        return repository.allowParticipantByMatchMakingId(matchMakingId);
+    }
 }

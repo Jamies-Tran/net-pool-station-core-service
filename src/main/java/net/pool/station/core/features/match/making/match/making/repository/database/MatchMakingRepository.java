@@ -20,7 +20,8 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
                 m AS matchMaking,
                 (SELECT COUNT(mp) > 0
                  FROM MatchParticipantEntity mp
-                 WHERE mp.matchMakingId = m.matchMakingId AND mp.accountId = :accountId) AS allowJoin
+                 WHERE mp.matchMakingId = m.matchMakingId AND mp.accountId = :accountId) AS allowView,
+                 m.statusCode = 'PENDING' AS allowJoin
         FROM MatchMakingEntity m
         WHERE m.matchMakingId = :matchMakingId
                 AND m.deleted = FALSE

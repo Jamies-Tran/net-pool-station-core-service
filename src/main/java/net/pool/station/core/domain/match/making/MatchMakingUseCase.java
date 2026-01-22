@@ -41,4 +41,6 @@ public interface MatchMakingUseCase {
     void emptyParticipant(DomainKey<Long> matchParticipantId);
 
     void participantWalletPayment(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod);
+
+    void prepareStart(DomainKey<Long> matchMakingId);
 }

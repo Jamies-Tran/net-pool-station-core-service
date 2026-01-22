@@ -32,4 +32,11 @@ public interface MatchJoiningRegistrationRepository extends JpaRepository<MatchJ
                 AND m.createdBy = :accountId
         """)
     Boolean existsByMatchJoningRegistrationIdMatchMakingCreatedBy(Long matchJoiningRegistrationId, String accountId);
+
+    @Query("""
+        SELECT COUNT(m) > 0
+        FROM MatchMakingEntity m
+        WHERE m.statusCode = 'PENDING' AND m.matchMakingId = :matchMakingId
+        """)
+    Boolean allowJoiningByMatchMakingId(Long matchMakingId);
 }

@@ -35,6 +35,9 @@ public interface MatchMakingApi {
     @PatchMapping("/finish")
     MyValueResponse<?> finish(@PathVariable Long matchMakingId);
 
+    @PatchMapping("/prepare-to-start")
+    MyValueResponse<?> prepareToStart(@PathVariable Long matchMakingId);
+
     @GetMapping("/deposit/payment")
     MyValueResponse<PaymentResponse> depositPayment(@PathVariable Long matchMakingId);
 

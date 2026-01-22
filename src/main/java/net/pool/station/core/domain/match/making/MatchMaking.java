@@ -42,6 +42,7 @@ public record MatchMaking(
         String createdBy,
         LocalDateTime createdAt,
         @With Boolean allowJoin,
+        @With Boolean allowView,
         @With List<MatchMakingSlot> slots,
         @With List<MatchMakingResource> resources,
         @With List<MatchParticipant> participants
