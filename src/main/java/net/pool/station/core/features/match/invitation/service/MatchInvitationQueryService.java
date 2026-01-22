@@ -23,4 +23,15 @@ public class MatchInvitationQueryService {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
     }
+
+    protected Boolean allowInvitationByMatchMakingId(Long matchMakingId) {
+        return repository.allowInvitationByMatchMakingId(matchMakingId);
+    }
+
+    protected Boolean allowInvitationByMatchMakingIdAndMatchMakingCreatedBy(
+            Long matchMakingId,
+            String createdBy
+    ) {
+       return repository.allowInvitationByMatchMakingIdAndMatchMakingCreatedBy(matchMakingId, createdBy);
+    }
 }

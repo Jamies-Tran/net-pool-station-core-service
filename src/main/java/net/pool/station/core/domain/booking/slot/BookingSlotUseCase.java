@@ -10,4 +10,7 @@ public interface BookingSlotUseCase {
     void update(DomainKey<Long> bookingId, List<BookingSlot> bookingSlots);
 
     List<BookingSlot> findAllByBookingId(DomainKey<Long> bookingId);
+
+    List<BookingSlot> findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeIn(
+            DomainKey<Long> stationResourceId, List<Long> timeSlotIds, List<String> bookingStatusCodes);
 }

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EMatchInvitationStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.bootstrap.utils.MyAuthorizationUtils;
@@ -51,6 +52,9 @@ public class MatchInvitationUseCaseService implements MatchInvitationUseCase {
     @Override
     @Transactional
     public void saveAll(DomainKey<Long> matchMakingId, List<MatchInvitation> matchInvitations) {
+        if (!queryService.allowInvitationByMatchMakingId(matchMakingId.value())) {
+            throw new MyResourceNotValid("Bạn không thể mời người chơi khác vào lúc này.");
+        }
         List<MatchInvitation> saveInvitations = commandService.saveAll(matchMakingId.value(), matchInvitations);
 
         LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
@@ -65,6 +69,7 @@ public class MatchInvitationUseCaseService implements MatchInvitationUseCase {
     @Override
     @Transactional
     public void accept(DomainKey<Long> matchInvitationId) {
+
         MatchInvitation matchInvitation = commandService.updateStatus(matchInvitationId.value(),
                 EMatchInvitationStatus.ACCEPTED);
         matchParticipantUseCase.fillEmptyParticipant(DomainKey.of(matchInvitation.matchMakingId()),

@@ -7,6 +7,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
+import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.enums.EPaymentStatus;
 import net.pool.station.core.bootstrap.enums.EPaymentType;
@@ -18,6 +19,7 @@ import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingUseCase;
 import net.pool.station.core.domain.match.making.MatchMaking;
 import net.pool.station.core.domain.match.making.MatchMakingUseCase;
+import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.payment.PaymentWebhook;
 import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.domain.transaction.TransactionCriteria;
@@ -36,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -114,12 +117,12 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .chargedCommission(MyPaymentUtils.calculateCommission(booking.totalPrice()))
                 .build();
         walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
-        bookingUseCase().processed(new DomainKey<>(booking.bookingId()));
+        bookingUseCase().processed(new DomainKey<>(booking.bookingId()), playerWalletLedger.createdAt());
     }
 
     @Override
     @Transactional
-    public void handlePaymentWallet(MatchMaking matchMaking) {
+    public void handleDepositPaymentWallet(MatchMaking matchMaking) {
         if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), matchMaking.paymentMethodCode())) {
             throw new MyResourceNotValid("Phòng ghép trận không thanh toán bằng ví hệ thống.");
         }
@@ -132,7 +135,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
         }
         Transaction transaction = Transaction.builder()
                 .matchMakingId(matchMaking.matchMakingId())
-                .walletId(matchMaking.ownerWalletId())
+                .walletId(matchMaking.playerWalletId())
                 .amount(deposit)
                 .paymentMethodCode(matchMaking.paymentMethodCode())
                 .paymentMethodName(matchMaking.paymentMethodName())
@@ -140,20 +143,87 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .paymentTypeName(EPaymentType.MATCH_MAKING_DEPOSIT.getName())
                 .build();
         Transaction savedTransaction = commandService.save(transaction);
-        WalletLedger playerWalletLedger = WalletLedger.builder()
-                .walletId(playerWallet.walletId())
+        WalletLedger walletLedger = WalletLedger.builder()
+                .walletId(savedTransaction.walletId())
                 .transactionId(savedTransaction.transactionId())
-                .changeAmount(-deposit)
+                .changeAmount(-savedTransaction.amount())
                 .chargedCommission(0)
                 .build();
-        WalletLedger ownerWalletLedger = WalletLedger.builder()
-                .walletId(matchMaking.ownerWalletId())
-                .transactionId(savedTransaction.transactionId())
-                .changeAmount(deposit)
-                .chargedCommission(0)
-                .build();
-        walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
-        matchMakingUseCase().process(new DomainKey<>(matchMaking.matchMakingId()), deposit);
+        WalletLedger savedLedger = walletLedgerUseCase.save(walletLedger, true);
+        matchMakingUseCase().process(new DomainKey<>(matchMaking.matchMakingId()),
+                deposit, savedLedger.createdAt());
+    }
+
+    @Override
+    @Transactional
+    public void handlePaymentWallet(MatchParticipant matchParticipant) {
+        if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), matchParticipant.paymentMethodCode())) {
+            throw new MyResourceNotValid("Phí tham gia phòng không thanh toán bằng ví hệ thống.");
+        }
+        int shareAmount = matchParticipant.shareAmount();
+        if (MyObjectUtils.isNotEmpty(matchParticipant.paidDeposit())) {
+            shareAmount = shareAmount - matchParticipant.paidDeposit();
+            Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(matchParticipant.accountId()))
+                    .orElseThrow(MyResourceNotFoundException::new);
+            if (playerWallet.balance() < shareAmount) {
+                throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục."
+                        .formatted(shareAmount - playerWallet.balance()));
+            }
+            EPaymentType paymentType = null;
+            if (shareAmount <= 0) {
+                paymentType = EPaymentType.MATCH_PARTICIPANT_REFUND;
+            }
+            if (shareAmount > 0) {
+                paymentType = EPaymentType.MATCH_PARTICIPANT_PAYMENT;
+            }
+
+            Transaction transaction = Transaction.builder()
+                    .matchMakingId(matchParticipant.matchMakingId())
+                    .walletId(matchParticipant.participantWalletId())
+                    .amount(Math.abs(shareAmount))
+                    .paymentMethodCode(matchParticipant.paymentMethodCode())
+                    .paymentMethodName(matchParticipant.paymentMethodName())
+                    .paymentTypeCode(paymentType.getCode())
+                    .paymentTypeName(paymentType.getName())
+                    .build();
+            Transaction savedTransaction = commandService.save(transaction);
+            WalletLedger walletLedger = WalletLedger.builder()
+                    .walletId(savedTransaction.walletId())
+                    .transactionId(savedTransaction.transactionId())
+                    .changeAmount(savedTransaction.amount())
+                    .chargedCommission(0)
+                    .build();
+            WalletLedger savedLedger = walletLedgerUseCase.save(walletLedger, true);
+            matchMakingUseCase().processParticipant(new DomainKey<>(matchParticipant.matchParticipantId()),
+                    savedLedger.createdAt());
+        } else {
+            Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(matchParticipant.accountId()))
+                    .orElseThrow(MyResourceNotFoundException::new);
+            if (playerWallet.balance() < shareAmount) {
+                throw new MyResourceNotValid("Vui lòng nạp thêm %s vào ví để tiếp tục."
+                        .formatted(shareAmount - playerWallet.balance()));
+            }
+            Transaction transaction = Transaction.builder()
+                    .matchMakingId(matchParticipant.matchMakingId())
+                    .walletId(matchParticipant.participantWalletId())
+                    .amount(shareAmount)
+                    .paymentMethodCode(matchParticipant.paymentMethodCode())
+                    .paymentMethodName(matchParticipant.paymentMethodName())
+                    .paymentTypeCode(EPaymentType.MATCH_PARTICIPANT_PAYMENT.getCode())
+                    .paymentTypeName(EPaymentType.MATCH_PARTICIPANT_PAYMENT.getName())
+                    .build();
+            Transaction savedTransaction = commandService.save(transaction);
+            WalletLedger walletLedger = WalletLedger.builder()
+                    .walletId(savedTransaction.walletId())
+                    .transactionId(savedTransaction.transactionId())
+                    .changeAmount(-savedTransaction.amount())
+                    .chargedCommission(0)
+                    .build();
+            WalletLedger savedLedger = walletLedgerUseCase.save(walletLedger, true);
+            matchMakingUseCase().processParticipant(new DomainKey<>(matchParticipant.matchParticipantId()),
+                    savedLedger.createdAt());
+        }
+
     }
 
     @Override
@@ -171,23 +241,34 @@ public class TransactionUseCaseService implements TransactionUseCase {
                                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build();
             Transaction savedTransaction = commandService.update(transactionCode.value(), transaction);
-            log.info("Transaction updated: {}", savedTransaction);
 
             if (MyObjectUtils.isNotEmpty(savedTransaction)) {
                 chargeCommission = MyPaymentUtils.calculateCommission(paymentWebhook.amount());
-                if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
-                    bookingUseCase().processed(new DomainKey<>(savedTransaction.bookingId())  );
-                }
-                if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())) {
-                    matchMakingUseCase().process(new DomainKey<>(savedTransaction.matchMakingId()), paymentWebhook.amount());
-                }
                 WalletLedger walletLedger = WalletLedger.builder()
                         .walletId(savedTransaction.walletId())
                         .transactionId(savedTransaction.transactionId())
                         .changeAmount(paymentWebhook.amount())
                         .chargedCommission(chargeCommission)
                         .build();
-                walletLedgerUseCase.save(walletLedger);
+                WalletLedger savedLedger = walletLedgerUseCase.save(walletLedger, true);
+                log.info("Ledger saved: {}", savedLedger);
+                if (MyObjectUtils.isNotEmpty(savedTransaction.bookingId())) {
+                    bookingUseCase().processed(new DomainKey<>(savedTransaction.bookingId()), savedLedger.createdAt());
+                    log.info("Booking processed");
+                }
+                if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())
+                        && Objects.equals(savedTransaction.paymentTypeCode(), EPaymentType.MATCH_MAKING_DEPOSIT.getCode())) {
+                    matchMakingUseCase().process(new DomainKey<>(savedTransaction.matchMakingId()),
+                            paymentWebhook.amount(), savedLedger.createdAt());
+                    log.info("Match Making processed");
+                }
+                if (MyObjectUtils.isNotEmpty(savedTransaction.matchMakingId())
+                    && Objects.equals(savedTransaction.paymentTypeCode(), EPaymentType.MATCH_PARTICIPANT_PAYMENT.getCode())) {
+
+                    matchMakingUseCase().processParticipant(new DomainKey<>(savedTransaction.matchParticipantId()),
+                            savedLedger.createdAt());
+                    log.info("Match Participant processed");
+                }
                 log.info("Transaction completed");
             }
 
@@ -197,17 +278,16 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Override
     @Transactional
     public void handleRefundMatchMaking(MatchMaking matchMaking) {
-        if (matchMaking.createdAt().until(LocalDateTime.now(), ChronoUnit.DAYS) <= 1) {
+
+        if (matchMaking.paidDepositAt().until(LocalDateTime.now(), ChronoUnit.DAYS) <= 1) {
             Optional<Transaction> oldTransactionOpt = queryService
                     .findByMatchMakingIdAndPaymentType(matchMaking.matchMakingId(),
                             EPaymentType.MATCH_MAKING_DEPOSIT);
             if (oldTransactionOpt.isPresent()) {
                 Transaction oldTransaction = oldTransactionOpt.get();
-                Wallet playerWallet = walletUseCase.findByAccountId(DomainKey.of(Long.valueOf(matchMaking.createdBy())))
-                        .orElseThrow(MyResourceNotFoundException::new);
                 Transaction transaction = Transaction.builder()
                         .matchMakingId(matchMaking.matchMakingId())
-                        .walletId(matchMaking.ownerWalletId())
+                        .walletId(matchMaking.playerWalletId())
                         .amount(oldTransaction.amount())
                         .paymentMethodCode(matchMaking.paymentMethodCode())
                         .paymentMethodName(matchMaking.paymentMethodName())
@@ -216,21 +296,73 @@ public class TransactionUseCaseService implements TransactionUseCase {
                         .build();
                 Transaction savedTransaction = commandService.save(transaction);
                 WalletLedger playerWalletLedger = WalletLedger.builder()
-                        .walletId(playerWallet.walletId())
+                        .walletId(savedTransaction.walletId())
                         .transactionId(savedTransaction.transactionId())
                         .changeAmount(savedTransaction.amount())
                         .chargedCommission(0)
                         .build();
-                WalletLedger ownerWalletLedger = WalletLedger.builder()
-                        .walletId(matchMaking.ownerWalletId())
-                        .transactionId(savedTransaction.transactionId())
-                        .changeAmount(-savedTransaction.amount())
-                        .chargedCommission(0)
-                        .build();
-                walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
+                walletLedgerUseCase.save(playerWalletLedger, true);
             }
 
         }
+    }
+
+    @Override
+    @Transactional
+    public void handleRefundMatchParticipant(MatchParticipant matchParticipant) {
+        if (matchParticipant.paidShareAt().until(LocalDateTime.now(), ChronoUnit.DAYS) <= 1) {
+            Optional<Transaction> oldTransactionOpt = queryService
+                    .findByMatchParticipantIdAndPaymentType(matchParticipant.matchParticipantId(),
+                            EPaymentType.MATCH_PARTICIPANT_PAYMENT);
+            if (oldTransactionOpt.isPresent()) {
+                Transaction oldTransaction = oldTransactionOpt.get();
+                Transaction transaction = Transaction.builder()
+                        .matchMakingId(matchParticipant.matchMakingId())
+                        .matchParticipantId(matchParticipant.matchParticipantId())
+                        .walletId(matchParticipant.participantWalletId())
+                        .amount(oldTransaction.amount())
+                        .paymentMethodCode(matchParticipant.paymentMethodCode())
+                        .paymentMethodName(matchParticipant.paymentMethodName())
+                        .paymentTypeCode(EPaymentType.MATCH_PARTICIPANT_DEPOSIT_REFUND.getCode())
+                        .paymentTypeName(EPaymentType.MATCH_PARTICIPANT_DEPOSIT_REFUND.getName())
+                        .build();
+                Transaction savedTransaction = commandService.save(transaction);
+                WalletLedger playerWalletLedger = WalletLedger.builder()
+                        .walletId(savedTransaction.walletId())
+                        .transactionId(savedTransaction.transactionId())
+                        .changeAmount(savedTransaction.amount())
+                        .chargedCommission(0)
+                        .build();
+                walletLedgerUseCase.save(playerWalletLedger, true);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handleStartMatchMaking(MatchMaking matchMaking) {
+        List<EPaymentType> paymentTypes = List.of(EPaymentType.MATCH_MAKING_DEPOSIT,
+                EPaymentType.MATCH_PARTICIPANT_PAYMENT);
+        List<Transaction> transactions = queryService.findAllBy(matchMaking.matchMakingId(), paymentTypes);
+        int totalChangeAmount = transactions
+                .stream()
+                .reduce(0, (w1, w2) -> w1 + w2.amount(), Integer::sum);
+
+        Transaction transaction = Transaction.builder()
+                .matchMakingId(matchMaking.matchMakingId())
+                .walletId(matchMaking.ownerWalletId())
+                .amount(totalChangeAmount)
+                .paymentTypeCode(EPaymentType.MATCH_MAKING_PAYMENT.getCode())
+                .paymentTypeName(EPaymentType.MATCH_MAKING_PAYMENT.getName())
+                .build();
+        Transaction savedTransaction = commandService.save(transaction);
+        WalletLedger playerWalletLedger = WalletLedger.builder()
+                .walletId(savedTransaction.walletId())
+                .transactionId(savedTransaction.transactionId())
+                .changeAmount(savedTransaction.amount())
+                .chargedCommission(MyPaymentUtils.calculateCommission(savedTransaction.amount()))
+                .build();
+        walletLedgerUseCase.save(playerWalletLedger, true);
     }
 
 

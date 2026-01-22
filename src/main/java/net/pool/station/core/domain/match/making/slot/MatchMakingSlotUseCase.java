@@ -10,4 +10,7 @@ public interface MatchMakingSlotUseCase {
     void update(DomainKey<Long> matchMakingId, List<MatchMakingSlot> matchMakingSlots);
 
     List<MatchMakingSlot> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
+
+    List<MatchMakingSlot> findAllByStationResourceIdAndStatusCodeIn(DomainKey<Long> stationResourceId,
+                                                                    List<String> matchMakingStatusCodes);
 }

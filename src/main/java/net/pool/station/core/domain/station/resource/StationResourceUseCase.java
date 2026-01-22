@@ -28,4 +28,6 @@ public interface StationResourceUseCase {
     void disable(DomainKey<Long> stationResourceId);
 
     void delete(DomainKey<Long> stationResourceId);
+
+    Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds);
 }

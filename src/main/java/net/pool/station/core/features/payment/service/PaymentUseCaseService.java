@@ -22,6 +22,7 @@ import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.login.info.LoginInfo;
 import net.pool.station.core.domain.match.making.MatchMaking;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
+import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.transaction.Transaction;
@@ -155,7 +156,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
 
     @Override
     @Transactional
-    public Payment createFromMatchMaking(MatchMaking matchMaking) {
+    public Payment createDepositFromMatchMaking(MatchMaking matchMaking) {
         Account account = accountUseCase.findById(new DomainKey<>(Long.valueOf(matchMaking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
         if (MyObjectUtils.isNotEquals(EPaymentMethod.BANK_TRANSFER.getCode(),
@@ -179,7 +180,7 @@ public class PaymentUseCaseService implements PaymentUseCase {
                 .data();
         Transaction transaction = Transaction.builder()
                 .matchMakingId(matchMaking.matchMakingId())
-                .walletId(matchMaking.ownerWalletId())
+                .walletId(matchMaking.playerWalletId())
                 .transactionCode(paymentResponse.orderCode())
                 .amount(paymentResponse.amount())
                 .currency(paymentResponse.currency())
@@ -202,14 +203,73 @@ public class PaymentUseCaseService implements PaymentUseCase {
 
     @Override
     @Transactional
-    public void walletPaymentForMatchMaking(MatchMaking matchMaking) {
-        transactionUseCase.handlePaymentWallet(matchMaking);
+    public void depositWalletPaymentForMatchMaking(MatchMaking matchMaking) {
+        transactionUseCase.handleDepositPaymentWallet(matchMaking);
+    }
+
+    @Override
+    @Transactional
+    public Payment createFromMatchParticipant(MatchParticipant matchParticipant) {
+        Account account = accountUseCase.findById(new DomainKey<>(matchParticipant.accountId()))
+                .orElseThrow(MyResourceNotFoundException::new);
+        if (MyObjectUtils.isNotEquals(EPaymentMethod.BANK_TRANSFER.getCode(),
+                matchParticipant.paymentMethodCode())) {
+            throw new MyResourceNotValid("Thành viên không thanh toán bằng chuyển khoản.");
+        }
+        PaymentRequest paymentRequest = PaymentRequest.builder()
+                .orderCode(System.currentTimeMillis())
+                .amount(matchParticipant.shareAmount())
+                .description("Tiền tham gia room")
+                .buyerName(account.username())
+                .buyerEmail(account.email())
+                .buyerPhone(account.phone())
+                .items(List.of())
+                .cancelUrl(cancelUrl)
+                .returnUrl(returnUrl)
+                .build();
+        paymentRequest = paymentRequest.withSignature(MyPaymentEncryptionUtils
+                .encrypt(MyObjectMapper.convertFromObjectToString(paymentRequest.generateRawSignature())));
+        PaymentResponse paymentResponse = paymentPlaceHolder.requestPayment(paymentRequest)
+                .data();
+        Transaction transaction = Transaction.builder()
+                .matchMakingId(matchParticipant.matchMakingId())
+                .matchParticipantId(matchParticipant.matchParticipantId())
+                .walletId(matchParticipant.accountId())
+                .transactionCode(paymentResponse.orderCode())
+                .amount(paymentResponse.amount())
+                .currency(paymentResponse.currency())
+                .paymentMethodCode(matchParticipant.paymentMethodCode())
+                .paymentMethodName(matchParticipant.paymentMethodName())
+                .paymentTypeCode(EPaymentType.MATCH_PARTICIPANT_PAYMENT.getCode())
+                .paymentTypeName(EPaymentType.MATCH_PARTICIPANT_PAYMENT.getName())
+                .build();
+        transactionUseCase.save(transaction);
+
+        return mapper.toDto(paymentResponse);
+    }
+
+    @Override
+    @Transactional
+    public void walletPaymentForMatchParticipant(MatchParticipant matchParticipant) {
+        transactionUseCase.handlePaymentWallet(matchParticipant);
     }
 
     @Override
     @Transactional
     public void refundMatchMakingDeposit(MatchMaking matchMaking) {
         transactionUseCase.handleRefundMatchMaking(matchMaking);
+    }
+
+    @Override
+    @Transactional
+    public void refundMatchParticipantShare(MatchParticipant matchParticipant) {
+        transactionUseCase.handleRefundMatchParticipant(matchParticipant);
+    }
+
+    @Override
+    @Transactional
+    public void paymentToStartMatchMaking(MatchMaking matchMaking) {
+        transactionUseCase.handleStartMatchMaking(matchMaking);
     }
 
     private List<PaymentRequest.ItemRequest> fromBooking(Booking booking) {

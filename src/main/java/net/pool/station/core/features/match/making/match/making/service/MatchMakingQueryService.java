@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +33,9 @@ public class MatchMakingQueryService {
         LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
                 .orElseThrow(MyAuthenticationException::new);
         return repository.findByMatchMakingIdAndDeletedFalse(matchMakingId, loginInfo.accountId())
-                .map(m -> mapper.toDto(m.getMatchMaking()).withAllowJoin(m.getAllowJoin()));
+                .map(m -> mapper.toDto(m.getMatchMaking())
+                        .withAllowJoin(m.getAllowJoin())
+                        .withAllowView(m.getAllowView()));
     }
 
     protected Page<MatchMaking> findAll(MatchMakingCriteria criteria, PageRequest pageRequest) {
@@ -50,5 +53,9 @@ public class MatchMakingQueryService {
 
     protected Optional<Long> findOwnerWalletIdByStationId(Long stationId) {
         return repository.findOwnerWalletIdByStationId(stationId);
+    }
+
+    protected Optional<Long> findPlayerWalletIdByCreatedBy(Long createdBy) {
+        return repository.findPlayerWalletIdByCreatedBy(createdBy);
     }
 }

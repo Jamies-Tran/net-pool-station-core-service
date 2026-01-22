@@ -57,6 +57,28 @@ public class MatchMakingCommandService {
                             validateUpdateStatus(foundMatchMaking.getStatusCode(), status);
                             foundMatchMaking.setStatusCode(status.getCode());
                             foundMatchMaking.setStatusName(status.getName());
+                            if (MyObjectUtils.isEquals(status, EMatchMakingStatus.STARTED)) {
+                                foundMatchMaking.setPlayAt(LocalDateTime.now());
+                            }
+
+                            return mapper.toDto(repository.save(foundMatchMaking));
+                        }
+                )
+                .orElseThrow(MyResourceNotFoundException::new);
+    }
+
+    protected MatchMaking updateStatus(Long matchMakingId, EMatchMakingStatus status,
+                                       LocalDateTime paidDepositAt) {
+        return repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
+                .map(
+                        foundMatchMaking -> {
+                            validateUpdateStatus(foundMatchMaking.getStatusCode(), status);
+                            foundMatchMaking.setStatusCode(status.getCode());
+                            foundMatchMaking.setStatusName(status.getName());
+                            foundMatchMaking.setPaidDepositAt(paidDepositAt);
+                            if (MyObjectUtils.isEquals(status, EMatchMakingStatus.PENDING)) {
+                                foundMatchMaking.setProcessAt(LocalDate.now());
+                            }
 
                             return mapper.toDto(repository.save(foundMatchMaking));
                         }
@@ -68,18 +90,16 @@ public class MatchMakingCommandService {
         repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
                 .ifPresentOrElse(
                         foundMatchMaking -> {
-                            if (LocalDate.now().isAfter(foundMatchMaking.getExpiredAt())) {
-                                switch (EMatchMakingStatus.valueOf(foundMatchMaking.getStatusCode())) {
-                                    case PENDING, DRAFT -> {
-                                        foundMatchMaking.setStatusCode(EMatchMakingStatus.CANCEL.getCode());
-                                        foundMatchMaking.setStatusName(EMatchMakingStatus.CANCEL.getName());
-                                        repository.save(foundMatchMaking);
-                                    }
-                                    case STARTED -> {
-                                        foundMatchMaking.setStatusCode(EMatchMakingStatus.FINISHED.getCode());
-                                        foundMatchMaking.setStatusName(EMatchMakingStatus.FINISHED.getName());
-                                        repository.save(foundMatchMaking);
-                                    }
+                            switch (EMatchMakingStatus.valueOf(foundMatchMaking.getStatusCode())) {
+                                case PENDING, DRAFT -> {
+                                    foundMatchMaking.setStatusCode(EMatchMakingStatus.CANCEL.getCode());
+                                    foundMatchMaking.setStatusName(EMatchMakingStatus.CANCEL.getName());
+                                    repository.save(foundMatchMaking);
+                                }
+                                case STARTED -> {
+                                    foundMatchMaking.setStatusCode(EMatchMakingStatus.FINISHED.getCode());
+                                    foundMatchMaking.setStatusName(EMatchMakingStatus.FINISHED.getName());
+                                    repository.save(foundMatchMaking);
                                 }
                             }
                         },
@@ -93,17 +113,22 @@ public class MatchMakingCommandService {
         switch (status) {
             case PENDING -> {
                 if (MyObjectUtils.isNotEquals(statusCode, EMatchMakingStatus.DRAFT.getCode())) {
-                    throw new MyResourceNotValid();
+                    throw new MyResourceNotValid("Room đang không ở trạng thái 'Nháp'");
                 }
             }
-            case STARTED, CANCEL -> {
+            case PREPARE_START, CANCEL -> {
                 if (MyObjectUtils.isNotEquals(statusCode, EMatchMakingStatus.PENDING.getCode())) {
-                    throw new MyResourceNotValid();
+                    throw new MyResourceNotValid("Room đang không ở trạng thái 'Đang chờ'");
+                }
+            }
+            case STARTED -> {
+                if (MyObjectUtils.isNotEquals(statusCode, EMatchMakingStatus.PREPARE_START.getCode())) {
+                    throw new MyResourceNotValid("Room đang không ở trạng thái 'Chuẩn bị bắt đầu'");
                 }
             }
             case FINISHED -> {
                 if (MyObjectUtils.isNotEquals(statusCode, EMatchMakingStatus.STARTED.getCode())) {
-                    throw new MyResourceNotValid();
+                    throw new MyResourceNotValid("Room đang không ở trạng thái 'Bắt đầu'");
                 }
             }
         }

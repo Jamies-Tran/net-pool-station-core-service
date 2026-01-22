@@ -21,11 +21,14 @@ public record MatchMaking(
         Long gameId,
         Long scheduleId,
         @With Long ownerWalletId,
+        @With Long playerWalletId,
         String matchMakingCode,
         Integer numberOfHoldingDay,
         Integer limitParticipant,
         @With LocalDate startAt,
         @With LocalDate expiredAt,
+        LocalDate processAt,
+        LocalDateTime playAt,
         String resourceTypeCode,
         String resourceTypeName,
         String typeCode,
@@ -34,10 +37,12 @@ public record MatchMaking(
         String paymentMethodName,
         String statusCode,
         String statusName,
-        Integer totalPrice,
+        @With Integer totalPrice,
+        LocalDateTime paidDepositAt,
         String createdBy,
         LocalDateTime createdAt,
         @With Boolean allowJoin,
+        @With Boolean allowView,
         @With List<MatchMakingSlot> slots,
         @With List<MatchMakingResource> resources,
         @With List<MatchParticipant> participants
@@ -48,13 +53,6 @@ public record MatchMaking(
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
             String random = RandomStringUtils.randomAlphanumeric(6);
             matchMakingCode = "MATCH_%s_%s_%s".formatted(date, time, random);
-        }
-
-        if (!CollectionUtils.isEmpty(slots) && !CollectionUtils.isEmpty(resources)) {
-            totalPrice = resources.stream()
-                    .mapToInt(r -> Optional.ofNullable(r.price()).orElse(0)
-                            * slots.size())
-                    .sum();
         }
 
         if (MyObjectUtils.isNotEmpty(resources)) {

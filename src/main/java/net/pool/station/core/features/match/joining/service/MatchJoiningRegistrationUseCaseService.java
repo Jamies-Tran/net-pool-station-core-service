@@ -37,6 +37,9 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
     @Override
     @Transactional
     public void save(MatchJoiningRegistration matchJoiningRegistration) {
+        if (!queryService.allowJoiningByMatchMakingId(matchJoiningRegistration.matchMakingId())) {
+            throw new MyResourceNotValid("Bạn không thể yêu cầu tham gia phòng ngay lúc này");
+        }
         commandService.save(matchJoiningRegistration);
     }
 

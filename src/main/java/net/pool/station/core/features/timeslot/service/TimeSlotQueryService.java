@@ -13,6 +13,7 @@ import net.pool.station.core.domain.timeslot.TimeSlotCriteria;
 import net.pool.station.core.features.timeslot.repository.database.TimeSlotEntityMapper;
 import net.pool.station.core.features.timeslot.repository.database.TimeSlotRepository;
 import net.pool.station.core.features.timeslot.repository.database.dao.TimeSlotAllowBookingDao;
+import net.pool.station.core.features.timeslot.repository.database.dao.TimeSlotDaoMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ public class TimeSlotQueryService {
 
     TimeSlotEntityMapper mapper;
 
+    TimeSlotDaoMapper daoMapper;
+
     protected Optional<TimeSlot> findById(Long timeSlotId) {
         return repository.findById(timeSlotId)
                 .map(mapper::toDto);
@@ -42,7 +45,7 @@ public class TimeSlotQueryService {
     }
 
     protected List<TimeSlot> findAllByScheduleId(Long scheduleId) {
-        return mapper.toDto(repository.findAllByScheduleId(scheduleId));
+        return daoMapper.toDto(repository.findAllByScheduleId(scheduleId));
     }
 
     protected List<TimeSlot> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId) {

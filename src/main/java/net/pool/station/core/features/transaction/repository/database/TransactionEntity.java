@@ -33,6 +33,7 @@ public class TransactionEntity extends Auditor {
     Long bookingId;
     Long matchMakingId;
     Long walletId;
+    Long matchParticipantId;
     String transactionCode;
     Integer amount;
     String currency;

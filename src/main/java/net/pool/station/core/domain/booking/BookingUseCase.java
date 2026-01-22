@@ -5,6 +5,7 @@ import net.pool.station.core.domain.payment.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface BookingUseCase {
@@ -20,7 +21,7 @@ public interface BookingUseCase {
 
     void update(DomainKey<Long> bookingId, Booking booking);
 
-    void processed(DomainKey<Long> bookingId);
+    void processed(DomainKey<Long> bookingId, LocalDateTime paidTotalAt);
 
     void start(DomainKey<Long> bookingId);
 

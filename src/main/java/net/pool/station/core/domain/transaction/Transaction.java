@@ -10,6 +10,7 @@ public record Transaction(
         Long matchMakingId,
         Long bookingId,
         Long walletId,
+        Long matchParticipantId,
         String transactionCode,
         Integer amount,
         String currency,

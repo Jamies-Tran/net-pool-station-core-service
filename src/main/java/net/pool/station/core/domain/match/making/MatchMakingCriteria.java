@@ -13,11 +13,13 @@ import java.util.stream.Stream;
 @Builder
 public record MatchMakingCriteria(
         String search,
+        String createdBy,
         List<LocalDate> timeRangeStartAt,
         List<String> statusCodes
 ) {
     public MatchMakingCriteria {
         search = MyObjectUtils.defaultValue(search, new TypeReference<>() {});
+        createdBy = MyObjectUtils.defaultValue(createdBy, new TypeReference<>() {});
         timeRangeStartAt = defaultTimeRangeCustom(timeRangeStartAt);
         statusCodes = MyObjectUtils.defaultValue(statusCodes, new TypeReference<>() {});
     }

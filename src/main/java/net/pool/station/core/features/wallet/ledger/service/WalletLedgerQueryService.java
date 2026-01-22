@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -23,5 +25,9 @@ public class WalletLedgerQueryService {
     protected Page<WalletLedger> findAll(WalletLedgerCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
+    }
+
+    protected List<WalletLedger> findAllByTransactionIdIn(List<Long> transactionIds) {
+        return mapper.toDto(repository.findAllByTransactionIdIn(transactionIds));
     }
 }

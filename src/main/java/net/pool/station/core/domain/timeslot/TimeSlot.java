@@ -17,6 +17,7 @@ public record TimeSlot(
     Long scheduleId,
     LocalTime begin,
     LocalTime end,
+    LocalDate date,
     @With Boolean allowBooking,
     String periodCode,
     String periodName,

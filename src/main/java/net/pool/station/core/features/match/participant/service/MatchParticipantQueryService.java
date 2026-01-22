@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +34,22 @@ public class MatchParticipantQueryService {
     protected Page<MatchParticipant> findAll(MatchParticipantCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
+    }
+
+    protected Optional<MatchParticipant> findById(Long matchParticipantId) {
+        return repository.findById(matchParticipantId)
+                .map(mapper::toDto);
+    }
+
+    protected Boolean allowByAccountId(Long matchParticipantId, Long accountId) {
+        return repository.allowsByAccountId(matchParticipantId, accountId);
+    }
+
+    protected Boolean allowParticipantByMatchParticipantId(Long matchParticipantId) {
+        return repository.allowParticipantByMatchParticipantId(matchParticipantId);
+    }
+
+    protected Boolean allowParticipantByMatchMakingId(Long matchMakingId) {
+        return repository.allowParticipantByMatchMakingId(matchMakingId);
     }
 }

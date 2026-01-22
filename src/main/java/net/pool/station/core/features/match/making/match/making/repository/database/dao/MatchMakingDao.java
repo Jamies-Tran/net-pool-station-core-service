@@ -7,5 +7,7 @@ public interface MatchMakingDao {
 
     MatchMakingEntity getMatchMaking();
 
+    Boolean getAllowView();
+
     Boolean getAllowJoin();
 }

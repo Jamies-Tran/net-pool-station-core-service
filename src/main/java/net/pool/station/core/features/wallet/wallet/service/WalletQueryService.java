@@ -22,4 +22,9 @@ public class WalletQueryService {
         return repository.findByAccountId(accountId)
                 .map(mapper::toDto);
     }
+
+    protected Optional<Wallet> findById(Long walletId) {
+        return repository.findById(walletId)
+                .map(mapper::toDto);
+    }
 }

@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WalletLedgerUseCase {
-    void save(WalletLedger walletLedger);
+    WalletLedger save(WalletLedger walletLedger, Boolean isUpdateBalance);
 
     void saveAll(List<WalletLedger> walletLedgers);
+
+    List<WalletLedger> updateBalanceByTransactionIds(List<Long> transactionIds);
 
     Page<WalletLedger> findAll(WalletLedgerCriteria criteria, PageRequest pageRequest);
 

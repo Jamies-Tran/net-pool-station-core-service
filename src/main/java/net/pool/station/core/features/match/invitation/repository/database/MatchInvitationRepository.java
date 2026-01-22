@@ -26,4 +26,19 @@ public interface MatchInvitationRepository extends JpaRepository<MatchInvitation
                 OR mi.statusCode IN :#{#criteria.statusCodes()})
         """)
     Page<MatchInvitationEntity> findAll(MatchInvitationCriteria criteria, Pageable pageable);
+
+    @Query("""
+        SELECT COUNT(m) > 0
+        FROM MatchMakingEntity m
+        WHERE m.statusCode = 'PENDING' AND m.matchMakingId = :matchMakingId
+        """)
+    Boolean allowInvitationByMatchMakingId(Long matchMakingId);
+
+    @Query("""
+        SELECT COUNT(mi) > 0
+        FROM MatchInvitationEntity mi
+        INNER JOIN MatchMakingEntity m ON mi.matchMakingId = m.matchMakingId
+        WHERE m.matchMakingId = :matchMakingId AND m.createdBy = :createdBy
+        """)
+    Boolean allowInvitationByMatchMakingIdAndMatchMakingCreatedBy(Long matchMakingId, String createdBy);
 }

@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,8 +162,9 @@ public class BookingUseCaseService implements BookingUseCase {
 
     @Override
     @Transactional
-    public void processed(DomainKey<Long> bookingId) {
-        Booking booking = commandService.updateStatus(bookingId.value(), EBookingStatus.NEW);
+    public void processed(DomainKey<Long> bookingId, LocalDateTime paidTotalAt) {
+        Booking booking = commandService.updateStatus(bookingId.value(), EBookingStatus.NEW,
+                paidTotalAt);
         scheduleBooking(booking);
         notificationUseCase.pushNotification(Notification.ofBooking(fcmInfos(booking), booking));
     }

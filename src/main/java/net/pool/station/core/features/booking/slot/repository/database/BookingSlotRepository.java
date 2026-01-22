@@ -28,4 +28,23 @@ public interface BookingSlotRepository extends JpaRepository<BookingSlotEntity, 
         WHERE bs.bookingSlotId.bookingId = :bookingId
         """)
     List<BookingSlotEntity> findListByBookingId(Long bookingId);
+
+    @Query("""
+        SELECT 
+                bs.bookingSlotId AS bookingSlotId,
+                t.begin AS begin,
+                t.end AS end,
+                sc.date AS date
+        FROM BookingSlotEntity bs
+        INNER JOIN TimeSlotEntity t ON bs.bookingSlotId.timeSlotId = t.timeSlotId
+        INNER JOIN ScheduleEntity sc ON t.scheduleId = sc.scheduleId
+        INNER JOIN BookingEntity b ON bs.bookingSlotId.bookingId = b.bookingId
+        INNER JOIN StationResourceEntity s ON b.stationResourceId = s.stationResourceId
+        WHERE s.stationResourceId = :stationResourceId 
+                AND bs.bookingSlotId.timeSlotId IN :timeSlotIds
+                AND b.statusCode IN :bookingStatusCodes
+        """)
+    List<BookingSlotDao> findAllByStationResourceIdAndTimeSlotIdInAndBookingStatusCodeIn(Long stationResourceId,
+                                                                                         List<Long> timeSlotIds,
+                                                                                         List<String> bookingStatusCodes);
 }

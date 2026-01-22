@@ -11,6 +11,8 @@ public interface WalletUseCase {
 
     Optional<Wallet> findByAccountId(DomainKey<Long> accountId);
 
+    Optional<Wallet> findById(DomainKey<Long> walletId);
+
     void updateBalance(DomainKey<Long> walletId, WalletLedger walletLedger);
 
     void updateBalance(List<WalletLedger> walletLedgers);

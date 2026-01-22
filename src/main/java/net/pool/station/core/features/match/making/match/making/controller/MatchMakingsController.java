@@ -3,6 +3,7 @@ package net.pool.station.core.features.match.making.match.making.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
 import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
@@ -13,6 +14,7 @@ import net.pool.station.core.features.match.making.match.making.controller.model
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingRequestMapping;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponseMapping;
+import net.pool.station.core.features.match.making.match.making.controller.models.payment.method.PaymentMethodRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,12 +43,14 @@ public class MatchMakingsController implements MatchMakingsApi {
     @Override
     public MyPageResponse<MatchMakingResponse> findAll(
             String search,
+            String createdBy,
             List<LocalDate> timeRangeStartAt,
             List<String> statusCodes,
             String sorter, Integer current, Integer pageSize
     ) {
         MatchMakingCriteria criteria = MatchMakingCriteria.builder()
                 .search(search)
+                .createdBy(createdBy)
                 .timeRangeStartAt(timeRangeStartAt)
                 .statusCodes(statusCodes)
                 .build();
@@ -60,6 +64,14 @@ public class MatchMakingsController implements MatchMakingsApi {
     @Override
     public MyValueResponse<?> emptyParticipant(Long matchParticipantId) {
         matchMakingUseCase.emptyParticipant(DomainKey.of(matchParticipantId));
+
+        return MyValueResponse.successNoData();
+    }
+
+    @Override
+    public MyValueResponse<?> participantWalletPayment(Long matchParticipateId, PaymentMethodRequest request) {
+        EPaymentMethod paymentMethod = EPaymentMethod.valueOf(request.paymentMethodCode());
+        matchMakingUseCase.participantWalletPayment(DomainKey.of(matchParticipateId), paymentMethod);
 
         return MyValueResponse.successNoData();
     }

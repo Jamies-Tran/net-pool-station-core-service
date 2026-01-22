@@ -41,5 +41,7 @@ public class MatchJoiningRegistrationQueryService {
                 accountId.toString());
     }
 
-
+    protected Boolean allowJoiningByMatchMakingId(Long matchMakingId) {
+        return repository.allowJoiningByMatchMakingId(matchMakingId);
+    }
 }

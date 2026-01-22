@@ -33,5 +33,10 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     Optional<TransactionEntity> findByMatchMakingIdAndPaymentTypeCode(Long matchMakingId,
                                                                       String paymentTypeCode);
 
+    Optional<TransactionEntity> findByMatchParticipantIdAndPaymentTypeCode(Long matchParticipantId, String paymentTypeCode);
+
     List<TransactionEntity> findAllByTransactionIdIn(List<Long> transactionIds);
+
+    List<TransactionEntity> findAllByMatchMakingIdAndPaymentTypeCodeIn(Long matchMakingId,
+                                                                       List<String> paymentTypeCodes);
 }

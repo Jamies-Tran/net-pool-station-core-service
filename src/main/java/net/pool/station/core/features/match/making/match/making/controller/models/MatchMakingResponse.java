@@ -5,6 +5,7 @@ import net.pool.station.core.features.match.making.match.making.controller.model
 import net.pool.station.core.features.match.making.match.making.controller.models.slot.MatchMakingSlotResponse;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record MatchMakingResponse (
@@ -15,9 +16,11 @@ public record MatchMakingResponse (
         Integer totalPrice,
         LocalDate startAt,
         LocalDate expiredAt,
+        LocalDateTime playAt,
         String statusCode,
         String statusName,
         Boolean allowJoin,
+        Boolean allowView,
         List<MatchMakingSlotResponse> slots,
         List<MatchMakingResourceResponse> resources,
         List<MatchParticipantResponse> participants
