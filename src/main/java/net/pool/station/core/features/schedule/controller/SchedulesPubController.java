@@ -17,7 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -75,8 +77,11 @@ public class SchedulesPubController implements SchedulesPubApi {
 
     @Override
     public MyListResponse<ScheduleResponse> findAllByStationIdAndDateFromAndDateCount(ScheduleCountListRequest request) {
+        List<LocalTime> time = Stream.of(request.begin(), request.end())
+                .sorted()
+                .toList();
         List<Schedule> schedules = scheduleUseCase
-                .findAllByStationIdAndDateFromAndDateCount(request.stationId(), request.dateFrom(), request.dateCount());
+                .findAllByStationIdAndDateFromAndDateCount(request.stationId(), request.dateFrom(), request.stationResourceId(), time, request.dateCount());
         return MyListResponse.success(responseMapper.toModel(schedules));
     }
 }

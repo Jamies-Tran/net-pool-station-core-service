@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,8 +86,19 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Schedule> findAllByStationIdAndDateFromAndDateCount(Long stationId, LocalDate dateFrom, Integer dateCount) {
-        return queryService.findAllByStationIdAndDateFromAndDateCount(stationId, dateFrom, dateCount);
+    public List<Schedule> findAllByStationIdAndDateFromAndDateCount(Long stationId,
+                                                                    LocalDate dateFrom,
+                                                                    List<Long> stationResourceId,
+                                                                    List<LocalTime> time,
+                                                                    Integer dateCount
+    ) {
+        return queryService.findAllByStationIdAndDateFromAndDateCount(stationId, dateFrom, stationResourceId, time, dateCount);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Schedule> findAllByScheduleIdIn(List<Long> scheduleIds) {
+        return queryService.findAllByScheduleIdIn(scheduleIds);
     }
 
     @Override

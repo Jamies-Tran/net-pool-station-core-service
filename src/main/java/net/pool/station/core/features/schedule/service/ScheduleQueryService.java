@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -95,10 +96,17 @@ public class ScheduleQueryService {
     }
 
     protected List<Schedule> findAllByStationIdAndDateFromAndDateCount(
-            Long stationId, LocalDate dateFrom, Integer dateCount) {
+            Long stationId,
+            LocalDate dateFrom,
+            List<Long> stationResourceIds,
+            List<LocalTime> time,
+            Integer dateCount
+    ) {
         List<LocalDate> dateList = dateFrom.datesUntil(dateFrom.plusDays(dateCount)).toList();
-        List<ScheduleEntity> schedules = repository
-                .findAllByStationIdAndDateGreaterThanEqualAndStatusCodeAndDeletedFalse(stationId, dateFrom, EScheduleStatus.ENABLED.getCode());
+        List<Long> scheduleIds = repository
+                .findAvailableSchedule(stationId, dateFrom, stationResourceIds, time,
+                        EScheduleStatus.ENABLED.getCode());
+        List<ScheduleEntity> schedules = repository.findAllByScheduleIdIn(scheduleIds);
         List<ScheduleEntity> newSchedules = new ArrayList<>();
         if (!CollectionUtils.isEmpty(schedules)) {
             LocalDate lastDate = dateList
@@ -123,11 +131,24 @@ public class ScheduleQueryService {
                     }
                     lastDate = lastDate.plusDays(1);
                 } else {
-                    newSchedules.add(schedule);
+                    if (newSchedules.stream().anyMatch(s -> s.getDate().equals(date))) {
+                        do {
+                            schedule = scheduleMap.computeIfAbsent(lastDate, k -> null);
+                            lastDate = lastDate.plusDays(1);
+                        } while (MyObjectUtils.isEmpty(schedule));
+                        newSchedules.add(schedule);
+                    } else {
+                        newSchedules.add(schedule);
+                    }
+
                 }
             }
         }
 
         return mapper.toDto(newSchedules);
+    }
+
+    protected List<Schedule> findAllByScheduleIdIn(List<Long> scheduleIds) {
+        return mapper.toDto(repository.findAllByScheduleIdInAndDeletedFalse(scheduleIds));
     }
 }

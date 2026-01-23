@@ -6,12 +6,20 @@ import jakarta.validation.constraints.NotNull;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 public record ScheduleCountListRequest(
         @NotNull(message = "Thông tin station không được bỏ trống")
         Long stationId,
 
         LocalDate dateFrom,
+
+        LocalTime begin,
+
+        LocalTime end,
+
+        List<Long> stationResourceId,
 
         @Max(value = 3, message = "Giá trị đếm cao nhất là 3 ngày")
         Integer dateCount

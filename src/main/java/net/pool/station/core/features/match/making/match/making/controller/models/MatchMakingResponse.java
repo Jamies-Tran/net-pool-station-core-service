@@ -2,6 +2,7 @@ package net.pool.station.core.features.match.making.match.making.controller.mode
 
 import net.pool.station.core.features.match.making.match.making.controller.models.participant.MatchParticipantResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.resource.MatchMakingResourceResponse;
+import net.pool.station.core.features.match.making.match.making.controller.models.schedule.MatchScheduleResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.slot.MatchMakingSlotResponse;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public record MatchMakingResponse (
         Boolean allowView,
         List<MatchMakingSlotResponse> slots,
         List<MatchMakingResourceResponse> resources,
-        List<MatchParticipantResponse> participants
+        List<MatchParticipantResponse> participants,
+        List<MatchScheduleResponse> schedules
 ) {
 }

@@ -6,12 +6,14 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
+import net.pool.station.core.domain.match.schedule.MatchSchedule;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +21,6 @@ public record MatchMaking(
         Long matchMakingId,
         Long stationId,
         Long gameId,
-        Long scheduleId,
         @With Long ownerWalletId,
         @With Long playerWalletId,
         String matchMakingCode,
@@ -45,7 +46,8 @@ public record MatchMaking(
         @With Boolean allowView,
         @With List<MatchMakingSlot> slots,
         @With List<MatchMakingResource> resources,
-        @With List<MatchParticipant> participants
+        @With List<MatchParticipant> participants,
+        @With List<MatchSchedule> schedules
 ) {
     public MatchMaking {
         if (MyObjectUtils.isEmpty(matchMakingCode)) {
@@ -54,6 +56,11 @@ public record MatchMaking(
             String random = RandomStringUtils.randomAlphanumeric(6);
             matchMakingCode = "MATCH_%s_%s_%s".formatted(date, time, random);
         }
+
+        if (MyObjectUtils.isNotEmpty(schedules)) {
+            numberOfHoldingDay = schedules.size();
+        }
+
 
         if (MyObjectUtils.isNotEmpty(resources)) {
             limitParticipant = Integer.parseInt(EResourceType.valueOf(resourceTypeCode).getType())

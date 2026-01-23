@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,13 @@ public interface ScheduleUseCase {
 
     Page<Schedule> findAllByStationSpace(ScheduleCriteria criteria, PageRequest pageRequest);
 
-    List<Schedule> findAllByStationIdAndDateFromAndDateCount(Long stationId, LocalDate dateFrom, Integer dateCount);
+    List<Schedule> findAllByStationIdAndDateFromAndDateCount(Long stationId,
+                                                             LocalDate dateFrom,
+                                                             List<Long> stationResourceId,
+                                                             List<LocalTime> time,
+                                                             Integer dateCount);
+
+    List<Schedule> findAllByScheduleIdIn(List<Long> scheduleIds);
 
     void update(DomainKey<Long> scheduleId, Schedule schedule);
 

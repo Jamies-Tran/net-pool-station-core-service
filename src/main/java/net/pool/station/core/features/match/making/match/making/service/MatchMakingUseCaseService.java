@@ -23,6 +23,8 @@ import net.pool.station.core.domain.match.making.slot.MatchMakingSlotUseCase;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.match.participant.MatchParticipantCancel;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
+import net.pool.station.core.domain.match.schedule.MatchSchedule;
+import net.pool.station.core.domain.match.schedule.MatchScheduleUseCase;
 import net.pool.station.core.domain.notification.NotificationUseCase;
 import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.domain.payment.PaymentUseCase;
@@ -42,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -73,6 +76,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     StationResourceUseCase stationResourceUseCase;
 
+    MatchScheduleUseCase matchScheduleUseCase;
+
     NotificationUseCase notificationUseCase;
 
     AccountUseCase accountUseCase;
@@ -80,8 +85,21 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional
     public Long save(MatchMaking matchMaking) {
-        Schedule schedule = scheduleUseCase.findById(DomainKey.of(matchMaking.scheduleId()))
-                .orElseThrow(MyResourceNotFoundException::new);
+        List<Long> scheduleIds = matchMaking.schedules()
+                .stream()
+                .map(m -> m.id().scheduleId())
+                .toList();
+        List<Schedule> schedules = scheduleUseCase.findAllByScheduleIdIn(scheduleIds);
+        LocalDate startAt = schedules
+                .stream()
+                .map(Schedule::date)
+                .min(Comparator.comparing(date -> date))
+                .orElse(null);
+        LocalDate expiredAt = schedules
+                .stream()
+                .map(Schedule::date)
+                .max(Comparator.comparing(date -> date))
+                .orElse(null);
         List<Long> stationResourceIds = matchMaking.resources()
                 .stream()
                 .map(m -> m.id().stationResourceId())
@@ -89,12 +107,14 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
         Integer totalPrice = stationResourceUseCase.totalPriceByStationResourceIdIn(stationResourceIds)
                 * matchMaking.slots().size();
         matchMaking = matchMaking
-                .withExpiredAt(schedule.date().plusDays(matchMaking.numberOfHoldingDay()))
+                .withStartAt(startAt)
+                .withExpiredAt(expiredAt)
                 .withTotalPrice(totalPrice);
         MatchMaking savedMatchMaking = commandService.save(matchMaking);
-        Long matchMakingId = savedMatchMaking.matchMakingId();
-        slotUseCase.save(DomainKey.of(matchMakingId), matchMaking.slots());
-        resourceUseCase.save(DomainKey.of(matchMakingId), matchMaking.resources());
+        DomainKey<Long> matchMakingId = DomainKey.of(savedMatchMaking.matchMakingId());
+        matchScheduleUseCase.save(matchMakingId, matchMaking.schedules());
+        slotUseCase.save(matchMakingId, matchMaking.slots());
+        resourceUseCase.save(matchMakingId, matchMaking.resources());
         setupSchedule(savedMatchMaking);
 
         return savedMatchMaking.matchMakingId();
@@ -199,15 +219,16 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
                     List<MatchParticipant> participants = matchParticipantUseCase
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
-                    Schedule schedule = scheduleUseCase.findById(DomainKey.of(m.scheduleId()))
-                            .orElseThrow(MyResourceNotFoundException::new);
+                    List<MatchSchedule> schedules = matchScheduleUseCase
+                            .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
 
                     return m
                             .withResources(resources)
                             .withSlots(slots)
                             .withOwnerWalletId(ownerWalletId)
                             .withPlayerWalletId(playerWalletId)
-                            .withStartAt(schedule.date()).withParticipants(participants);
+                            .withSchedules(schedules)
+                            .withParticipants(participants);
                 });
     }
 
