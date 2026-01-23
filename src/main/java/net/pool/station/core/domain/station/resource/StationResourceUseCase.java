@@ -4,6 +4,8 @@ import net.pool.station.core.domain.DomainKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,4 +32,6 @@ public interface StationResourceUseCase {
     void delete(DomainKey<Long> stationResourceId);
 
     Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds);
+
+    Map<Row, List<StationResource>> findAvailableByStationSpaceIdAndDateAndDateTimeIn(DomainKey<Long> stationSpaceId, LocalDate date, List<LocalTime> times);
 }

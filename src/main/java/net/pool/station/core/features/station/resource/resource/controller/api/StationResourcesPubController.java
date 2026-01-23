@@ -4,14 +4,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.bootstrap.rest.response.MyListResponse;
-import net.pool.station.core.bootstrap.rest.response.MyMapResponse;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
-import net.pool.station.core.domain.station.resource.Row;
+import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.station.resource.StationResourceCriteria;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
-import net.pool.station.core.features.station.resource.resource.controller.api.models.RowResponse;
 import net.pool.station.core.features.station.resource.resource.controller.api.models.RowResponseMapper;
+import net.pool.station.core.features.station.resource.resource.controller.api.models.StationResourceAvailableRequest;
 import net.pool.station.core.features.station.resource.resource.controller.api.models.StationResourceKeyValueResponse;
 import net.pool.station.core.features.station.resource.resource.controller.api.models.StationResourceResponse;
 import net.pool.station.core.features.station.resource.resource.controller.api.models.StationResourceResponseMapper;
@@ -19,9 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,5 +73,24 @@ public class StationResourcesPubController implements StationResourcesPubApi{
                 .toList();
 
         return MyListResponse.success(response);
+    }
+
+    @Override
+    public MyListResponse<StationResourceKeyValueResponse> findAvailableByDateAndTimeIn(Long stationSpaceId,
+                                                                                        StationResourceAvailableRequest request) {
+        List<LocalTime> time = Stream.of(request.begin(), request.end())
+                .sorted()
+                .toList();
+        List<StationResourceKeyValueResponse> responses = stationResourceUseCase
+                .findAvailableByStationSpaceIdAndDateAndDateTimeIn(DomainKey.of(stationSpaceId), request.date(), time)
+                .entrySet()
+                .stream()
+                .map(e -> StationResourceKeyValueResponse.builder()
+                        .key(rowResponseMapper.toModel(e.getKey()))
+                        .value(responseMapper.toModel(e.getValue()))
+                        .build())
+                .toList();
+
+        return MyListResponse.success(responses);
     }
 }

@@ -3,10 +3,13 @@ package net.pool.station.core.features.schedule.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.rest.response.MyListResponse;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
 import net.pool.station.core.bootstrap.rest.response.MySorter;
+import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleCriteria;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
+import net.pool.station.core.features.schedule.controller.models.ScheduleCountListRequest;
 import net.pool.station.core.features.schedule.controller.models.ScheduleResponse;
 import net.pool.station.core.features.schedule.controller.models.ScheduleResponseMapper;
 import org.springframework.data.domain.Page;
@@ -68,5 +71,12 @@ public class SchedulesPubController implements SchedulesPubApi {
                 .map(responseMapper::toModel);
 
         return MyPageResponse.success(responses);
+    }
+
+    @Override
+    public MyListResponse<ScheduleResponse> findAllByStationIdAndDateFromAndDateCount(ScheduleCountListRequest request) {
+        List<Schedule> schedules = scheduleUseCase
+                .findAllByStationIdAndDateFromAndDateCount(request.stationId(), request.dateFrom(), request.dateCount());
+        return MyListResponse.success(responseMapper.toModel(schedules));
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,4 +95,61 @@ public interface StationResourceRepository extends JpaRepository<StationResource
         WHERE sr.stationResourceId IN :stationResourceIds
         """)
     Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds);
+
+    @Query("""
+
+            SELECT DISTINCT sr.stationResourceId
+                    FROM StationResourceEntity sr
+                    
+                    LEFT JOIN BookingEntity b
+                           ON b.stationResourceId = sr.stationResourceId
+                          AND b.statusCode IN ('PENDING', 'NEW', 'PROCESSING')
+                          AND DATE(b.startAt) <= :localDate
+                          AND DATE(b.endAt) >= :localDate
+                    
+                    LEFT JOIN BookingSlotEntity bs
+                           ON bs.bookingSlotId.bookingId = b.bookingId
+                    
+                    LEFT JOIN TimeSlotEntity bst
+                           ON bst.timeSlotId = bs.bookingSlotId.timeSlotId
+                          AND :#{#localTime.get(0)} < bst.end
+                          AND :#{#localTime.get(1)} > bst.begin
+                    
+                    LEFT JOIN MatchMakingResourceEntity mr
+                           ON mr.id.stationResourceId = sr.stationResourceId
+                    
+                    LEFT JOIN MatchMakingEntity m
+                           ON m.matchMakingId = mr.id.matchMakingId
+                          AND m.statusCode IN ('DRAFT', 'PENDING', 'PREPARE_START', 'STARTED')
+                          AND (
+                                (m.startAt <= :localDate AND m.expiredAt >= :localDate)
+                                OR DATE(m.playAt) = :localDate
+                              )
+                    
+                    LEFT JOIN MatchMakingSlotEntity ms
+                           ON ms.id.matchMakingId = m.matchMakingId
+                    
+                    LEFT JOIN TimeSlotEntity mst
+                           ON mst.timeSlotId = ms.id.timeSlotId
+                          AND :#{#localTime.get(0)} < mst.end
+                          AND :#{#localTime.get(1)} > mst.begin
+                    
+                    WHERE
+                          (b.bookingId IS NOT NULL AND bst.timeSlotId IS NOT NULL)
+                       OR (m.matchMakingId IS NOT NULL AND mst.timeSlotId IS NOT NULL)
+                    
+            """)
+    List<Long> findAvailableByLocalDateAndLocalTimeIn(LocalDate localDate, List<LocalTime> localTime);
+
+
+    @Query("""
+        SELECT sr
+        FROM StationResourceEntity sr
+        INNER JOIN AreaEntity a ON a.areaId = sr.areaId
+        INNER JOIN StationSpaceEntity ss ON ss.stationSpaceId = a.stationSpaceId
+        WHERE sr.deleted = false
+                AND ss.stationSpaceId = :stationSpaceId
+                        AND sr.stationResourceId NOT IN :stationResourceIds
+        """)
+    List<StationResourceEntity> findAllByStationSpaceIdAndStationResourceIdNotInAndDeletedFalse(Long stationSpaceId, List<Long> stationResourceIds);
 }

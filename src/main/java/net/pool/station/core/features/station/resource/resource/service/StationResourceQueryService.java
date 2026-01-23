@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.pool.station.core.domain.station.resource.StationResource;
 import net.pool.station.core.domain.station.resource.StationResourceCriteria;
+import net.pool.station.core.features.station.resource.resource.repository.database.StationResourceEntity;
 import net.pool.station.core.features.station.resource.resource.repository.database.StationResourceEntityMapper;
 import net.pool.station.core.features.station.resource.resource.repository.database.StationResourceRepository;
 import net.pool.station.core.features.station.resource.resource.repository.database.dao.StationResourceDaoMapper;
@@ -12,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,5 +42,11 @@ public class StationResourceQueryService {
 
     protected Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds) {
         return repository.totalPriceByStationResourceIdIn(stationResourceIds);
+    }
+
+    protected List<StationResource> findAvailableByStationSpaceIdAndDateAndDateTimeIn(Long stationSpaceId, LocalDate date, List<LocalTime> time) {
+        List<Long> stationResourceIds = repository.findAvailableByLocalDateAndLocalTimeIn(date, time);
+        return mapper.toDto(repository
+                .findAllByStationSpaceIdAndStationResourceIdNotInAndDeletedFalse(stationSpaceId, stationResourceIds));
     }
 }

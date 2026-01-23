@@ -42,6 +42,7 @@ public class MatchMakingEntity extends Auditor {
     Integer numberOfHoldingDay;
     Integer limitParticipant;
     Integer totalPrice;
+    LocalDate startAt;
     LocalDate expiredAt;
     LocalDate processAt;
     LocalDateTime playAt;

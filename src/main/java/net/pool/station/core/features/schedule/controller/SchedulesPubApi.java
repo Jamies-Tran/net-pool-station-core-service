@@ -1,8 +1,13 @@
 package net.pool.station.core.features.schedule.controller;
 
+import jakarta.validation.Valid;
+import net.pool.station.core.bootstrap.rest.response.MyListResponse;
 import net.pool.station.core.bootstrap.rest.response.MyPageResponse;
+import net.pool.station.core.features.schedule.controller.models.ScheduleCountListRequest;
 import net.pool.station.core.features.schedule.controller.models.ScheduleResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -73,4 +78,8 @@ public interface SchedulesPubApi {
             @RequestParam(required = false, value = "pageSize", defaultValue = "25")
             Integer pageSize
     );
+
+    @PostMapping("/list/by-date-count")
+    MyListResponse<ScheduleResponse> findAllByStationIdAndDateFromAndDateCount(
+            @RequestBody @Valid ScheduleCountListRequest request);
 }

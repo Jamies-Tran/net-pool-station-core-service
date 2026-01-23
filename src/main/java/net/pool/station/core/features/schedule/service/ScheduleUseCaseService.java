@@ -85,8 +85,8 @@ public class ScheduleUseCaseService implements ScheduleUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Schedule> findAllByDateFromAndDateCount(LocalDate dateFrom, Integer dateCount) {
-        return List.of();
+    public List<Schedule> findAllByStationIdAndDateFromAndDateCount(Long stationId, LocalDate dateFrom, Integer dateCount) {
+        return queryService.findAllByStationIdAndDateFromAndDateCount(stationId, dateFrom, dateCount);
     }
 
     @Override

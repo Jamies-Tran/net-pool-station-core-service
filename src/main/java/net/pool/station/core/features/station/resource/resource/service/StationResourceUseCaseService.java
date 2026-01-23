@@ -21,6 +21,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -123,5 +126,19 @@ public class StationResourceUseCaseService implements StationResourceUseCase {
     @Transactional(readOnly = true)
     public Integer totalPriceByStationResourceIdIn(List<Long> stationResourceIds) {
         return queryService.totalPriceByStationResourceIdIn(stationResourceIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Row, List<StationResource>> findAvailableByStationSpaceIdAndDateAndDateTimeIn(DomainKey<Long> stationSpaceId, LocalDate date, List<LocalTime> times) {
+        return queryService.findAvailableByStationSpaceIdAndDateAndDateTimeIn(stationSpaceId.value(), date, times)
+                .stream()
+                .collect(Collectors.groupingBy(s -> Row.builder()
+                        .rowCode(s.rowCode())
+                        .rowName(s.rowName())
+                        .build(), Collectors.collectingAndThen(Collectors.toList(), values -> {
+                    values.sort(Comparator.comparing(StationResource::displayOrder));
+                    return values;
+                })));
     }
 }

@@ -24,7 +24,7 @@ public interface ScheduleUseCase {
 
     Page<Schedule> findAllByStationSpace(ScheduleCriteria criteria, PageRequest pageRequest);
 
-    List<Schedule> findAllByDateFromAndDateCount(LocalDate dateFrom, Integer dateCount);
+    List<Schedule> findAllByStationIdAndDateFromAndDateCount(Long stationId, LocalDate dateFrom, Integer dateCount);
 
     void update(DomainKey<Long> scheduleId, Schedule schedule);
 
