@@ -195,7 +195,14 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional
     public void handleExpiredJob(DomainKey<Long> matchMakingId) {
-        commandService.handleExpiredJob(matchMakingId.value());
+        commandService.handleExpiredJob(matchMakingId.value())
+                .ifPresent(matchMaking -> {
+                    if (MyObjectUtils.isEquals(matchMaking.statusCode(), EMatchMakingStatus.EXPIRED.getCode())) {
+                        Long ownerWalletId = queryService.findOwnerWalletIdByStationId(matchMaking.stationId())
+                                .orElseThrow(MyResourceNotFoundException::new);
+                        paymentUseCase.payDeposit(matchMaking.withOwnerWalletId(ownerWalletId));
+                    }
+                });
     }
 
     @Override

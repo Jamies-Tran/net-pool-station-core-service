@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.enums.EGameStatus;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Getter
@@ -50,6 +52,10 @@ public class GameEntity {
 
     @PostPersist
     private void postPersist() {
+        if (MyObjectUtils.isEmpty(statusCode)) {
+            statusCode = EGameStatus.ENABLE.getCode();
+            statusName = EGameStatus.ENABLE.getName();
+        }
         gameCode = gameCode.concat("_%s".formatted(gameId));
     }
 }

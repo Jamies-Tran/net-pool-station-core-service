@@ -26,4 +26,6 @@ public interface PaymentUseCase {
     void refundMatchParticipantShare(MatchParticipant matchParticipant);
 
     void paymentToStartMatchMaking(MatchMaking matchMaking);
+
+    void payDeposit(MatchMaking matchMaking);
 }

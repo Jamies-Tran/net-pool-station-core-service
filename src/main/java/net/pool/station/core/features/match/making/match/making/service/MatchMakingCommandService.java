@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -86,25 +87,29 @@ public class MatchMakingCommandService {
                 .orElseThrow(MyResourceNotFoundException::new);
     }
 
-    protected void handleExpiredJob(Long matchMakingId) {
-        repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
-                .ifPresentOrElse(
+    protected Optional<MatchMaking> handleExpiredJob(Long matchMakingId) {
+        return repository.findByMatchMakingIdAndDeletedFalse(matchMakingId)
+                .map(
                         foundMatchMaking -> {
-                            switch (EMatchMakingStatus.valueOf(foundMatchMaking.getStatusCode())) {
-                                case PENDING, DRAFT -> {
+
+                            return switch (EMatchMakingStatus.valueOf(foundMatchMaking.getStatusCode())) {
+                                case PENDING -> {
+                                    foundMatchMaking.setStatusCode(EMatchMakingStatus.EXPIRED.getCode());
+                                    foundMatchMaking.setStatusName(EMatchMakingStatus.EXPIRED.getName());
+                                    yield  mapper.toDto(repository.save(foundMatchMaking));
+                                }
+                                case DRAFT -> {
                                     foundMatchMaking.setStatusCode(EMatchMakingStatus.CANCEL.getCode());
                                     foundMatchMaking.setStatusName(EMatchMakingStatus.CANCEL.getName());
-                                    repository.save(foundMatchMaking);
+                                    yield  mapper.toDto(repository.save(foundMatchMaking));
                                 }
                                 case STARTED -> {
                                     foundMatchMaking.setStatusCode(EMatchMakingStatus.FINISHED.getCode());
                                     foundMatchMaking.setStatusName(EMatchMakingStatus.FINISHED.getName());
-                                    repository.save(foundMatchMaking);
+                                    yield mapper.toDto(repository.save(foundMatchMaking));
                                 }
-                            }
-                        },
-                        () -> {
-                            log.error("[MatchMakingCommandService.handleExpiredJob(...)] message: Not found");
+                                default -> null;
+                            };
                         }
                 );
     }

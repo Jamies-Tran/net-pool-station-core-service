@@ -272,6 +272,12 @@ public class PaymentUseCaseService implements PaymentUseCase {
         transactionUseCase.handleStartMatchMaking(matchMaking);
     }
 
+    @Override
+    @Transactional
+    public void payDeposit(MatchMaking matchMaking) {
+        transactionUseCase.handlePayDeposit(matchMaking);
+    }
+
     private List<PaymentRequest.ItemRequest> fromBooking(Booking booking) {
         List<PaymentRequest.ItemRequest> fromResources = booking.bookingSlots()
                 .stream()

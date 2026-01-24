@@ -30,4 +30,6 @@ public interface TransactionUseCase {
     void handleRefundMatchParticipant(MatchParticipant matchParticipant);
 
     void handleStartMatchMaking(MatchMaking matchMaking);
+
+    void handlePayDeposit(MatchMaking matchMaking);
 }

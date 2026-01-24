@@ -72,9 +72,9 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
         LEFT JOIN BookingEntity b ON sc.scheduleId = b.scheduleId AND sc.deleted = FALSE AND b.stationResourceId = sr.stationResourceId
         LEFT JOIN TimeSlotEntity t ON sc.scheduleId = t.scheduleId
         LEFT JOIN BookingSlotEntity bs ON bs.bookingSlotId.timeSlotId = t.timeSlotId
-        LEFT JOIN MatchMakingEntity m ON m.scheduleId = sc.scheduleId AND m.deleted = FALSE
+        LEFT JOIN MatchScheduleEntity mc ON mc.id.scheduleId = sc.scheduleId
         LEFT JOIN MatchMakingResourceEntity mmr ON sr.stationResourceId = mmr.id.stationResourceId
-        LEFT JOIN MatchMakingSlotEntity ms ON m.matchMakingId = ms.id.matchMakingId AND ms.id.timeSlotId = t.timeSlotId
+        LEFT JOIN MatchMakingSlotEntity ms ON mc.id.matchMakingId = ms.id.matchMakingId AND ms.id.timeSlotId = t.timeSlotId
         WHERE sr.stationResourceId = :stationResourceId
         """)
     List<TimeSlotAllowBookingDao> findAllByScheduleIdAndStationResourceId(Long scheduleId, Long stationResourceId);

@@ -365,5 +365,20 @@ public class TransactionUseCaseService implements TransactionUseCase {
         walletLedgerUseCase.save(playerWalletLedger, true);
     }
 
+    @Override
+    @Transactional
+    public void handlePayDeposit(MatchMaking matchMaking) {
+        Transaction transaction = queryService
+                .findByMatchMakingIdAndPaymentType(matchMaking.matchMakingId(), EPaymentType.MATCH_MAKING_DEPOSIT)
+                .orElseThrow(MyResourceNotFoundException::new);
+        WalletLedger playerWalletLedger = WalletLedger.builder()
+                .walletId(matchMaking.ownerWalletId())
+                .transactionId(transaction.transactionId())
+                .changeAmount(transaction.amount())
+                .chargedCommission(0)
+                .build();
+        walletLedgerUseCase.save(playerWalletLedger, true);
+    }
+
 
 }
