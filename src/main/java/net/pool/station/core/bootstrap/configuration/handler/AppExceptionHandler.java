@@ -3,6 +3,7 @@ package net.pool.station.core.bootstrap.configuration.handler;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.EErrorCode;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyAuthenticationException;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyLoginInvalidException;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AppExceptionHandler {
@@ -90,6 +92,7 @@ public class AppExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public MyValueResponse<?> internalExceptionHandler(Exception exc) {
+        log.error("Error 500: {}", exc.getMessage(), exc.getCause());
         return MyValueResponse.error(
                 String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 EErrorCode.SERVER_ERROR.getCode(),
