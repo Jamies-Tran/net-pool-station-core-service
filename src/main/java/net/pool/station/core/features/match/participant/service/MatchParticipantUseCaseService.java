@@ -25,6 +25,7 @@ import net.pool.station.core.domain.wallet.WalletUseCase;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,8 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
 
     TransactionUseCase transactionUseCase;
 
+    SimpMessagingTemplate simpMessagingTemplate;
+
     @Override
     @Transactional
     public void save(DomainKey<Long> matchMakingId, List<MatchParticipant> matchParticipants) {
@@ -62,6 +65,7 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
             throw new MyResourceNotValid("Không thể tham gia phòng vào lúc này");
         }
         commandService.update(matchMakingId.value(), accountId);
+        reload(matchMakingId.value());
     }
 
     @Override
@@ -70,7 +74,10 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
         if (!queryService.allowParticipantByMatchParticipantId(matchParticipantId.value())) {
             throw new MyResourceNotValid("Không thể kick thành viên phòng vào lúc này");
         }
-        return commandService.empty(matchParticipantId.value());
+        MatchParticipantCancel matchParticipantCancel = commandService.empty(matchParticipantId.value());
+        reload(matchParticipantCancel.matchMakingId());
+
+        return matchParticipantCancel;
     }
 
     @Override
@@ -86,8 +93,10 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
                 .updatePaymentMethod(matchParticipantId.value(), paymentMethod);
         Wallet wallet = walletUseCase.findByAccountId(DomainKey.of(updatedMatchParticipant.accountId()))
                 .orElseThrow(() -> new MyResourceNotFoundException("Không tìm thấy System Wallet của player"));
+        MatchParticipant matchParticipant = updatedMatchParticipant.withParticipantWalletId(wallet.walletId());
+        reload(updatedMatchParticipant.matchMakingId());
 
-        return updatedMatchParticipant.withParticipantWalletId(wallet.walletId());
+        return matchParticipant;
     }
 
     @Override
@@ -134,8 +143,9 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
     @Override
     @Transactional
     public void ready(DomainKey<Long> matchParticipantId, LocalDateTime paidShareAt) {
-        commandService.updateReadyStatus(matchParticipantId.value(),
+        MatchParticipant matchParticipant = commandService.updateReadyStatus(matchParticipantId.value(),
                 EMatchParticipantReadyStatus.READY, paidShareAt);
+        reload(matchParticipant.matchMakingId());
     }
 
     private Map<Long, Account> accountMap(List<Long> accountIds) {
@@ -148,5 +158,10 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
         return transactionUseCase.findAllByMatchMakingIdInAndMatchParticipantIdIn(matchMakingIds, matchParticipantIds)
                 .stream()
                 .collect(Collectors.groupingBy(Transaction::matchParticipantId));
+    }
+
+    private void reload(Long matchMakingId) {
+        List<MatchParticipant> currentParticipants = queryService.findAllByMatchMakingId(matchMakingId);
+        simpMessagingTemplate.convertAndSend("/topic/match-making/" + matchMakingId + "/participants", currentParticipants);
     }
 }

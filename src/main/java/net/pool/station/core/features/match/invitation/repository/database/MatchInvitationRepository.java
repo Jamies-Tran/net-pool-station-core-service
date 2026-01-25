@@ -1,5 +1,6 @@
 package net.pool.station.core.features.match.invitation.repository.database;
 
+import net.pool.station.core.domain.match.invitation.MatchInvitation;
 import net.pool.station.core.domain.match.invitation.MatchInvitationCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -41,4 +43,6 @@ public interface MatchInvitationRepository extends JpaRepository<MatchInvitation
         WHERE m.matchMakingId = :matchMakingId AND m.createdBy = :createdBy
         """)
     Boolean allowInvitationByMatchMakingIdAndMatchMakingCreatedBy(Long matchMakingId, String createdBy);
+
+    List<MatchInvitationEntity> findAllByMatchMakingId(Long matchMakingId);
 }

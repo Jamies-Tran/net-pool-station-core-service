@@ -124,20 +124,19 @@ public class MatchParticipantCommandService {
                 );
     }
 
-    protected void updateReadyStatus(Long matchParticipantId,
+    protected MatchParticipant updateReadyStatus(Long matchParticipantId,
                                      EMatchParticipantReadyStatus readyStatus,
                                      LocalDateTime paidShareAt) {
-        repository.findById(matchParticipantId)
-                .ifPresentOrElse(
+        return repository.findById(matchParticipantId)
+                .map(
                         matchParticipant -> {
                             matchParticipant.setReadyStatusCode(readyStatus.getCode());
                             matchParticipant.setReadyStatusName(readyStatus.getName());
                             matchParticipant.setPaidShareAt(paidShareAt);
-                            repository.save(matchParticipant);
-                        },
-                        MyResourceNotFoundException::new
-
-                );
+                            return mapper.toDto(repository.save(matchParticipant));
+                        }
+                )
+                .orElseThrow(MyResourceNotFoundException::new);
     }
 
     protected MatchParticipant updatePaymentMethod(Long matchParticipantId, EPaymentMethod paymentMethod) {

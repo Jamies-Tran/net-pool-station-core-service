@@ -4,6 +4,7 @@ import net.pool.station.core.domain.DomainKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MatchJoiningRegistrationUseCase {
@@ -20,4 +21,6 @@ public interface MatchJoiningRegistrationUseCase {
     void deny(DomainKey<Long> matchJoiningRegistrationId);
 
     void cancel(DomainKey<Long> matchJoiningRegistrationId);
+
+    List<MatchJoiningRegistration> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
 }

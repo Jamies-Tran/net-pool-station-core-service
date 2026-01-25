@@ -17,10 +17,15 @@ import net.pool.station.core.domain.match.joining.MatchJoiningRegistrationUseCas
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,8 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
 
     AccountUseCase accountUseCase;
 
+    SimpMessagingTemplate simpMessagingTemplate;
+
     @Override
     @Transactional
     public void save(MatchJoiningRegistration matchJoiningRegistration) {
@@ -41,6 +48,7 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
             throw new MyResourceNotValid("Bạn không thể yêu cầu tham gia phòng ngay lúc này");
         }
         commandService.save(matchJoiningRegistration);
+        reload(matchJoiningRegistration.matchMakingId());
     }
 
     @Override
@@ -58,7 +66,13 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
     @Override
     @Transactional(readOnly = true)
     public Page<MatchJoiningRegistration> findAll(MatchJoiningRegistrationCriteria criteria, PageRequest pageRequest) {
-        return queryService.findAll(criteria, pageRequest);
+        Page<MatchJoiningRegistration> registrations = queryService.findAll(criteria, pageRequest);
+        List<Long> accountIds = registrations.stream().map(r -> Long.valueOf(r.createdBy())).toList();
+        Map<String, Account> accountMap = accountUseCase.findAllByIdIn(accountIds)
+                .stream()
+                .collect(Collectors.toMap(a -> a.accountId().toString(), Function.identity()));
+        return queryService.findAll(criteria, pageRequest)
+                .map(r -> r.withAccount(accountMap.computeIfAbsent(r.createdBy(), k -> null)));
     }
 
     @Override
@@ -81,6 +95,7 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
                 EMatchJoiningRegistrationStatus.ACCEPT);
         matchParticipantUseCase.fillEmptyParticipant(DomainKey.of(savedRegistration.matchMakingId()),
                 Long.valueOf(savedRegistration.createdBy()));
+        reload(savedRegistration.matchMakingId());
     }
 
     @Override
@@ -93,8 +108,9 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
         if (!isMatchMakingOwner) {
             throw new MyResourceNotValid("Bạn không thể từ chối yêu cầu này.");
         }
-        commandService.updateStatus(matchJoiningRegistrationId.value(),
+        MatchJoiningRegistration savedRegistration = commandService.updateStatus(matchJoiningRegistrationId.value(),
                 EMatchJoiningRegistrationStatus.DENY);
+        reload(savedRegistration.matchMakingId());
     }
 
     @Override
@@ -106,7 +122,20 @@ public class MatchJoiningRegistrationUseCaseService implements MatchJoiningRegis
         if (!isOwner) {
             throw new MyResourceNotValid("Bạn không thể hủy yêu cầu này.");
         }
-        commandService.updateStatus(matchJoiningRegistrationId.value(),
+        MatchJoiningRegistration savedRegistration = commandService.updateStatus(matchJoiningRegistrationId.value(),
                 EMatchJoiningRegistrationStatus.CANCEL);
+        reload(savedRegistration.matchMakingId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchJoiningRegistration> findAllByMatchMakingId(DomainKey<Long> matchMakingId) {
+        return queryService.findAllByMatchMakingId(matchMakingId.value());
+    }
+
+    private void reload(Long matchMakingId) {
+        List<MatchJoiningRegistration> currentRegistrations = queryService.findAllByMatchMakingId(matchMakingId);
+        simpMessagingTemplate
+                .convertAndSend("/topic/match-making/" + matchMakingId + "/match-joining", currentRegistrations);
     }
 }

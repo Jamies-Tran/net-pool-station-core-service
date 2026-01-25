@@ -14,4 +14,6 @@ public interface MatchInvitationUseCase {
     void deny(DomainKey<Long> matchInvitationId);
 
     Page<MatchInvitation> findAll(MatchInvitationCriteria criteria, PageRequest pageRequest);
+
+    List<MatchInvitation> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
 }

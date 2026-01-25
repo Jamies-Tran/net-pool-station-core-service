@@ -79,7 +79,8 @@ public class SecurityConfiguration {
                         AntPathRequestMatcher.antMatcher("/v1/auth/**"),
                         AntPathRequestMatcher.antMatcher("/v1/auth/*"),
                         AntPathRequestMatcher.antMatcher("/v1/pub/**"),
-                        AntPathRequestMatcher.antMatcher("/v1/pub/*")).permitAll())
+                        AntPathRequestMatcher.antMatcher("/v1/pub/*"),
+                        AntPathRequestMatcher.antMatcher("/ws/**")).permitAll())
                 .authorizeHttpRequests(httpAuthorization -> httpAuthorization.anyRequest().authenticated())
                 .exceptionHandling(excHandler -> excHandler.authenticationEntryPoint(authenticationEntryPoint))
                 .build();

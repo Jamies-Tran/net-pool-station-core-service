@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MatchJoiningRegistrationRepository extends JpaRepository<MatchJoiningRegistrationEntity, Long> {
     @Query("""
@@ -39,4 +41,6 @@ public interface MatchJoiningRegistrationRepository extends JpaRepository<MatchJ
         WHERE m.statusCode = 'PENDING' AND m.matchMakingId = :matchMakingId
         """)
     Boolean allowJoiningByMatchMakingId(Long matchMakingId);
+
+    List<MatchJoiningRegistrationEntity> findAllByMatchMakingId(Long matchMakingId);
 }

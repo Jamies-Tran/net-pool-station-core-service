@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -33,5 +35,9 @@ public class MatchInvitationQueryService {
             String createdBy
     ) {
        return repository.allowInvitationByMatchMakingIdAndMatchMakingCreatedBy(matchMakingId, createdBy);
+    }
+
+    protected List<MatchInvitation> findAllByMatchMakingId(Long matchMakingId) {
+        return mapper.toDto(repository.findAllByMatchMakingId(matchMakingId));
     }
 }

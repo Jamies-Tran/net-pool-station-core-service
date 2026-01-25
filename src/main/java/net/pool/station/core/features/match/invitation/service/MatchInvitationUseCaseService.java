@@ -24,6 +24,7 @@ import net.pool.station.core.domain.notification.Notification;
 import net.pool.station.core.domain.notification.NotificationUseCase;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,42 +50,38 @@ public class MatchInvitationUseCaseService implements MatchInvitationUseCase {
 
     AccountUseCase accountUseCase;
 
+    SimpMessagingTemplate simpMessagingTemplate;
+
     @Override
     @Transactional
     public void saveAll(DomainKey<Long> matchMakingId, List<MatchInvitation> matchInvitations) {
         if (!queryService.allowInvitationByMatchMakingId(matchMakingId.value())) {
             throw new MyResourceNotValid("Bạn không thể mời người chơi khác vào lúc này.");
         }
-        List<MatchInvitation> saveInvitations = commandService.saveAll(matchMakingId.value(), matchInvitations);
-
-        LoginInfo loginInfo = MyRequestContext.currentLoginInfo()
-                .orElseThrow(MyAuthenticationException::new);
-        List<Long> accounts = saveInvitations.stream().map(MatchInvitation::accountId).toList();
-        List<FcmInfo> fcmInfos = fcmInfoUseCase.findAllByAccountIdIn(accounts);
-        List<Notification> notifications = Notification.ofMatchInvitation(fcmInfos, saveInvitations,
-                loginInfo.username());
-        notificationUseCase.pushNotification(notifications);
+        commandService.saveAll(matchMakingId.value(), matchInvitations);
+        reload(matchMakingId.value());
     }
 
     @Override
     @Transactional
     public void accept(DomainKey<Long> matchInvitationId) {
-
         MatchInvitation matchInvitation = commandService.updateStatus(matchInvitationId.value(),
                 EMatchInvitationStatus.ACCEPTED);
         matchParticipantUseCase.fillEmptyParticipant(DomainKey.of(matchInvitation.matchMakingId()),
                 matchInvitation.accountId());
+        reload(matchInvitation.matchMakingId());
     }
 
     @Override
     @Transactional
     public void deny(DomainKey<Long> matchInvitationId) {
-        commandService.updateStatus(matchInvitationId.value(),
+        MatchInvitation matchInvitation = commandService.updateStatus(matchInvitationId.value(),
                 EMatchInvitationStatus.DENIED);
+        reload(matchInvitation.matchMakingId());
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<MatchInvitation> findAll(MatchInvitationCriteria criteria, PageRequest pageRequest) {
         Page<MatchInvitation> matchInvitations = queryService.findAll(criteria, pageRequest);
         List<Long> accountHostIds = matchInvitations.stream()
@@ -98,5 +95,15 @@ public class MatchInvitationUseCaseService implements MatchInvitationUseCase {
                 .withAccountHost(accounts.computeIfAbsent(Long.valueOf(m.createdBy()), k -> null)));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchInvitation> findAllByMatchMakingId(DomainKey<Long> matchMakingId) {
+        return queryService.findAllByMatchMakingId(matchMakingId.value());
+    }
 
+    private void reload(Long matchMakingId) {
+        List<MatchInvitation> currentInvitations = queryService.findAllByMatchMakingId(matchMakingId);
+        simpMessagingTemplate.convertAndSend("/topic/match-making/" + matchMakingId + "/invitations",
+                currentInvitations);
+    }
 }

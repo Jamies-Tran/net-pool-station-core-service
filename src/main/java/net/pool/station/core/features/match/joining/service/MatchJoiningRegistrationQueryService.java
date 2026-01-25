@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,5 +44,9 @@ public class MatchJoiningRegistrationQueryService {
 
     protected Boolean allowJoiningByMatchMakingId(Long matchMakingId) {
         return repository.allowJoiningByMatchMakingId(matchMakingId);
+    }
+
+    protected List<MatchJoiningRegistration> findAllByMatchMakingId(Long matchMakingId) {
+        return mapper.toDto(repository.findAllByMatchMakingId(matchMakingId));
     }
 }
