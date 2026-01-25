@@ -10,17 +10,19 @@ import net.pool.station.core.bootstrap.rest.response.MyValueResponse;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.match.making.MatchMakingCriteria;
 import net.pool.station.core.domain.match.making.MatchMakingUseCase;
+import net.pool.station.core.domain.payment.Payment;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingRequest;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingRequestMapping;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.MatchMakingResponseMapping;
 import net.pool.station.core.features.match.making.match.making.controller.models.payment.method.PaymentMethodRequest;
+import net.pool.station.core.features.payment.controller.payment.models.PaymentResponse;
+import net.pool.station.core.features.payment.controller.payment.models.PaymentResponseMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -32,6 +34,8 @@ public class MatchMakingsController implements MatchMakingsApi {
     MatchMakingRequestMapping requestMapping;
 
     MatchMakingResponseMapping responseMapping;
+
+    PaymentResponseMapper paymentResponseMapper;
 
     @Override
     public MyValueResponse<Long> save(MatchMakingRequest request) {
@@ -69,10 +73,10 @@ public class MatchMakingsController implements MatchMakingsApi {
     }
 
     @Override
-    public MyValueResponse<?> participantWalletPayment(Long matchParticipateId, PaymentMethodRequest request) {
+    public MyValueResponse<PaymentResponse> participantPayment(Long matchParticipateId, PaymentMethodRequest request) {
         EPaymentMethod paymentMethod = EPaymentMethod.valueOf(request.paymentMethodCode());
-        matchMakingUseCase.participantWalletPayment(DomainKey.of(matchParticipateId), paymentMethod);
+        Payment payment = matchMakingUseCase.participantPayment(DomainKey.of(matchParticipateId), paymentMethod);
 
-        return MyValueResponse.successNoData();
+        return MyValueResponse.success(paymentResponseMapper.toModel(payment));
     }
 }

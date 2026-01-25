@@ -15,6 +15,8 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.bootstrap.utils.MyPaymentUtils;
 import net.pool.station.core.bootstrap.utils.MySpringContext;
 import net.pool.station.core.domain.DomainKey;
+import net.pool.station.core.domain.account.Account;
+import net.pool.station.core.domain.account.AccountUseCase;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingUseCase;
 import net.pool.station.core.domain.match.making.MatchMaking;
@@ -38,8 +40,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -53,6 +58,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
     WalletLedgerUseCase walletLedgerUseCase;
 
     WalletUseCase walletUseCase;
+
+    AccountUseCase accountUseCase;
 
 
     private BookingUseCase bookingUseCase() {
@@ -82,6 +89,32 @@ public class TransactionUseCaseService implements TransactionUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> findAllByMatchMakingId(DomainKey<Long> matchMakingId) {
+        List<Transaction> transactions = queryService.findAllByMatchMakingId(matchMakingId.value());
+        List<Long> accountIds = transactions
+                .stream()
+                .map(a -> Long.valueOf(a.createdBy()))
+                .toList();
+        Map<String, Account> accountMap = accountUseCase.findAllByIdIn(accountIds)
+                .stream()
+                .collect(Collectors.toMap(a -> a.accountId().toString(), Function.identity()));
+        return transactions
+                .stream()
+                .map(t -> t.withAccount(accountMap.computeIfAbsent(t.createdBy(), k -> null)))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> findAllByMatchMakingIdInAndMatchParticipantIdIn(
+            List<Long> matchMakingId,
+            List<Long> matchParticipantId
+    ) {
+        return queryService.findAllByMatchMakingIdAndMatchParticipantId(matchMakingId, matchParticipantId);
+    }
+
+    @Override
     @Transactional
     public void handlePaymentWallet(Booking booking) {
         if (MyObjectUtils.isNotEquals(EPaymentMethod.WALLET.getCode(), booking.paymentMethodCode())) {
@@ -102,6 +135,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .paymentMethodName(booking.paymentMethodName())
                 .paymentTypeCode(EPaymentType.BOOKING_PAYMENT.getCode())
                 .paymentTypeName(EPaymentType.BOOKING_PAYMENT.getName())
+                .statusCode(EPaymentStatus.PAID.getCode())
+                .statusName(EPaymentStatus.PAID.getName())
                 .build();
         Transaction savedTransaction = commandService.save(transaction);
         WalletLedger playerWalletLedger = WalletLedger.builder()
@@ -118,6 +153,28 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .build();
         walletLedgerUseCase.saveAll(List.of(playerWalletLedger, ownerWalletLedger));
         bookingUseCase().processed(new DomainKey<>(booking.bookingId()), playerWalletLedger.createdAt());
+    }
+
+    @Override
+    public void handleDirectPaymentForBooking(Booking booking) {
+        Transaction transaction = Transaction.builder()
+                .bookingId(booking.bookingId())
+                .walletId(booking.ownerWalletId())
+                .amount(-MyPaymentUtils.calculateCommission(booking.totalPrice()))
+                .paymentMethodCode(booking.paymentMethodCode())
+                .paymentMethodName(booking.paymentMethodName())
+                .paymentTypeCode(EPaymentType.BOOKING_DIRECT_PAYMENT.getCode())
+                .paymentTypeName(EPaymentType.BOOKING_DIRECT_PAYMENT.getName())
+                .statusCode(EPaymentStatus.PAID.getCode())
+                .statusName(EPaymentStatus.PAID.getName())
+                .build();
+        Transaction savedTransaction = commandService.save(transaction);
+        WalletLedger walletLedger = WalletLedger.builder()
+                .walletId(savedTransaction.walletId())
+                .changeAmount(0)
+                .chargedCommission(transaction.amount())
+                .build();
+        walletLedgerUseCase.save(walletLedger, true);
     }
 
     @Override
@@ -141,6 +198,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .paymentMethodName(matchMaking.paymentMethodName())
                 .paymentTypeCode(EPaymentType.MATCH_MAKING_DEPOSIT.getCode())
                 .paymentTypeName(EPaymentType.MATCH_MAKING_DEPOSIT.getName())
+                .statusCode(EPaymentStatus.PAID.getCode())
+                .statusName(EPaymentStatus.PAID.getName())
                 .build();
         Transaction savedTransaction = commandService.save(transaction);
         WalletLedger walletLedger = WalletLedger.builder()
@@ -185,6 +244,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     .paymentMethodName(matchParticipant.paymentMethodName())
                     .paymentTypeCode(paymentType.getCode())
                     .paymentTypeName(paymentType.getName())
+                    .statusCode(EPaymentStatus.PAID.getCode())
+                    .statusName(EPaymentStatus.PAID.getName())
                     .build();
             Transaction savedTransaction = commandService.save(transaction);
             WalletLedger walletLedger = WalletLedger.builder()
@@ -211,6 +272,8 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     .paymentMethodName(matchParticipant.paymentMethodName())
                     .paymentTypeCode(EPaymentType.MATCH_PARTICIPANT_PAYMENT.getCode())
                     .paymentTypeName(EPaymentType.MATCH_PARTICIPANT_PAYMENT.getName())
+                    .statusCode(EPaymentStatus.PAID.getCode())
+                    .statusName(EPaymentStatus.PAID.getName())
                     .build();
             Transaction savedTransaction = commandService.save(transaction);
             WalletLedger walletLedger = WalletLedger.builder()
@@ -224,6 +287,30 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     savedLedger.createdAt());
         }
 
+    }
+
+    @Override
+    @Transactional
+    public void createDirectPaymentForMatchParticipant(MatchParticipant matchParticipant) {
+        int shareAmount = matchParticipant.shareAmount();
+        if (MyObjectUtils.isNotEmpty(matchParticipant.paidDeposit())) {
+            shareAmount = shareAmount - matchParticipant.paidDeposit();
+        }
+        Transaction transaction = Transaction.builder()
+                .matchMakingId(matchParticipant.matchMakingId())
+                .matchParticipantId(matchParticipant.matchParticipantId())
+                .walletId(matchParticipant.ownerWalletId())
+                .amount(shareAmount)
+                .paymentMethodCode(matchParticipant.paymentMethodCode())
+                .paymentMethodName(matchParticipant.paymentMethodName())
+                .paymentTypeCode(EPaymentType.MATCH_PARTICIPANT_DIRECT_PAYMENT.getCode())
+                .paymentTypeName(EPaymentType.MATCH_PARTICIPANT_DIRECT_PAYMENT.getName())
+                .statusCode(EPaymentStatus.UNDERPAID.getCode())
+                .statusName(EPaymentStatus.UNDERPAID.getName())
+                .build();
+        commandService.save(transaction);
+        matchMakingUseCase().processParticipant(new DomainKey<>(matchParticipant.matchParticipantId()),
+                LocalDateTime.now());
     }
 
     @Override
@@ -342,9 +429,15 @@ public class TransactionUseCaseService implements TransactionUseCase {
     @Transactional
     public void handleStartMatchMaking(MatchMaking matchMaking) {
         List<EPaymentType> paymentTypes = List.of(EPaymentType.MATCH_MAKING_DEPOSIT,
-                EPaymentType.MATCH_PARTICIPANT_PAYMENT);
+                EPaymentType.MATCH_PARTICIPANT_PAYMENT, EPaymentType.MATCH_PARTICIPANT_DIRECT_PAYMENT);
         List<Transaction> transactions = queryService.findAllBy(matchMaking.matchMakingId(), paymentTypes);
         int totalChangeAmount = transactions
+                .stream()
+                .filter(t -> MyObjectUtils.isNotEquals(EPaymentType
+                        .MATCH_PARTICIPANT_DIRECT_PAYMENT.getCode(), t.paymentTypeCode()))
+                .reduce(0, (w1, w2) -> w1 + w2.amount(), Integer::sum);
+
+        int totalActualChangeAmount = transactions
                 .stream()
                 .reduce(0, (w1, w2) -> w1 + w2.amount(), Integer::sum);
 
@@ -360,7 +453,7 @@ public class TransactionUseCaseService implements TransactionUseCase {
                 .walletId(savedTransaction.walletId())
                 .transactionId(savedTransaction.transactionId())
                 .changeAmount(savedTransaction.amount())
-                .chargedCommission(MyPaymentUtils.calculateCommission(savedTransaction.amount()))
+                .chargedCommission(MyPaymentUtils.calculateCommission(totalActualChangeAmount))
                 .build();
         walletLedgerUseCase.save(playerWalletLedger, true);
     }

@@ -1,5 +1,7 @@
 package net.pool.station.core.features.transaction.controller.models;
 
+import net.pool.station.core.features.account.account.controller.models.AccountResponse;
+
 import java.time.LocalDateTime;
 
 public record TransactionResponse(
@@ -15,6 +17,7 @@ public record TransactionResponse(
         String paymentMethodName,
         LocalDateTime paymentCompleteAt,
         String statusCode,
-        String statusName
+        String statusName,
+        AccountResponse account
 ) {
 }

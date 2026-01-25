@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotFoundException;
+import net.pool.station.core.bootstrap.configuration.handler.exception.MyResourceNotValid;
 import net.pool.station.core.bootstrap.enums.EMatchMakingStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantReadyStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
@@ -31,6 +32,8 @@ import net.pool.station.core.domain.payment.PaymentUseCase;
 import net.pool.station.core.domain.schedule.Schedule;
 import net.pool.station.core.domain.schedule.ScheduleUseCase;
 import net.pool.station.core.domain.station.resource.StationResourceUseCase;
+import net.pool.station.core.domain.transaction.Transaction;
+import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.features.match.making.job.ExpiredMatchMakingJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -77,6 +80,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     StationResourceUseCase stationResourceUseCase;
 
     MatchScheduleUseCase matchScheduleUseCase;
+
+    TransactionUseCase transactionUseCase;
 
     NotificationUseCase notificationUseCase;
 
@@ -216,6 +221,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     public Optional<MatchMaking> findById(DomainKey<Long> matchMakingId) {
         return queryService.findById(matchMakingId.value())
                 .map(m -> {
+                    List<Transaction> transactions = transactionUseCase.findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
                     Long ownerWalletId = queryService.findOwnerWalletIdByStationId(m.stationId())
                             .orElseThrow(MyResourceNotFoundException::new);
                     Long playerWalletId = queryService.findPlayerWalletIdByCreatedBy(Long.valueOf(m.createdBy()))
@@ -235,7 +241,8 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                             .withOwnerWalletId(ownerWalletId)
                             .withPlayerWalletId(playerWalletId)
                             .withSchedules(schedules)
-                            .withParticipants(participants);
+                            .withParticipants(participants)
+                            .withTransactions(transactions);
                 });
     }
 
@@ -272,12 +279,24 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     @Override
     @Transactional
-    public void participantWalletPayment(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod) {
-
+    public Payment participantPayment(DomainKey<Long> matchParticipantId, EPaymentMethod paymentMethod) {
+        if (!queryService.allowReadyByMatchParticipantId(matchParticipantId.value())) {
+            throw new MyResourceNotValid("Chưa thể sẵn sàng ngay lúc này");
+        }
         MatchParticipant updateMatchParticipant = matchParticipantUseCase
                 .updatePaymentMethod(matchParticipantId, paymentMethod);
 
-        paymentUseCase.walletPaymentForMatchParticipant(updateMatchParticipant);
+        return switch(paymentMethod) {
+            case WALLET -> {
+                paymentUseCase.walletPaymentForMatchParticipant(updateMatchParticipant);
+                yield null;
+            }
+            case BANK_TRANSFER -> paymentUseCase.createFromMatchParticipant(updateMatchParticipant);
+            case DIRECT -> {
+                paymentUseCase.directPaymentForMatchParticipant(updateMatchParticipant);
+                yield null;
+            }
+        };
     }
 
     @Override

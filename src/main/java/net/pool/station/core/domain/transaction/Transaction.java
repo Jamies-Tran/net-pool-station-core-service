@@ -1,6 +1,8 @@
 package net.pool.station.core.domain.transaction;
 
 import lombok.Builder;
+import lombok.With;
+import net.pool.station.core.domain.account.Account;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +22,8 @@ public record Transaction(
         String paymentMethodName,
         LocalDateTime paymentCompleteAt,
         String statusCode,
-        String statusName
-) {
+        String statusName,
+        String createdBy,
+        @With Account account
+        ) {
 }

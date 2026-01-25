@@ -4,6 +4,7 @@ import net.pool.station.core.features.match.making.match.making.controller.model
 import net.pool.station.core.features.match.making.match.making.controller.models.resource.MatchMakingResourceResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.schedule.MatchScheduleResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.slot.MatchMakingSlotResponse;
+import net.pool.station.core.features.transaction.controller.models.TransactionResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public record MatchMakingResponse (
         List<MatchMakingSlotResponse> slots,
         List<MatchMakingResourceResponse> resources,
         List<MatchParticipantResponse> participants,
-        List<MatchScheduleResponse> schedules
+        List<MatchScheduleResponse> schedules,
+        List<TransactionResponse> transactions
 ) {
 }

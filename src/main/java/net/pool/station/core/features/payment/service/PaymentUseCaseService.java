@@ -156,6 +156,19 @@ public class PaymentUseCaseService implements PaymentUseCase {
 
     @Override
     @Transactional
+    public void walletPaymentForBooking(Booking booking) {
+        transactionUseCase.handlePaymentWallet(booking);
+
+    }
+
+    @Override
+    @Transactional
+    public void directPaymentForBooking(Booking booking) {
+        transactionUseCase.handleDirectPaymentForBooking(booking);
+    }
+
+    @Override
+    @Transactional
     public Payment createDepositFromMatchMaking(MatchMaking matchMaking) {
         Account account = accountUseCase.findById(new DomainKey<>(Long.valueOf(matchMaking.createdBy())))
                 .orElseThrow(MyResourceNotFoundException::new);
@@ -192,13 +205,6 @@ public class PaymentUseCaseService implements PaymentUseCase {
         transactionUseCase.save(transaction);
 
         return mapper.toDto(paymentResponse);
-    }
-
-    @Override
-    @Transactional
-    public void walletPaymentForBooking(Booking booking) {
-        transactionUseCase.handlePaymentWallet(booking);
-
     }
 
     @Override
@@ -252,6 +258,12 @@ public class PaymentUseCaseService implements PaymentUseCase {
     @Transactional
     public void walletPaymentForMatchParticipant(MatchParticipant matchParticipant) {
         transactionUseCase.handlePaymentWallet(matchParticipant);
+    }
+
+    @Override
+    @Transactional
+    public void directPaymentForMatchParticipant(MatchParticipant matchParticipant) {
+        transactionUseCase.createDirectPaymentForMatchParticipant(matchParticipant);
     }
 
     @Override

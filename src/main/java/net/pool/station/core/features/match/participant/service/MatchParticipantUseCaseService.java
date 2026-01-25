@@ -18,6 +18,8 @@ import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.match.participant.MatchParticipantCancel;
 import net.pool.station.core.domain.match.participant.MatchParticipantCriteria;
 import net.pool.station.core.domain.match.participant.MatchParticipantUseCase;
+import net.pool.station.core.domain.transaction.Transaction;
+import net.pool.station.core.domain.transaction.TransactionUseCase;
 import net.pool.station.core.domain.wallet.Wallet;
 import net.pool.station.core.domain.wallet.WalletUseCase;
 import org.checkerframework.checker.units.qual.A;
@@ -44,6 +46,8 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
     WalletUseCase walletUseCase;
 
     AccountUseCase accountUseCase;
+
+    TransactionUseCase transactionUseCase;
 
     @Override
     @Transactional
@@ -105,10 +109,15 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
     public Page<MatchParticipant> findAll(MatchParticipantCriteria criteria, PageRequest pageRequest) {
         Page<MatchParticipant> participants = queryService.findAll(criteria, pageRequest);
         List<Long> accountIds = participants.stream().map(MatchParticipant::accountId).toList();
+        List<Long> matchMakingIds = participants.stream().map(MatchParticipant::matchMakingId).toList();
+        List<Long> matchParticipantIds = participants.stream().map(MatchParticipant::matchParticipantId).toList();
         Map<Long, Account> accountMap = accountMap(accountIds);
+        Map<Long, List<Transaction>> transactionMap = transactionMap(matchMakingIds, matchParticipantIds);
 
-        return participants.map(p -> p
-                .withAccount(accountMap.computeIfAbsent(p.accountId(), k -> null)));
+        return participants
+                .map(p -> p
+                        .withAccount(accountMap.computeIfAbsent(p.accountId(), k -> null))
+                        .withTransactions(transactionMap.computeIfAbsent(p.matchParticipantId(), k -> List.of())));
     }
 
     @Override
@@ -133,5 +142,11 @@ public class MatchParticipantUseCaseService implements MatchParticipantUseCase {
         return accountUseCase.findAllByIdIn(accountIds)
                 .stream()
                 .collect(Collectors.toMap(Account::accountId, Function.identity()));
+    }
+
+    private Map<Long, List<Transaction>> transactionMap(List<Long> matchMakingIds, List<Long> matchParticipantIds) {
+        return transactionUseCase.findAllByMatchMakingIdInAndMatchParticipantIdIn(matchMakingIds, matchParticipantIds)
+                .stream()
+                .collect(Collectors.groupingBy(Transaction::matchParticipantId));
     }
 }

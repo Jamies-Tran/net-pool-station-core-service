@@ -3,6 +3,7 @@ package net.pool.station.core.features.transaction.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.transaction.Transaction;
 import net.pool.station.core.features.transaction.repository.database.TransactionEntity;
 import net.pool.station.core.features.transaction.repository.database.TransactionEntityMapper;
@@ -18,6 +19,24 @@ public class TransactionCommandService {
     TransactionEntityMapper mapper;
 
     protected Transaction save(Transaction transaction) {
+        if (repository.findByMatchMakingIdAndMatchParticipantIdAndPaymentTypeCode(transaction.matchMakingId(),
+                transaction.matchParticipantId(), transaction.paymentTypeCode()).isPresent()) {
+            TransactionEntity oldTransaction = repository
+                    .findByMatchMakingIdAndMatchParticipantIdAndPaymentTypeCode(transaction.matchMakingId(),
+                            transaction.matchParticipantId(), transaction.paymentTypeCode()).get();
+            mapper.update(oldTransaction, transaction);
+            return mapper.toDto(repository.save(oldTransaction));
+        }
+
+        if (MyObjectUtils.isNotEmpty(transaction.bookingId()) && repository
+                .findByBookingIdAndPaymentTypeCode(transaction.bookingId(), transaction.paymentTypeCode())
+                .isPresent()) {
+            TransactionEntity oldTransaction = repository.findByBookingIdAndPaymentTypeCode(transaction.bookingId(),
+                    transaction.paymentTypeCode()).get();
+            mapper.update(oldTransaction, transaction);
+            return mapper.toDto(repository.save(oldTransaction));
+        }
+
         TransactionEntity savedTransaction = repository.save(mapper.toEntity(transaction));
 
         return mapper.toDto(savedTransaction);

@@ -2,6 +2,9 @@ package net.pool.station.core.features.match.making.match.making.controller.mode
 
 import lombok.With;
 import net.pool.station.core.features.account.account.controller.models.AccountResponse;
+import net.pool.station.core.features.transaction.controller.models.TransactionResponse;
+
+import java.util.List;
 
 public record MatchParticipantResponse(
         Long matchParticipantId,
@@ -16,6 +19,7 @@ public record MatchParticipantResponse(
         Integer shareAmount,
         String statusCode,
         String statusName,
-        AccountResponse account
+        AccountResponse account,
+        List<TransactionResponse> transactions
 ) {
 }

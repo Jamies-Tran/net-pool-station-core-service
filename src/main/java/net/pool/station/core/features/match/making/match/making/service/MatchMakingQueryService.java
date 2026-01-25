@@ -58,4 +58,8 @@ public class MatchMakingQueryService {
     protected Optional<Long> findPlayerWalletIdByCreatedBy(Long createdBy) {
         return repository.findPlayerWalletIdByCreatedBy(createdBy);
     }
+
+    protected Boolean allowReadyByMatchParticipantId(Long matchParticipantId) {
+        return repository.allowReadyByMatchParticipantId(matchParticipantId);
+    }
 }

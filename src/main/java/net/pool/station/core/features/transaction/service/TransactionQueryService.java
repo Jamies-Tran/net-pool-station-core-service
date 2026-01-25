@@ -39,6 +39,14 @@ public class TransactionQueryService {
                 .map(mapper::toDto);
     }
 
+    protected List<Transaction> findAllByMatchMakingId(Long matchMakingId) {
+        return mapper.toDto(repository.findAllByMatchMakingId(matchMakingId));
+    }
+
+    protected List<Transaction> findAllByMatchMakingIdAndMatchParticipantId(List<Long> matchMakingId, List<Long> matchParticipantId) {
+        return mapper.toDto(repository.findAllByMatchMakingIdInAndMatchParticipantIdIn(matchMakingId, matchParticipantId));
+    }
+
     protected Page<Transaction> findAll(TransactionCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);

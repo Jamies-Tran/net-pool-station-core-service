@@ -71,4 +71,12 @@ public interface MatchMakingRepository extends JpaRepository<MatchMakingEntity, 
         WHERE w.accountId = :createdBy
         """)
     Optional<Long> findPlayerWalletIdByCreatedBy(Long createdBy);
+
+    @Query("""
+        SELECT m.statusCode = 'PREPARE_START'
+        FROM MatchMakingEntity m
+        INNER JOIN MatchParticipantEntity mp ON m.matchMakingId = mp.matchMakingId
+        WHERE mp.matchParticipantId = :matchParticipantId
+        """)
+    Boolean allowReadyByMatchParticipantId(Long matchParticipantId);
 }

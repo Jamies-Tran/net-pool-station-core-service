@@ -7,6 +7,7 @@ import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
 import net.pool.station.core.domain.match.schedule.MatchSchedule;
+import net.pool.station.core.domain.transaction.Transaction;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -47,7 +48,8 @@ public record MatchMaking(
         @With List<MatchMakingSlot> slots,
         @With List<MatchMakingResource> resources,
         @With List<MatchParticipant> participants,
-        @With List<MatchSchedule> schedules
+        @With List<MatchSchedule> schedules,
+        @With List<Transaction> transactions
 ) {
     public MatchMaking {
         if (MyObjectUtils.isEmpty(matchMakingCode)) {

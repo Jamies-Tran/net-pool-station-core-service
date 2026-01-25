@@ -8,6 +8,7 @@ import net.pool.station.core.bootstrap.enums.EMatchParticipantStatus;
 import net.pool.station.core.bootstrap.enums.EMatchParticipantType;
 import net.pool.station.core.bootstrap.utils.MyPaymentUtils;
 import net.pool.station.core.domain.account.Account;
+import net.pool.station.core.domain.transaction.Transaction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public record MatchParticipant(
         Long matchParticipantId,
         Long accountId,
         @With Long participantWalletId,
+        @With Long ownerWalletId,
         @With Long matchMakingId,
         String typeCode,
         String typeName,
@@ -30,7 +32,8 @@ public record MatchParticipant(
         LocalDateTime paidShareAt,
         String statusCode,
         String statusName,
-        @With Account account
+        @With Account account,
+        @With List<Transaction> transactions
 ) {
     public static MatchParticipant ofEmpty() {
 

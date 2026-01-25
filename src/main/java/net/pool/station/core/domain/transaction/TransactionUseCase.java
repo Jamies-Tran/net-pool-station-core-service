@@ -17,11 +17,20 @@ public interface TransactionUseCase {
 
     List<Transaction> findAllByIdIn(List<Long> transactionIds);
 
+    List<Transaction> findAllByMatchMakingId(DomainKey<Long> matchMakingId);
+
+    List<Transaction> findAllByMatchMakingIdInAndMatchParticipantIdIn(List<Long> matchMakingId
+            , List<Long> matchParticipantId);
+
     void handlePaymentWallet(Booking booking);
+
+    void handleDirectPaymentForBooking(Booking booking);
 
     void handleDepositPaymentWallet(MatchMaking matchMaking);
 
     void handlePaymentWallet(MatchParticipant matchParticipant);
+
+    void createDirectPaymentForMatchParticipant(MatchParticipant matchParticipant);
 
     void handlePaymentWebhook(DomainKey<String> transactionCode, PaymentWebhook paymentWebhook);
 

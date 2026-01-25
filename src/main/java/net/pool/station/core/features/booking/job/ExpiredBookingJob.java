@@ -10,8 +10,7 @@ import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.booking.Booking;
 import net.pool.station.core.domain.booking.BookingUseCase;
-import net.pool.station.core.domain.wallet.ledger.WalletLedger;
-import net.pool.station.core.domain.wallet.ledger.WalletLedgerUseCase;
+import net.pool.station.core.domain.payment.PaymentUseCase;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -24,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class ExpiredBookingJob implements Job {
     BookingUseCase bookingUseCase;
 
-    WalletLedgerUseCase walletLedgerUseCase;
+    PaymentUseCase paymentUseCase;
 
     @NonFinal
     @Value("${environment.commission.percent}")
@@ -39,13 +38,7 @@ public class ExpiredBookingJob implements Job {
                 .finish(new DomainKey<>(bookingId));
         if (MyObjectUtils.isEquals(EPaymentMethod.DIRECT, EPaymentMethod.valueOf(booking.paymentMethodCode()))
             && MyObjectUtils.isEquals(EBookingStatus.COMPLETED.getCode(), booking.statusCode())) {
-            int chargeCommission = booking.totalPrice() * commission/100;
-            WalletLedger walletLedger = WalletLedger.builder()
-                    .walletId(booking.ownerWalletId())
-                    .changeAmount(-booking.totalPrice())
-                    .chargedCommission(chargeCommission)
-                    .build();
-            walletLedgerUseCase.save(walletLedger, true);
+            paymentUseCase.directPaymentForBooking(booking);
         }
     }
 }
