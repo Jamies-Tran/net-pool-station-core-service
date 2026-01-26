@@ -14,6 +14,8 @@ import net.pool.station.core.bootstrap.enums.EPaymentMethod;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
 import net.pool.station.core.domain.DomainKey;
 import net.pool.station.core.domain.account.AccountUseCase;
+import net.pool.station.core.domain.game.Game;
+import net.pool.station.core.domain.game.GameUseCase;
 import net.pool.station.core.domain.match.making.MatchMaking;
 import net.pool.station.core.domain.match.making.MatchMakingCriteria;
 import net.pool.station.core.domain.match.making.MatchMakingUseCase;
@@ -55,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,9 +87,7 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
 
     TransactionUseCase transactionUseCase;
 
-    NotificationUseCase notificationUseCase;
-
-    AccountUseCase accountUseCase;
+    GameUseCase gameUseCase;
 
     @Override
     @Transactional
@@ -234,8 +236,11 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
                     List<MatchSchedule> schedules = matchScheduleUseCase
                             .findAllByMatchMakingId(DomainKey.of(m.matchMakingId()));
+                    Game game = gameUseCase.findById(DomainKey.of(m.gameId()))
+                            .orElse(null);
 
                     return m
+                            .withGame(game)
                             .withResources(resources)
                             .withSlots(slots)
                             .withOwnerWalletId(ownerWalletId)
@@ -249,7 +254,16 @@ public class MatchMakingUseCaseService implements MatchMakingUseCase {
     @Override
     @Transactional(readOnly = true)
     public Page<MatchMaking> findAll(MatchMakingCriteria criteria, PageRequest pageRequest) {
-        return queryService.findAll(criteria, pageRequest);
+        Page<MatchMaking> matchMakings = queryService.findAll(criteria, pageRequest);
+        List<Long> gameIds = matchMakings
+                .stream()
+                .map(MatchMaking::gameId)
+                .toList();
+        Map<Long, Game> gameMap = gameUseCase.findAllByIdIn(gameIds)
+                .stream()
+                .collect(Collectors.toMap(Game::gameId, Function.identity()));
+
+        return matchMakings.map(m -> m.withGame(gameMap.computeIfAbsent(m.gameId(), k -> null)));
     }
 
     @Override

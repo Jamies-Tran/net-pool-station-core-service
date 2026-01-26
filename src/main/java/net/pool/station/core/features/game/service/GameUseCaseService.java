@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,6 +40,12 @@ public class GameUseCaseService implements GameUseCase {
     @Transactional(readOnly = true)
     public Page<Game> findAll(GameCriteria criteria, PageRequest pageRequest) {
         return queryService.findAll(criteria, pageRequest);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Game> findAllByIdIn(List<Long> gameIds) {
+        return queryService.findAllByGameIdIn(gameIds);
     }
 
     @Override

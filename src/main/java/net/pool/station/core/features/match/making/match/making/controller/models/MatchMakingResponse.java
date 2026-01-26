@@ -1,5 +1,6 @@
 package net.pool.station.core.features.match.making.match.making.controller.models;
 
+import net.pool.station.core.features.game.controller.models.GameResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.participant.MatchParticipantResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.resource.MatchMakingResourceResponse;
 import net.pool.station.core.features.match.making.match.making.controller.models.schedule.MatchScheduleResponse;
@@ -13,6 +14,7 @@ import java.util.List;
 public record MatchMakingResponse (
         Long matchMakingId,
         Long stationId,
+        Long gameId,
         String matchMakingCode,
         Integer limitParticipant,
         Integer totalPrice,
@@ -23,6 +25,7 @@ public record MatchMakingResponse (
         String statusName,
         Boolean allowJoin,
         Boolean allowView,
+        GameResponse game,
         List<MatchMakingSlotResponse> slots,
         List<MatchMakingResourceResponse> resources,
         List<MatchParticipantResponse> participants,

@@ -3,6 +3,7 @@ package net.pool.station.core.domain.match.making;
 import lombok.With;
 import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.domain.game.Game;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
 import net.pool.station.core.domain.match.participant.MatchParticipant;
@@ -45,6 +46,7 @@ public record MatchMaking(
         LocalDateTime createdAt,
         @With Boolean allowJoin,
         @With Boolean allowView,
+        @With Game game,
         @With List<MatchMakingSlot> slots,
         @With List<MatchMakingResource> resources,
         @With List<MatchParticipant> participants,

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,5 +30,9 @@ public class GameQueryService {
     protected Page<Game> findAll(GameCriteria criteria, PageRequest pageRequest) {
         return repository.findAll(criteria, pageRequest)
                 .map(mapper::toDto);
+    }
+
+    protected List<Game> findAllByGameIdIn(List<Long> gameIds) {
+        return mapper.toDto(repository.findAllByGameIdIn(gameIds));
     }
 }
