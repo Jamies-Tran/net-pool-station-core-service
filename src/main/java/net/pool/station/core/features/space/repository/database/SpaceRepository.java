@@ -11,9 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface SpaceRepository extends JpaRepository<SpaceEntity, Long> {
-    Boolean existsByTypeCode(String typeCode);
+    Boolean existsByTypeCodeAndDeletedFalse(String typeCode);
 
-    Boolean existsByTypeName(String typeName);
+    Boolean existsByTypeNameAndDeletedFalse(String typeName);
 
     @Query("""
         SELECT s
