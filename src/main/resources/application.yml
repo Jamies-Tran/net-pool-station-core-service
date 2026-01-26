@@ -32,11 +32,10 @@ spring:
           starttls:
             enable: true
   quartz:
-    job-store-type: jdbc
-    jdbc:
-      initialize-schema: never
+    job-store-type: memory
+
+
     properties:
-      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
       org.quartz.scheduler.instanceId: AUTO
       org.quartz.threadPool.threadCount: 10
   profiles:
