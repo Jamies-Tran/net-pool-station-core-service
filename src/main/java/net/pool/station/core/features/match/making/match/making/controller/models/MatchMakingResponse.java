@@ -15,6 +15,8 @@ public record MatchMakingResponse (
         Long matchMakingId,
         Long stationId,
         Long gameId,
+        String paymentMethodCode,
+        String paymentMethodName,
         String matchMakingCode,
         Integer limitParticipant,
         Integer totalPrice,
