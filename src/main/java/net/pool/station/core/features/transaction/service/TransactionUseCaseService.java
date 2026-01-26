@@ -310,6 +310,13 @@ public class TransactionUseCaseService implements TransactionUseCase {
                     .statusName(EPaymentStatus.PAID.getName())
                     .build();
             Transaction savedTransaction = commandService.save(transaction);
+            WalletLedger walletLedger = WalletLedger.builder()
+                    .walletId(savedTransaction.walletId())
+                    .transactionId(savedTransaction.transactionId())
+                    .changeAmount(shareAmount)
+                    .chargedCommission(0)
+                    .build();
+            walletLedgerUseCase.save(walletLedger, true);
 
         } else {
             Transaction transaction = Transaction.builder()
