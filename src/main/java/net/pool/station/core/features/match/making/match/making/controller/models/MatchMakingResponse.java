@@ -18,6 +18,7 @@ public record MatchMakingResponse (
         String matchMakingCode,
         Integer limitParticipant,
         Integer totalPrice,
+        Integer totalDeposit,
         LocalDate startAt,
         LocalDate expiredAt,
         LocalDateTime playAt,

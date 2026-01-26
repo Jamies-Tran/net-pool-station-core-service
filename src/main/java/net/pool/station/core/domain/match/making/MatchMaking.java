@@ -3,6 +3,7 @@ package net.pool.station.core.domain.match.making;
 import lombok.With;
 import net.pool.station.core.bootstrap.enums.EResourceType;
 import net.pool.station.core.bootstrap.utils.MyObjectUtils;
+import net.pool.station.core.bootstrap.utils.MyPaymentUtils;
 import net.pool.station.core.domain.game.Game;
 import net.pool.station.core.domain.match.making.resource.MatchMakingResource;
 import net.pool.station.core.domain.match.making.slot.MatchMakingSlot;
@@ -41,6 +42,7 @@ public record MatchMaking(
         String statusCode,
         String statusName,
         @With Integer totalPrice,
+        Integer totalDeposit,
         LocalDateTime paidDepositAt,
         String createdBy,
         LocalDateTime createdAt,
@@ -63,6 +65,10 @@ public record MatchMaking(
 
         if (MyObjectUtils.isNotEmpty(schedules)) {
             numberOfHoldingDay = schedules.size();
+        }
+
+        if (MyObjectUtils.isNotEmpty(numberOfHoldingDay) && MyObjectUtils.isNotEmpty(totalPrice)) {
+            totalDeposit = MyPaymentUtils.calculateDeposit(totalPrice, numberOfHoldingDay);
         }
 
 
