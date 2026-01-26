@@ -22,7 +22,7 @@ public class SpaceCommandService {
     SpaceEntityMapper mapper;
 
     protected void save(Space space) {
-        validate(space, null);
+        //validate(space, null);
 
         repository.save(mapper.toEntity(space));
     }
@@ -31,7 +31,7 @@ public class SpaceCommandService {
         repository.findBySpaceId(spaceId)
                 .ifPresentOrElse(
                         foundSpace -> {
-                            validate(space, foundSpace);
+                            //validate(space, foundSpace);
                             mapper.update(foundSpace, space);
                             repository.save(foundSpace);
                         },
@@ -68,27 +68,27 @@ public class SpaceCommandService {
                 );
     }
 
-    private void validate(Space space, SpaceEntity exist) {
-        if (MyObjectUtils.isNotEmpty(exist)) {
-            if (MyObjectUtils.isNotEquals(space.typeCode(), exist.getTypeCode())
-                && repository.existsByTypeCode(space.typeCode())) {
-                throw new MyResourceDuplicateException("Mã space không được trùng");
-            }
-
-            if (MyObjectUtils.isNotEquals(space.typeName(), exist.getTypeName())
-                    && repository.existsByTypeName(space.typeName())) {
-                throw new MyResourceDuplicateException("Tên space không được trùng");
-            }
-        } else {
-            if (repository.existsByTypeCode(space.typeCode())) {
-                throw new MyResourceDuplicateException("Mã space không được trùng");
-            }
-
-            if (repository.existsByTypeName(space.typeName())) {
-                throw new MyResourceDuplicateException("Tên space không được trùng");
-            }
-        }
-
-
-    }
+//    private void validate(Space space, SpaceEntity exist) {
+//        if (MyObjectUtils.isNotEmpty(exist)) {
+//            if (MyObjectUtils.isNotEquals(space.typeCode(), exist.getTypeCode())
+//                && repository.existsByTypeCode(space.typeCode())) {
+//                throw new MyResourceDuplicateException("Mã space không được trùng");
+//            }
+//
+//            if (MyObjectUtils.isNotEquals(space.typeName(), exist.getTypeName())
+//                    && repository.existsByTypeName(space.typeName())) {
+//                throw new MyResourceDuplicateException("Tên space không được trùng");
+//            }
+//        } else {
+//            if (repository.existsByTypeCode(space.typeCode())) {
+//                throw new MyResourceDuplicateException("Mã space không được trùng");
+//            }
+//
+//            if (repository.existsByTypeName(space.typeName())) {
+//                throw new MyResourceDuplicateException("Tên space không được trùng");
+//            }
+//        }
+//
+//
+//    }
 }
