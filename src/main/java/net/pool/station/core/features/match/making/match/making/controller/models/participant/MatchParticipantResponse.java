@@ -17,6 +17,7 @@ public record MatchParticipantResponse(
         String readyStatusCode,
         String readyStatusName,
         Integer shareAmount,
+        Integer paidDeposit,
         String statusCode,
         String statusName,
         AccountResponse account,
